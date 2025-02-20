@@ -1,0 +1,170 @@
+{
+  "pages": [
+    {
+      "path": "pages/recommend/recommend",
+      "style": {
+        "navigationStyle": "custom", // 隐藏默认导航
+        "navigationBarTitleText": "推荐"
+      }
+    },
+    {
+      "path": "pages/meetting/meetting",
+      "style": {
+        "navigationBarTitleText": "会议"
+      }
+    },
+    {
+      "path": "pages/mine/mine",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/mine/myInfo",
+      "style": {
+        "navigationBarTitleText": "我的资料"
+      }
+    },
+    {
+      "path": "pages/mine/aihelper",
+      "style": {
+        "navigationBarTitleText": "AI小助手"
+      }
+    },
+    {
+      "path": "pages/mine/note",
+      "style": {
+        "navigationBarTitleText": "我的笔记"
+      }
+    },
+    {
+      "path": "pages/mine/record",
+      "style": {
+        "navigationBarTitleText": "录制"
+      }
+    },
+    {
+      "path": "pages/mine/meeting",
+      "style": {
+        "navigationBarTitleText": "个人会议室"
+      }
+    },
+    {
+      "path": "pages/mine/aboutUs",
+      "style": {
+        "navigationBarTitleText": "关于我们"
+      }
+    },
+    {
+      "path": "pages/mine/accountSecurity",
+      "style": {
+        "navigationBarTitleText": "账号与安全"
+      }
+    },
+    {
+      "path": "pages/mine/meetingSetting",
+      "style": {
+        "navigationBarTitleText": "会议设置"
+      }
+    },
+    {
+      "path": "pages/mine/message",
+      "style": {
+        "navigationBarTitleText": "个人消息"
+      }
+    },
+    {
+      "path": "pages/search/search",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/meetting/meetting",
+        "text": "会议",
+        "iconPath": "/src/static/icons/tab/meetting.png",
+        "selectedIconPath": "/src/static/icons/tab/meetting-selected.png"
+      },
+      {
+        "pagePath": "pages/recommend/recommend",
+        "text": "推荐",
+        "iconPath": "/src/static/icons/tab/recommend.png",
+        "selectedIconPath": "/src/static/icons/tab/recommend-selected.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "/src/static/icons/tab/mine.png",
+        "selectedIconPath": "/src/static/icons/tab/mine-selected.png"
+      }
+    ]
+  },
+  "subpackages": [
+    {
+      "root": "src",
+      "pages": [
+        {
+          "path": "roomkit/pages/home",
+          "style": {
+            "navigationBarTitleText": "home"
+          }
+        },
+        {
+          "path": "roomkit/pages/room",
+          "style": {
+            "navigationBarTitleText": "room",
+            "navigationStyle": "custom",
+            "app-plus": {
+              "titleView": false
+            }
+          }
+        },
+        {
+          "path": "roomkit/TUIKit/components/TUIChat/index",
+          "style": {
+            "navigationBarTitleText": "聊天"
+          }
+        },
+        {
+          "path": "roomkit/TUIKit/components/TUIChat/video-play",
+          "style": {
+            "navigationBarTitleText": "腾讯云 IM"
+          }
+        }
+      ]
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#5a85ff",
+    "backgroundColor": "#5a85ff",
+    "app-plus": {
+      "titleView": false
+    }
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      // uni-ui 规则如下配置
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
+  },
+  "condition": {
+    //模式配置，仅开发期间生效
+    "current": 0, //当前激活的模式(list 的索引项)
+    "list": [
+      {
+        "name": "", //模式名称
+        "path": "", //启动页面，必选
+        "query": "" //启动参数，在页面的onLoad函数里面得到
+      }
+    ]
+  }
+}
