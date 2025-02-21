@@ -78,6 +78,13 @@
       "style": {
         "navigationBarTitleText": "搜索"
       }
+    },
+    {
+    	"path" : "pages/mine/remind",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "参会提醒"
+    	}
     }
   ],
   "tabBar": {
