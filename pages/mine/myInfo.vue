@@ -52,8 +52,8 @@ interface UserInfo {
 const userInfo = ref<UserInfo>({
 	username: '詹宇航',
 	signature: '山风平平，湖水仄仄',
-	backgroundUrl: '/static/default-bg.jpg',
-	avatarUrl: '/src/static/icons/tab/ok.png'  // 默认头像
+	backgroundUrl: '/src/static/images/default-bg.jpg',
+	avatarUrl: '/src/static/images/ok.png'  // 默认头像
 });
 
 // 修改用户名

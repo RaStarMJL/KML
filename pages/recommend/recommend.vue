@@ -32,7 +32,7 @@ interface ApiResponse {
   };
 }
 
-const defaultAvatar = "/src/static/icons/tab/ok.png";
+const defaultAvatar = "/src/static/images/ok.png";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
