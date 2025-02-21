@@ -10,10 +10,11 @@ interface UserInfo {
 }
 
 const userInfo = ref<UserInfo>({
-  avatarUrl: "/src/static/images//ok.png",
-  username: "zyh",
-  id: "0001",
-  signature: "山风平平，湖水仄仄",
+
+  avatarUrl: '/src/static/images/ok.png',
+  username: 'zyh',
+  id: '0001',
+  signature:'山风平平，湖水仄仄',
 });
 
 // 获取用户信息
@@ -22,7 +23,7 @@ const getUserInfo = async () => {
     const res = await TUIUserService.getUserProfile();
     if (res?.data) {
       userInfo.value = {
-        avatarUrl: res.data.avatar || "/src/static/icons/tab/ok.png",
+        avatarUrl: res.data.avatar || '/src/static/images/ok.png', 
         username: res.data.nick || res.data.id,
         id: res.data.id,
         signature: res.data.signature || "这个人很懒什么都没留下..",
@@ -46,6 +47,13 @@ const myInfo = () => {
     url: "/pages/mine/myInfo",
   });
 };
+
+//参会提醒
+const remind = () =>{
+	uni.navigateTo({
+		url:'/pages/mine/remind'
+	})
+}
 
 //小功能页面跳转
 const To = (page: string): void => {
@@ -126,9 +134,11 @@ getUserInfo();
     </div>
 
     <!-- 会议信息 -->
-    <div class="meeting-info">
-      <text>参会提醒</text>
-      <uni-icons type="arrowright" size="20"></uni-icons>
+
+    <div class="meeting-info" @click="remind">
+        <text>参会提醒</text>
+        <uni-icons type="arrowright" size="20"></uni-icons>
+
     </div>
 
     <!-- 功能区域 -->
