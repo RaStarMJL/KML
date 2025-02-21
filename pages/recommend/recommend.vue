@@ -32,7 +32,7 @@ interface ApiResponse {
   };
 }
 
-const defaultAvatar = "/src/static/icons/tab/ok.png";
+const defaultAvatar = "/src/static/images/ok.png";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
@@ -57,6 +57,7 @@ const onScroll = (e: any) => {
 };
 // 返回顶部方法
 const backToTop = () => {
+  console.log(222);
   uni.pageScrollTo({
     scrollTop: 0,
     duration: 300,
@@ -130,6 +131,13 @@ const goToSearch = () => {
     url: "/pages/search/search",
   });
 };
+
+const goToMine = () => {
+  console.log("111");
+  uni.switchTab({
+    url: "/pages/mine/mine",
+  });
+};
 </script>
 
 <template>
@@ -140,12 +148,12 @@ const goToSearch = () => {
     <view class="header">
       <!-- 搜索栏 -->
       <view class="search-bar">
-        <image :src="defaultAvatar" class="user-avatar"></image>
+        <image :src="defaultAvatar" class="user-avatar" @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">
           <uni-icons type="search" size="20" color="#666"></uni-icons>
           <input type="text" placeholder="搜索会议" />
         </view>
-        <uni-icons type="videocam" size="24" color="#666"></uni-icons>
+        <!-- <uni-icons type="videocam" size="24" color="#666"></uni-icons> -->
         <uni-icons type="email" size="24" color="#666"></uni-icons>
       </view>
 

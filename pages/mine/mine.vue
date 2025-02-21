@@ -1,107 +1,96 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { TUIUserService } from '@tencentcloud/chat-uikit-engine';
+import { ref } from "vue";
+import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
 
 interface UserInfo {
   avatarUrl: string;
   username: string;
   id: string;
-  signature:string;
+  signature: string;
 }
 
 const userInfo = ref<UserInfo>({
-  avatarUrl: '/src/static/icons/tab/ok.png',
-  username: 'zyh',
-  id: '0001',
-  signature:'山风平平，湖水仄仄',
+  avatarUrl: "/src/static/images//ok.png",
+  username: "zyh",
+  id: "0001",
+  signature: "山风平平，湖水仄仄",
 });
-
-
 
 // 获取用户信息
 const getUserInfo = async () => {
   try {
     const res = await TUIUserService.getUserProfile();
-    if(res?.data) {
+    if (res?.data) {
       userInfo.value = {
-        avatarUrl: res.data.avatar || '/src/static/icons/tab/ok.png',  
+        avatarUrl: res.data.avatar || "/src/static/icons/tab/ok.png",
         username: res.data.nick || res.data.id,
         id: res.data.id,
-		    signature:res.data.signature || '这个人很懒什么都没留下..'
+        signature: res.data.signature || "这个人很懒什么都没留下..",
       };
     }
-  } catch(error) {
-    console.warn('获取用户信息失败:', error);
+  } catch (error) {
+    console.warn("获取用户信息失败:", error);
   }
 };
 
 //消息
-const message = () =>{
-  uni.navigateTo(
-    {
-      url:'/pages/mine/message'
-    }
-  )
-}
-
+const message = () => {
+  uni.navigateTo({
+    url: "/pages/mine/message",
+  });
+};
 
 //我的资料
 const myInfo = () => {
   uni.navigateTo({
-    url: '/pages/mine/myInfo'
-  });
-}
-
-//小功能页面跳转
-const To = (page:string):void =>{
-  uni.navigateTo(
-    {
-      url:'/pages/mine/'+ page
-    }
-  )
-
-}
-
-//会议设置
-const meetingSetting = () =>{
-  uni.navigateTo({
-    url:'/pages/mine/meetingSetting'
-  })
-}
-
-//账号与安全
-const accountSecurity = () =>{
-  uni.navigateTo({
-    url:'/pages/mine/accountSecurity'
-  })
-}
-
-//关于我们
-const aboutUs = () =>{
-  uni.navigateTo({
-    url:'/pages/mine/aboutUs'
-  })
-}
-// 退出登录
-const handleLogout = () => {
-  uni.showModal({
-    title: '提示',
-    content: '确定要退出登录吗?',
-    success: (res: UniApp.ShowModalRes) => {
-      if(res.confirm) {
-        uni.reLaunch({
-          url: '/pages/login/login'//返回到登录页面
-        });
-      }
-    }
+    url: "/pages/mine/myInfo",
   });
 };
 
+//小功能页面跳转
+const To = (page: string): void => {
+  uni.navigateTo({
+    url: "/pages/mine/" + page,
+  });
+};
+
+//会议设置
+const meetingSetting = () => {
+  uni.navigateTo({
+    url: "/pages/mine/meetingSetting",
+  });
+};
+
+//账号与安全
+const accountSecurity = () => {
+  uni.navigateTo({
+    url: "/pages/mine/accountSecurity",
+  });
+};
+
+//关于我们
+const aboutUs = () => {
+  uni.navigateTo({
+    url: "/pages/mine/aboutUs",
+  });
+};
+// 退出登录
+const handleLogout = () => {
+  uni.showModal({
+    title: "提示",
+    content: "确定要退出登录吗?",
+    success: (res: UniApp.ShowModalRes) => {
+      if (res.confirm) {
+        uni.reLaunch({
+          url: "/pages/login/login", //返回到登录页面
+        });
+      }
+    },
+  });
+};
 
 // 页面加载时获取用户信息
 getUserInfo();
-
-
 </script>
 
 <template>
@@ -111,22 +100,25 @@ getUserInfo();
       <!-- 添加一个包装器来实现相对定位 -->
       <div class="header-wrapper">
         <!-- 消息图标和我的资料 -->
-        <div class='header-right'>
-          <div class='message-icon' @click="message">
-            <uni-icons custom-prefix="iconfont" type="email" size="30"></uni-icons>
+        <div class="header-right">
+          <div class="message-icon" @click="message">
+            <uni-icons
+              custom-prefix="iconfont"
+              type="email"
+              size="30"></uni-icons>
           </div>
           <div class="profile-link" @click="myInfo">
             <text>我的资料</text>
             <uni-icons type="arrowright" size="14" color="#666"></uni-icons>
           </div>
         </div>
-        
+
         <div class="user-info">
           <image :src="userInfo.avatarUrl" class="avatar"></image>
           <div class="info-right">
             <text class="username">{{ userInfo.username }}</text>
             <div class="user-type">
-              <text class="user-signature">签名：{{userInfo.signature}}</text>
+              <text class="user-signature">签名：{{ userInfo.signature }}</text>
             </div>
           </div>
         </div>
@@ -135,21 +127,26 @@ getUserInfo();
 
     <!-- 会议信息 -->
     <div class="meeting-info">
-        <text>参会提醒</text>
-        <uni-icons type="arrowright" size="20"></uni-icons>
+      <text>参会提醒</text>
+      <uni-icons type="arrowright" size="20"></uni-icons>
     </div>
 
     <!-- 功能区域 -->
     <div class="feature-grid">
-		
-      <div class="feature-item" v-for="(item, index) in [
-		    {icon: 'ai', text: 'AI小助手',page:'aihelper'},
-        {icon: 'meeting', text: '个人会议室',page:'meeting'},
-        {icon: 'record', text: '录制',page:'record'},
-        {icon: 'note', text: '我的笔记',page:'note'},
-      ]" :key="index">
-        <image :src="`/src/static/icons/tab/${item.icon}.svg`" class="feature-icon"  @click =To(item.page)></image>
-        <text class="feature-text" @click =To(item.page)>{{ item.text }}</text>
+      <div
+        class="feature-item"
+        v-for="(item, index) in [
+          { icon: 'ai', text: 'AI小助手', page: 'aihelper' },
+          { icon: 'meeting', text: '个人会议室', page: 'meeting' },
+          { icon: 'record', text: '录制', page: 'record' },
+          { icon: 'note', text: '我的笔记', page: 'note' },
+        ]"
+        :key="index">
+        <image
+          :src="`/src/static/icons/tab/${item.icon}.svg`"
+          class="feature-icon"
+          @click="To(item.page)"></image>
+        <text class="feature-text" @click="To(item.page)">{{ item.text }}</text>
       </div>
     </div>
 
@@ -161,7 +158,7 @@ getUserInfo();
       </div>
       <div class="settings-item" @click="accountSecurity">
         <text>账号与安全</text>
-       <uni-icons type="arrowright" size="20"></uni-icons>
+        <uni-icons type="arrowright" size="20"></uni-icons>
       </div>
       <div class="settings-item" @click="aboutUs">
         <text>关于我们</text>
@@ -173,13 +170,10 @@ getUserInfo();
     <div class="logout-wrapper">
       <button class="logout-btn" @click="handleLogout">退出登录</button>
     </div>
-	
   </div>
 </template>
 
 <style scoped>
-
-	
 .user-info-container {
   min-height: 100vh;
   background-color: #f5f6f7;
@@ -273,7 +267,7 @@ getUserInfo();
   border-radius: 12rpx;
   padding: 30rpx;
   margin-bottom: 20rpx;
-  display: flex;  
+  display: flex;
   align-items: center;
   justify-content: space-between;
 }
@@ -353,8 +347,6 @@ getUserInfo();
   align-items: center;
 }
 
-
-
 .right-icon {
   width: 32rpx;
   height: 32rpx;
@@ -387,7 +379,6 @@ getUserInfo();
   border-radius: 12rpx;
   border: none;
 }
-
 
 .meeting-title {
   display: flex;

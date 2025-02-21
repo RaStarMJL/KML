@@ -3,41 +3,42 @@
     <PreConferenceView
       :user-info="userInfo"
       @on-create-room="handleCreateRoom"
-      @on-enter-room="handleEnterRoom"
-    ></PreConferenceView>
+      @on-enter-room="handleEnterRoom"></PreConferenceView>
   </div>
 </template>
 
 <script setup lang="ts">
-import { TUILogin } from '@tencentcloud/tui-core';
-import PreConferenceView from '../TUIRoom/preConference.vue';
-import router from '../../router';
-import { reactive } from 'vue';
-import { getBasicInfo } from '../config/basic-info-config';
-import { useBasicStore } from '../TUIRoom/stores/basic';
-import { roomChatInit } from '../TUIKit';
+import { TUILogin } from "@tencentcloud/tui-core";
+import PreConferenceView from "../TUIRoom/preConference.vue";
+import router from "../../router";
+import { reactive } from "vue";
+import { getBasicInfo } from "../config/basic-info-config";
+import { useBasicStore } from "../TUIRoom/stores/basic";
+import { roomChatInit } from "../TUIKit";
 
 const userInfo = reactive({
-  userId: '',
-  userName: '',
-  avatarUrl: '',
+  userId: "",
+  userName: "",
+  avatarUrl: "",
 });
 
 const basicStore = useBasicStore();
 
-
 function setTUIRoomData(action: string, roomOption: Record<string, any>) {
-  uni.setStorageSync('tuiRoom-roomInfo', JSON.stringify({
-    action,
-    ...roomOption,
-  }));
+  uni.setStorageSync(
+    "tuiRoom-roomInfo",
+    JSON.stringify({
+      action,
+      ...roomOption,
+    })
+  );
 }
 
 /**
  * Generate room number when creating a room
  *
  * 创建房间时生成房间号
-**/
+ **/
 async function generateRoomId(): Promise<string> {
   const roomId = String(Math.ceil(Math.random() * 1000000));
   return roomId;
@@ -47,12 +48,12 @@ async function generateRoomId(): Promise<string> {
  * Processing Click [Create Room]
  *
  * 处理点击【创建房间】
-**/
+ **/
 async function handleCreateRoom(roomOption: Record<string, any>) {
-  setTUIRoomData('createRoom', roomOption);
+  setTUIRoomData("createRoom", roomOption);
   const roomId = await generateRoomId();
   router.replace({
-    path: 'room',
+    path: "room",
     query: {
       roomId,
     },
@@ -63,11 +64,11 @@ async function handleCreateRoom(roomOption: Record<string, any>) {
  * Processing Click [Enter Room]
  *
  * 处理点击【进入房间】
-**/
+ **/
 async function handleEnterRoom(roomOption: Record<string, any>) {
-  setTUIRoomData('enterRoom', roomOption);
+  setTUIRoomData("enterRoom", roomOption);
   router.replace({
-    path: 'room',
+    path: "room",
     query: {
       roomId: roomOption.roomId,
     },
@@ -75,13 +76,14 @@ async function handleEnterRoom(roomOption: Record<string, any>) {
 }
 
 async function handleInit() {
-  uni.removeStorageSync('tuiRoom-roomInfo');
-  uni.removeStorageSync('tuiRoom-userInfo');
+  uni.removeStorageSync("tuiRoom-roomInfo");
+  uni.removeStorageSync("tuiRoom-userInfo");
   const currentUserInfo = getBasicInfo();
+  console.log({ "currentUserInfo?.userSig": currentUserInfo?.userSig });
   if (!currentUserInfo) {
     return;
   }
-  uni.setStorageSync('tuiRoom-userInfo', JSON.stringify(currentUserInfo));
+  uni.setStorageSync("tuiRoom-userInfo", JSON.stringify(currentUserInfo));
   basicStore.setBasicInfo(currentUserInfo);
   userInfo.userName = currentUserInfo.userName;
   userInfo.avatarUrl = currentUserInfo.avatarUrl;
@@ -89,11 +91,11 @@ async function handleInit() {
   const { sdkAppId, userSig } = currentUserInfo;
 
   TUILogin.login({
-	   SDKAppID: sdkAppId,
-	   userID: userInfo.userId,
-	   userSig,
-	   useUploadPlugin: true, // If you need to send rich media messages, please set to true.
-	 });
+    SDKAppID: sdkAppId,
+    userID: userInfo.userId,
+    userSig,
+    useUploadPlugin: true, // If you need to send rich media messages, please set to true.
+  });
   roomChatInit();
 }
 
@@ -101,7 +103,6 @@ handleInit();
 </script>
 
 <style lang="scss" scoped>
-
 .tui-theme-black.home-container {
   --background: var(--background-color-1);
 }
@@ -131,7 +132,8 @@ handleInit();
     width: 100%;
     padding: 22px 24px;
 
-    .left-header, .right-header {
+    .left-header,
+    .right-header {
       display: flex;
       align-items: center;
 
