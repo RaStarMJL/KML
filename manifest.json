@@ -20,7 +20,9 @@
         "modules" : {
             "Camera" : {},
             "Record" : {},
-            "VideoPlayer" : {}
+            "VideoPlayer" : {},
+            "Geolocation" : {},
+            "Maps" : {}
         },
         /* 应用发布信息 */
         "distribute" : {
@@ -50,7 +52,22 @@
             },
             /* SDK配置 */
             "sdkConfigs" : {
-                "ad" : {}
+                "ad" : {},
+                "geolocation" : {
+                    "amap" : {
+                        "name" : "amapnMFx5Ifa",
+                        "__platform__" : [ "android" ],
+                        "appkey_ios" : "17763d8f8be5c3b554750922ccc07427",
+                        "appkey_android" : "17763d8f8be5c3b554750922ccc07427"
+                    }
+                },
+                "maps" : {
+                    "amap" : {
+                        "name" : "amapnMFx5Ifa",
+                        "appkey_ios" : "17763d8f8be5c3b554750922ccc07427",
+                        "appkey_android" : "17763d8f8be5c3b554750922ccc07427"
+                    }
+                }
             },
             "icons" : {
                 "android" : {
