@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { recommendListdata, swiperListdata } from "./assets/data";
-
+import tabbar from "../components/tabbar/tabbar.vue";
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -49,10 +49,8 @@ const onScroll = (e: any) => {
   // event.detail.scrollTop 是滚动距离
   if (e.detail.scrollTop > 800) {
     showBackTop.value = true;
-    console.log("scroll-view滚动距离大于300像素");
   } else {
     showBackTop.value = false;
-    console.log("scroll-view滚动距离小于或等于300像素");
   }
 };
 // 返回顶部方法
@@ -227,6 +225,9 @@ const goTomessage = () => {
         {{ finish ? "没有更多数据~" : "正在加载..." }}
       </view>
     </scroll-view>
+
+    <!-- 底部导航栏 -->
+    <tabbar currentPath="/pages/recommend/recommend"></tabbar>
 
     <!-- 简单的返回顶部按钮 -->
     <view v-show="showBackTop" class="back-to-top" @click="backToTop">

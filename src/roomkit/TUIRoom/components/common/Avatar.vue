@@ -3,14 +3,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import defaultAvatar from '../../assets/imgs/avatar.png';
+import { ref, computed } from "vue";
+import defaultAvatar from "../../assets/imgs/avatar.png";
 
 interface Props {
   imgSrc?: string | undefined;
   size: number;
 }
 const props = defineProps<Props>();
+console.log(props);
 const avatarSrc = computed(() => {
   if (isError.value) {
     return defaultAvatar;
@@ -26,7 +27,7 @@ function handleError() {
 
 <style lang="scss" scoped>
 .avatar {
-		flex: 1;
-    border-radius: 100%;
-  }
+  flex: 1;
+  border-radius: 100%;
+}
 </style>

@@ -1,14 +1,69 @@
 <template>
   <div class="control-container">
     <div v-if="!showRoomDetail" class="container-header">
-      <Logo class="container-icon" />
+      <!-- 背景lOGO -->
+      <!-- <Logo class="container-icon" style="background-color: red" /> -->
       <div class="container-bottom">
+        <!-- 加入房间按钮 -->
+        <div class="join-room2-body common-button-body">
+          <div class="join-room2 common-button" @tap="enterRoom">
+            <svg-icon class="enter-icon svg-icon" :icon="EnterRoomIcon" />
+          </div>
+          <span class="text"> 加入房间</span>
+        </div>
+        <!-- 创建房间按钮 -->
+        <div class="create-room2-body common-button-body" @tap="createRoom">
+          <div class="create-room2 common-button">
+            <svg-icon class="add-icon svg-icon" :icon="CreateRoomIcon" />
+          </div>
+          <span class="text"> 新建房间</span>
+        </div>
+        <!-- 预约会议按钮 -->
+        <div class="reserve-room2-body common-button-body" @tap="reserveRoom">
+          <div class="reserve-room2 common-button">
+            <svg-icon class="reserve-icon svg-icon" :icon="ReserveRoomIcon" />
+          </div>
+          <span class="text"> 预约会议</span>
+        </div>
+        <!-- 会议总结 / 会议回放 -->
+        <div class="summary-room2-body common-button-body" @tap="createRoom">
+          <div class="summary-room2 common-button">
+            <svg-icon
+              class="summary-icon svg-icon"
+              :icon="MeetingSummaryIcon" />
+          </div>
+          <span class="text"> 会议总结</span>
+        </div>
+      </div>
+      <!-- 历史会议 -->
+      <div class="history-meeting" style="width: 100vw; height: 300px">
+        <div
+          class="history-header"
+          style="width: 100%; height: 50px; position: relative">
+          <span
+            class="history-title"
+            style="
+              position: absolute;
+              right: 20px;
+              height: 30px;
+              width: 80px;
+              font-size: 14px;
+              line-height: 30px;
+              margin-top: 10px;
+              background-color: #f5f6f8;
+              text-align: center;
+              border-radius: 5px;
+            "
+            >历史会议 ></span
+          >
+        </div>
+      </div>
+      <!-- <div class="container-bottom">
         <div class="join-room" @tap="enterRoom">
           <svg-icon
             style="display: flex"
             class="enter-icon"
             :icon="EnterRoomIcon" />
-          <!-- <span class="title">加入房间</span> -->
           <span class="title">{{ t("Join Room") }}</span>
         </div>
         <div class="create-room" @tap="createRoom">
@@ -18,9 +73,13 @@
             :icon="CreateRoomIcon" />
           <span class="title">{{ t("New Room") }}</span>
         </div>
-      </div>
+      </div> -->
     </div>
-    <div v-if="showRoomDetail || hasGivenRoomId" class="room-detail">
+    <!-- 新建房间页面 -->
+    <div
+      v-if="showRoomDetail || hasGivenRoomId"
+      class="room-detail"
+      :style="{ top: safeAreaInsets.top + 'px' }">
       <div class="room-detail-header">
         <div class="close-icon" @tap="handleClose">
           <svg-icon
@@ -95,7 +154,11 @@
         }}</span>
       </div>
     </div>
-    <div v-if="showMoreType" class="room-choose-mobile">
+    <!-- 加入房间页面 -->
+    <div
+      v-if="showMoreType"
+      class="room-choose-mobile"
+      :style="{ top: safeAreaInsets.top + 'px' }">
       <div
         ref="moreTypeRef"
         :class="[
@@ -134,12 +197,18 @@ import { useRoomStore } from "../../../stores/room";
 import useRoomControl from "./useRoomControlHooks";
 import CreateRoomIcon from "../../../assets/icons/CreateRoomIcon.svg";
 import EnterRoomIcon from "../../../assets/icons/EnterRoomIcon.svg";
+import ReserveRoomIcon from "../../../assets/icons/ReserveRoomIcon.svg";
+import MeetingSummaryIcon from "../../../assets/icons/MeetingSummaryIcon.svg";
 import ArrowStrokeBackIcon from "../../../assets/icons/ArrowStrokeBackIcon.svg";
 import ArrowStrokeSelectDownIcon from "../../../assets/icons/ArrowStrokeSelectDownIcon.svg";
 import Logo from "../../common/Logo.vue";
 import TUIMessage from "../../common/base/Message/index";
-
+import func from "../../../../../../vue-temp/vue-editor-bridge";
+import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
 const { t } = useRoomControl();
+
+// 距离手机头部的安全距离
+const { safeAreaInsets } = uni.getSystemInfoSync();
 
 const moreTypeRef = ref();
 const roomStore = useRoomStore();
@@ -190,6 +259,13 @@ function createRoom() {
   showRoomDetail.value = !showRoomDetail.value;
   isJoinRoom.value = false;
 }
+
+function reserveRoom() {
+  uni.navigateTo({
+    url: `/src/roomkit/components/reservemeetings`,
+  });
+}
+
 function enterRoom() {
   showRoomDetail.value = !showRoomDetail.value;
   isJoinRoom.value = true;
@@ -235,6 +311,7 @@ function handleDocumentClick(event: MouseEvent) {
 }
 
 function handleRoomOption(type: string) {
+  console.log(11111);
   const roomParam = getRoomParam();
   switch (type) {
     case "Join":
@@ -274,14 +351,14 @@ onUnmounted(() => {
 .control-container {
   width: 100vw;
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  // display: flex;
+  // flex-direction: column;
   align-items: center;
   justify-content: space-around;
 }
 
 .container-header {
-  padding-top: 80px;
+  padding-top: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -294,11 +371,39 @@ onUnmounted(() => {
 }
 
 .container-bottom {
-  padding-top: 250px;
+  width: 100vw;
+  height: 150px;
+  /* background-color: pink; */
   display: flex;
-  flex-direction: column;
-  width: 210px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  position: relative; /* 设置为相对定位容器 */
 }
+
+// .container-bottom2 {
+//   padding: 20px;
+// }
+
+// .container-bottom2-cld {
+//   height: 60px;
+//   width: 90vw;
+//   display: flex;
+//   flex-direction: row;
+//   justify-content: space-between;
+// }
+
+// .join-room2 {
+//   width: 100px;
+//   height: 60px;
+//   background-color: yellow;
+// }
+
+// .create-room2 {
+//   width: 100px;
+//   height: 60px;
+//   background-color: yellow;
+// }
 
 .create-room {
   background-image: linear-gradient(-45deg, #006eff 0%, #0c59f2 100%);
@@ -313,8 +418,8 @@ onUnmounted(() => {
 }
 
 .add-icon {
-  width: 22px;
-  height: 22px;
+  width: 60px;
+  height: 60px;
 }
 
 .join-room {
@@ -329,8 +434,8 @@ onUnmounted(() => {
 }
 
 .enter-icon {
-  width: 22px;
-  height: 22px;
+  width: 60px;
+  height: 60px;
 }
 
 .title {
@@ -561,5 +666,55 @@ onUnmounted(() => {
     border: 0 solid rgba(0, 0, 0, 0.85);
     box-shadow: 0 2px 4px 0 #d1d1d1;
   }
+}
+
+.svg-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.common-button {
+  width: 100%;
+  height: 65px;
+  // background-color: #0370fe;
+  background: linear-gradient(45deg, #0370fe 0%, #1dd7dd 100%);
+  border-radius: 20px;
+  display: flex; /* 设置为Flex容器 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+
+.common-button-body {
+  width: 65px;
+  height: 120px;
+  /* background-color: red; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.text {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.container-bottom::before,
+.container-bottom::after {
+  content: ""; /* 必须有内容，即使是空字符串 */
+  position: absolute; /* 绝对定位 */
+  left: 50%; /* 从容器中心开始 */
+  transform: translateX(-50%); /* 水平居中 */
+  width: 90%; /* 边框的长度为容器的80% */
+  border-top: 1px solid #f4f4f7; /* 顶部边框样式 */
+  border-bottom: 1px solid #f4f4f7; /* 底部边框样式 */
+}
+
+.container-bottom::before {
+  top: 0; /* 顶部边框位置 */
+}
+
+.container-bottom::after {
+  bottom: 0; /* 底部边框位置 */
 }
 </style>

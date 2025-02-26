@@ -2,4 +2,8 @@
 export default {};
 </script>
 
-<style></style>
+<style>
+/* .uni-tabbar {
+  height: 0 !important;
+} */
+</style>

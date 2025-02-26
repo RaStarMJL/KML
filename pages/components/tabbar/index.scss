@@ -1,0 +1,29 @@
+.content {
+  border-top: 1px solid #50545c;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  .tabber_box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: #ffffff;
+    padding-bottom: calc(
+      env(safe-area-inset-bottom) - 48rpx
+    ); // 适配iphoneX的底部
+    padding-bottom: calc(env(safe-area-inset-bottom) - 48rpx); /*兼容 IOS>11.2*/
+
+    image {
+      width: 56rpx;
+      height: 56rpx;
+      // margin-bottom: 16rpx;
+    }
+
+    .tabber_item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 28rpx;
+    }
+  }
+}
