@@ -4,14 +4,14 @@ import { recommendListdata, swiperListdata } from "./assets/data";
 
 // 定义轮播图数据接口
 interface SwiperItem {
-  id: number;
+  meetingId: string;
   image: string;
   title: string;
 }
 
 // 定义推荐列表数据接口
 interface RecommendItem {
-  id: number;
+  meetingId: string;
   title: string;
   views: string;
   duration: string;
@@ -133,11 +133,25 @@ const goToSearch = () => {
 };
 
 const goToMine = () => {
-  console.log("111");
+  console.log("跳转到-‘我的’");
   uni.switchTab({
     url: "/pages/mine/mine",
   });
 };
+
+const goTomeetingshow = (meetingid:string) =>{
+	console.log("跳转到-'会议信息'")
+	uni.navigateTo({
+		url:'/pages/recommend/meetingshow?meetingId='+ meetingid
+	})
+}
+
+const goTomessage = () => {
+  uni.navigateTo({
+    url: "/pages/mine/message",
+  });
+};
+
 </script>
 
 <template>
@@ -154,7 +168,7 @@ const goToMine = () => {
           <input type="text" placeholder="搜索会议" />
         </view>
         <!-- <uni-icons type="videocam" size="24" color="#666"></uni-icons> -->
-        <uni-icons type="email" size="24" color="#666"></uni-icons>
+        <uni-icons type="email" size="24" color="#666" @click="goTomessage"></uni-icons>
       </view>
 
       <!-- 导航栏 -->
@@ -185,7 +199,7 @@ const goToMine = () => {
         :autoplay="true"
         interval="3000"
         duration="1000">
-        <swiper-item v-for="item in swiperList" :key="item.id">
+        <swiper-item v-for="item in swiperList" :key="item.meetingId">
           <view class="banner-item">
             <image :src="item.image" mode="aspectFill"></image>
             <view class="banner-title">{{ item.title }}</view>
@@ -195,10 +209,10 @@ const goToMine = () => {
 
       <!-- 会议推荐网格 -->
       <view class="meeting-grid">
-        <view class="meeting-item" v-for="item in recommendList" :key="item.id">
-          <view class="meeting-cover">
+        <view class="meeting-item" v-for="item in recommendList" :key="item.meetingId">
+          <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
             <image :src="item.cover" mode="aspectFill"></image>
-            <view class="meeting-duration">{{ item.duration }}</view>
+           <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
           </view>
           <view class="meeting-info">
             <view class="meeting-title">{{ item.title }}</view>
