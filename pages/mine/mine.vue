@@ -14,11 +14,6 @@ const userInfo = ref<UserInfo>({
   username: "zyh",
   id: "0001",
   signature: "山风平平，湖水仄仄",
-
-  avatarUrl: "/src/static/images/ok.png",
-  username: "zyh",
-  id: "0001",
-  signature: "山风平平，湖水仄仄",
 });
 
 // 获取用户信息
