@@ -3,7 +3,7 @@
     {
       "path": "pages/recommend/recommend",
       "style": {
-        "navigationStyle": "custom", // 隐藏默认导航
+        "navigationStyle": "custom",
         "navigationBarTitleText": "推荐"
       }
     },
@@ -82,9 +82,15 @@
       }
     },
     {
-      "path": "pages/meetting/index",
+      "path": "pages/mine/remind",
       "style": {
-        "navigationBarTitleText": "test"
+        "navigationBarTitleText": "参会提醒"
+      }
+    },
+    {
+      "path": "pages/recommend/meetingshow",
+      "style": {
+        "navigationBarTitleText": "会议详情"
       }
     }
   ],

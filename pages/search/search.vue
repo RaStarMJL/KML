@@ -1,31 +1,25 @@
 <script setup lang="ts">
 import { ref } from "vue";
+const localuserid = "U1001";//uni.getStorageSync("userId");
+const localusername = "zyh";//uni.getStorageSync("username");
+
 const searchText = ref("");
 // 历史搜索记录
 const historyList = ref([
-  "泡小芙",
-  "grok3测试翻车",
-  "杨丞琳力挺妍希",
-  "赵露思开工状态",
 ]);
-
 // 猜你想搜
 const suggestList = ref([
-  "阿姨三角洲行动",
-  "迈入g7",
-  "组装厂密码门",
-  "江科网红先野",
 ]);
-
 // 热点推荐
 const hotList = ref([
-  { id: 1, title: "习近平：希望民企先富带共富", views: "12141万" },
-  { id: 2, title: "苹果发布iPhone 16e", views: "11774万" },
-  { id: 3, title: "乌民谈谈美使谈判：乌只是棋子", views: "11383万" },
-  { id: 4, title: "余承东直播尊贵技术发布会", views: "11275万" },
-  { id: 5, title: "哪吒2回应预售全球动画票房榜", views: "10427万" },
-  { id: 6, title: "刘诗诗将所持股权转让给吴奇隆", views: "10342万" },
-  { id: 7, title: "周星驰经纪人否认郑恺峰投资传闻", views: "9201万" },
+  { id: 1, title: "", views: "" },
+  { id: 2, title: "", views: "" },
+  { id: 3, title: "", views: "" },
+  { id: 4, title: "", views: "" },
+  { id: 5, title: "", views: "" },
+  { id: 6, title: "", views: "" },
+  { id: 7, title: "", views: "" },
+  { id: 8, title: "", views: "" },
 ]);
 
 // 清除历史记录
@@ -47,6 +41,88 @@ const handleSearch = () => {
   console.log("搜索", searchText.value);
   searchText.value = "";
 };
+
+//获取热点
+const getHotList = () => {
+  uni.request({
+    url: "http://192.168.31.115:5000/usersearch?UserId=" + localuserid,
+    method: "GET",
+    success: (res) => {
+      console.log("成功获取到热点");
+      console.log(res);
+      res.data.data.forEach((item: any,index:number) => {
+       if(hotList.value[index]){
+        hotList.value[index].title = item.searchQuery;
+        hotList.value[index].views = item.id;
+       }
+      });
+    },
+    fail: (err) => {
+      console.log("获取热点失败");
+    }
+  });
+};
+
+//获取猜你想搜
+const getSuggestList = () => {
+  uni.request({
+    url: "http://192.168.31.115:5000/usersearch?UserId=" + localuserid,
+    method: "GET",
+    success:(res:any)=>{
+      console.log("成功获取到猜你想搜");
+      console.log(res);
+      res.data.data.forEach((item: any) => {
+        suggestList.value.push(item.searchQuery);
+      });
+    },
+    fail: (err) => {
+      console.log("获取猜你想搜失败");
+    }
+  });
+};
+
+//获取历史记录
+const getHistoryList = () => {
+  uni.request({
+    url: "http://192.168.31.115:5000/usersearch?UserId=" + localuserid,
+    method: "GET",
+    success: (res: any) => {
+    console.log("成功获取历史搜索记录");
+    console.log(res);
+    res.data.data.forEach((item: any) => {
+      historyList.value.push(item.searchQuery);
+    });
+    },
+    fail: (err) => {
+      console.log("获取历史搜索记录失败");
+    }
+  });
+};
+
+
+
+//点击历史记录-->搜索历史记录
+const clickHistory = (item) => {
+  clickSearch(item);
+};
+
+//点击猜你想搜-->搜索猜你想搜
+const clickSuggest = (item) => {
+  clickSearch(item);
+};
+
+//点击热点推荐-->搜索热点推荐
+const clickHot = (item) => {
+  clickSearch(item.title);
+};
+
+const clickSearch = (item) => {
+  console.log(item);
+};
+
+getHistoryList()
+getSuggestList()
+getHotList()
 </script>
 
 <template>
@@ -71,7 +147,7 @@ const handleSearch = () => {
           @click="clearHistory"></uni-icons>
       </view>
       <view class="tag-list">
-        <text class="tag" v-for="(item, index) in historyList" :key="index">{{
+        <text class="tag" v-for="(item, index) in historyList" :key="index" @click="clickHistory(item)">{{
           item
         }}</text>
       </view>
@@ -84,7 +160,7 @@ const handleSearch = () => {
         <uni-icons type="reload" size="18" color="#999"></uni-icons>
       </view>
       <view class="tag-list">
-        <text class="tag" v-for="(item, index) in suggestList" :key="index">{{
+        <text class="tag" v-for="(item, index) in suggestList" :key="index" @click="clickSuggest(item)">{{
           item
         }}</text>
       </view>
@@ -96,7 +172,7 @@ const handleSearch = () => {
         <text class="section-title">热点推荐</text>
       </view>
       <view class="hot-list">
-        <view class="hot-item" v-for="(item, index) in hotList" :key="item.id">
+        <view class="hot-item" v-for="(item, index) in hotList" :key="item.id" @click="clickHot(item)">
           <view class="hot-rank" :class="{ topThree: index < 3 }">
             {{ index + 1 }}
           </view>

@@ -2,11 +2,15 @@ import { createSSRApp } from "vue";
 import App from "@/App.vue";
 import * as Pinia from "pinia";
 
+import { createSSRApp } from "vue";
+import App from "@/App.vue";
+import * as Pinia from "pinia";
+
 export function createApp() {
   const app = createSSRApp(App);
   app.use(Pinia.createPinia());
 
-  /*   // 初始化 WebSocket 连接
+  // 初始化 WebSocket 连接
   uni.connectSocket({
     url: "ws://192.168.31.115:5000/socket",
     success() {
@@ -24,18 +28,14 @@ export function createApp() {
 
   // 监听 WebSocket 消息
   uni.onSocketMessage((message) => {
-    console.log("收到WebSocket消息：", message.data);
-    uni.showToast({
-      title: message.data,
-      duration: 2000,
-    });
+    console.log("收到WebSocket消息：", message);
   });
 
   // 监听 WebSocket 关闭
   uni.onSocketClose(() => {
     console.log("WebSocket连接已关闭");
   });
- */
+
   return {
     app,
     Pinia,
