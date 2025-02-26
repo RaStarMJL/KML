@@ -16,7 +16,7 @@ import LibGenerateTestUserSig from "./lib-generate-test-usersig-es.min";
  * 它是腾讯云用于区分客户的唯一标识。
  */
 
-export let SDKAPPID = 1600073049;
+export let SDKAPPID = 1600074359;
 
 /**
  * Encryption key for calculating signature, which can be obtained in the following steps:
@@ -42,7 +42,7 @@ export let SDKAPPID = 1600073049;
  * 文档：https://cloud.tencent.com/document/product/647/17275#Server
  */
 export let SDKSECRETKEY =
-  "02b7dbbc21613e3753b55ce90ff1eb3892420db4ed6f9342673856522fcc8b7d";
+  "2c3835454df904ec2126fd2ef79c923c1381035c66d37c32a109d777f4298f36";
 
 /**
  * Signature expiration time, which should not be too short

@@ -10,12 +10,14 @@
     {
       "path": "pages/meetting/meetting",
       "style": {
+        "navigationStyle": "custom", // 隐藏默认导航
         "navigationBarTitleText": "会议"
       }
     },
     {
       "path": "pages/mine/mine",
       "style": {
+        "navigationStyle": "custom", // 隐藏默认导航
         "navigationBarTitleText": "我的"
       }
     },
@@ -78,33 +80,53 @@
       "style": {
         "navigationBarTitleText": "搜索"
       }
+    },
+    {
+      "path": "pages/meetting/index",
+      "style": {
+        "navigationBarTitleText": "test"
+      }
     }
   ],
-  "tabBar": {
-    "color": "#999",
-    "selectedColor": "#007AFF",
-    "backgroundColor": "#ffffff",
-    "list": [
-      {
-        "pagePath": "pages/meetting/meetting",
-        "text": "会议",
-        "iconPath": "/src/static/icons/tab/meetting.png",
-        "selectedIconPath": "/src/static/icons/tab/meetting-selected.png"
-      },
-      {
-        "pagePath": "pages/recommend/recommend",
-        "text": "推荐",
-        "iconPath": "/src/static/icons/tab/recommend.png",
-        "selectedIconPath": "/src/static/icons/tab/recommend-selected.png"
-      },
-      {
-        "pagePath": "pages/mine/mine",
-        "text": "我的",
-        "iconPath": "/src/static/icons/tab/mine.png",
-        "selectedIconPath": "/src/static/icons/tab/mine-selected.png"
-      }
-    ]
-  },
+  // "tabBar": {
+  //   "height": "0px",
+  //   "list": [
+  //     {
+  //       "pagePath": "/src/roomkit/pages/home"
+  //     },
+  //     {
+  //       "pagePath": "pages/recommend/recommend"
+  //     },
+  //     {
+  //       "pagePath": "pages/mine/mine"
+  //     }
+  //   ]
+  // },
+  // "tabBar": {
+  //   "color": "#999",
+  //   "selectedColor": "#007AFF",
+  //   "backgroundColor": "#ffffff",
+  //   "list": [
+  //     {
+  //       "pagePath": "pages/meetting/meetting",
+  //       "text": "会议",
+  //       "iconPath": "/src/static/icons/tab/meetting.png",
+  //       "selectedIconPath": "/src/static/icons/tab/meetting-selected.png"
+  //     },
+  //     {
+  //       "pagePath": "pages/recommend/recommend",
+  //       "text": "推荐",
+  //       "iconPath": "/src/static/icons/tab/recommend.png",
+  //       "selectedIconPath": "/src/static/icons/tab/recommend-selected.png"
+  //     },
+  //     {
+  //       "pagePath": "pages/mine/mine",
+  //       "text": "我的",
+  //       "iconPath": "/src/static/icons/tab/mine.png",
+  //       "selectedIconPath": "/src/static/icons/tab/mine-selected.png"
+  //     }
+  //   ]
+  // },
   "subpackages": [
     {
       "root": "src",
@@ -112,7 +134,14 @@
         {
           "path": "roomkit/pages/home",
           "style": {
+            "navigationStyle": "custom", // 隐藏默认导航
             "navigationBarTitleText": "home"
+          }
+        },
+        {
+          "path": "roomkit/components/reservemeetings",
+          "style": {
+            "navigationBarTitleText": "预约会议"
           }
         },
         {

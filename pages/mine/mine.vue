@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
-
+import tabber from "../components/tabbar/tabbar.vue";
 interface UserInfo {
   avatarUrl: string;
   username: string;
@@ -10,7 +10,7 @@ interface UserInfo {
 }
 
 const userInfo = ref<UserInfo>({
-  avatarUrl: "/src/static/images//ok.png",
+  avatarUrl: "/src/static/images/ok.png",
   username: "zyh",
   id: "0001",
   signature: "山风平平，湖水仄仄",
@@ -171,6 +171,7 @@ getUserInfo();
       <button class="logout-btn" @click="handleLogout">退出登录</button>
     </div>
   </div>
+  <tabber currentPath="/pages/mine/mine"></tabber>
 </template>
 
 <style scoped>

@@ -1,19 +1,17 @@
-<template>
-  <div>这是mine</div>
-  <button @click="ceshi">跳转</button>
-</template>
 <script setup lang="ts">
+import router from "../../src/router";
 import { onMounted } from "vue";
-onMounted(async () => {
-  //在起始页面跳转到test.vue页面并传递参数
-  uni.navigateTo({
-    url: "../../src/roomkit/pages/home",
-  });
-});
-const ceshi = async () => {
-  uni.navigateTo({
-    url: "../../src/roomkit/pages/home",
-  });
-};
+import MeettingRoom from "/src/roomkit/pages/home.vue";
+import tabbar from "../components/tabbar/tabbar.vue";
+// onMounted(() => {
+//   router.replace({ path: "/src/roomkit/pages/home" });
+//   uni.showToast({
+//     icon: "loading",
+//   });
+// });
 </script>
+<template>
+  <MeettingRoom></MeettingRoom>
+  <tabbar></tabbar>
+</template>
 <style scoped></style>

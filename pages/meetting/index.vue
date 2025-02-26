@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { TUILogin } from "@tencentcloud/tui-core";
-import PreConferenceView from "../TUIRoom/preConference.vue";
-import router from "../../router";
+import PreConferenceView from "/src/roomkit/TUIRoom/preConference.vue";
+import router from "/src/router/index.ts";
 import { reactive } from "vue";
-import { getBasicInfo } from "../config/basic-info-config";
-import { useBasicStore } from "../TUIRoom/stores/basic";
-import { roomChatInit } from "../TUIKit";
+import { getBasicInfo } from "/src/roomkit/config/basic-info-config.js";
+import { useBasicStore } from "/src/roomkit/TUIRoom/stores/basic.ts";
+import { roomChatInit } from "/src/roomkit/TUIKit/index.ts";
 import { onMounted } from "vue";
-import tabbar from "../../../pages/components/tabbar/tabbar.vue";
 
 onMounted(() => {
   // 获取当前页面的页面栈
@@ -110,8 +109,6 @@ handleInit();
       @on-create-room="handleCreateRoom"
       @on-enter-room="handleEnterRoom"></PreConferenceView>
   </div>
-  <!-- 底部导航栏 -->
-  <tabbar currentPath="/src/roomkit/pages/home"></tabbar>
 </template>
 <style lang="scss" scoped>
 .tui-theme-black.home-container {
