@@ -6,16 +6,6 @@ import { reactive } from "vue";
 import { getBasicInfo } from "/src/roomkit/config/basic-info-config.js";
 import { useBasicStore } from "/src/roomkit/TUIRoom/stores/basic.ts";
 import { roomChatInit } from "/src/roomkit/TUIKit/index.ts";
-import { onMounted } from "vue";
-
-onMounted(() => {
-  // 获取当前页面的页面栈
-  const pages = getCurrentPages();
-  // 当前页面就是页面栈的最后一个元素
-  const currentPage = pages[pages.length - 1];
-  // 打印当前页面的路由
-  console.log(currentPage.route);
-});
 
 const userInfo = reactive({
   userId: "",

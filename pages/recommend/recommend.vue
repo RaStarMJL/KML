@@ -33,6 +33,7 @@ interface ApiResponse {
 }
 
 const defaultAvatar = "/src/static/images/ok.png";
+const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
@@ -79,7 +80,6 @@ const getRecommendListData = () => {
   }
   const res = getRecommendListDataAPI(pageParams);
   setTimeout(() => {
-    console.log(res);
     // 数组追加
     recommendList.value.push(...res.result.items);
     // 分页条件
@@ -137,19 +137,18 @@ const goToMine = () => {
   });
 };
 
-const goTomeetingshow = (meetingid:string) =>{
-	console.log("跳转到-'会议信息'")
-	uni.navigateTo({
-		url:'/pages/recommend/meetingshow?meetingId='+ meetingid
-	})
-}
+const goTomeetingshow = (meetingid: string) => {
+  console.log("跳转到-'会议信息'");
+  uni.navigateTo({
+    url: "/pages/recommend/meetingshow?meetingId=" + meetingid,
+  });
+};
 
 const goTomessage = () => {
   uni.navigateTo({
     url: "/pages/mine/message",
   });
 };
-
 </script>
 
 <template>
@@ -166,7 +165,11 @@ const goTomessage = () => {
           <input type="text" placeholder="搜索会议" />
         </view>
         <!-- <uni-icons type="videocam" size="24" color="#666"></uni-icons> -->
-        <uni-icons type="email" size="24" color="#666" @click="goTomessage"></uni-icons>
+        <uni-icons
+          type="email"
+          size="24"
+          color="#666"
+          @click="goTomessage"></uni-icons>
       </view>
 
       <!-- 导航栏 -->
@@ -181,6 +184,7 @@ const goTomessage = () => {
 
     <!-- 滚动内容区域 -->
     <scroll-view
+      style="margin-bottom: 1vh"
       scroll-y
       class="content-scroll"
       @scroll="onScroll"
@@ -207,10 +211,13 @@ const goTomessage = () => {
 
       <!-- 会议推荐网格 -->
       <view class="meeting-grid">
-        <view class="meeting-item" v-for="item in recommendList" :key="item.meetingId">
+        <view
+          class="meeting-item"
+          v-for="item in recommendList"
+          :key="item.meetingId">
           <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
-            <image :src="item.cover" mode="aspectFill"></image>
-           <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
+            <image :src="defaultCover" mode="aspectFill"></image>
+            <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
           </view>
           <view class="meeting-info">
             <view class="meeting-title">{{ item.title }}</view>
@@ -240,7 +247,7 @@ const goTomessage = () => {
 .page-container {
   display: flex;
   flex-direction: column;
-  height: 93vh;
+  height: 92vh;
   overflow: hidden;
 }
 .header {

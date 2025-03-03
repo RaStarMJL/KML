@@ -1,0 +1,55 @@
+import { defineStore } from "pinia";
+import { ref } from "vue";
+// 定义 Store
+export const useUserInfoStore = defineStore(
+  "userInfo",
+  () => {
+    // 用户信息
+    const userInfo = ref<any>({
+      userName: "",
+      userId: "",
+      avatarUrl: "",
+      signature: "",
+    });
+
+    // 保存用户信息，登录时使用
+    const setProfile = (val: any) => {
+      userInfo.value = val;
+    };
+
+    // 清理用户信息，退出时使用
+    const clearProfile = () => {
+      userInfo.value = undefined;
+    };
+
+    // 添加计算属性判断是否已登录
+    const isLoggedIn = computed(() => {
+      return !!userInfo.value?.userId;
+    });
+
+    // 记得 return
+    return {
+      userInfo,
+      setProfile,
+      clearProfile,
+      isLoggedIn, // 导出计算属性
+    };
+  },
+  // TODO: 持久化
+  {
+    // 多端API适配
+    persist: {
+      storage: {
+        getItem(key) {
+          return uni.getStorageSync(key);
+        },
+        setItem(key, value) {
+          uni.setStorageSync(key, value);
+        },
+      },
+    },
+  }
+);
+function computed(arg0: () => boolean) {
+  throw new Error("Function not implemented.");
+}

@@ -27,7 +27,7 @@
             position: absolute;
             top: 0;
           "
-          >username</span
+          >{{ userInfo.userName || "未登录" }}</span
         >
       </div>
       <div class="message-icon">

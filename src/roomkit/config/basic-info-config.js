@@ -3,7 +3,10 @@
  * @Description: TUIRoomKit 应用的基础信息配置
  */
 
+import { url } from "inspector";
 import LibGenerateTestUserSig from "./lib-generate-test-usersig-es.min";
+
+import { GETSdkAppIdSDKSECRETKEY } from "/src/services/login";
 
 /**
  * Tencent Cloud SDKAppId, which should be replaced with user's SDKAppId.
@@ -69,7 +72,15 @@ export const userInfo = {
   avatarUrl: "",
 };
 
-export function getBasicInfo() {
+// 从服务器上获取最新的SDKAPPID和SDKSECRETKEY
+const onGETSdkAppIdSDKSECRETKEY = async () => {
+  const res = await GETSdkAppIdSDKSECRETKEY();
+  SDKAPPID = res.SDKAPPID;
+  SDKSECRETKEY = res.SDKSECRETKEY;
+};
+export const getBasicInfo = async () => {
+  // onGETSdkAppIdSDKSECRETKEY();
+
   if (SDKAPPID === Number(0) || SDKSECRETKEY === String("")) {
     alert("Please configure your SDKAPPID in config/basic-info-config.js");
     return;
@@ -89,4 +100,4 @@ export function getBasicInfo() {
     userName,
     avatarUrl,
   };
-}
+};
