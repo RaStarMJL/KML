@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { recommendListdata, swiperListdata } from "./assets/data";
-import tabbar from "../components/tabbar/tabbar.vue";
+import tabbar from "/pages/components/tabbar/tabbar.vue";
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -32,7 +33,11 @@ interface ApiResponse {
   };
 }
 
-const defaultAvatar = "/src/static/images/ok.png";
+const userInfoStore = useUserInfoStore();
+
+const userInfo = userInfoStore.userInfo;
+
+const defaultAvatar = "/src/static/images/defaultAvatar.png";
 const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
@@ -159,7 +164,10 @@ const goTomessage = () => {
     <view class="header">
       <!-- 搜索栏 -->
       <view class="search-bar">
-        <image :src="defaultAvatar" class="user-avatar" @tap="goToMine"></image>
+        <image
+          src="@/src/static/images/defaultAvatar.png"
+          class="user-avatar"
+          @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">
           <uni-icons type="search" size="20" color="#666"></uni-icons>
           <input type="text" placeholder="搜索会议" />

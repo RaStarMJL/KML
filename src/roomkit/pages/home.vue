@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TUILogin } from "@tencentcloud/tui-core";
 import PreConferenceView from "../TUIRoom/preConference.vue";
-import router from "../../router";
+import router from "../../router/index";
 import { reactive, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { getBasicInfo } from "../config/basic-info-config";
@@ -14,9 +14,15 @@ import { useUserInfoStore } from "/src/stores/modules/userInfo";
 const { safeAreaInsets } = uni.getSystemInfoSync();
 onShow(() => {
   const data = useUserInfoStore();
-  userInfo.value = data.userInfo;
+  userInfo.value.avatarUrl = data.userInfo.avatarUrl;
+  userInfo.value.userName = data.userInfo.userName;
+  userInfo.value.userId = data.userInfo.userId;
 });
-const userInfo = ref();
+const userInfo = ref({
+  userId: "",
+  userName: "",
+  avatarUrl: "",
+});
 
 const basicStore = useBasicStore();
 
@@ -81,14 +87,14 @@ async function handleInit() {
   }
   uni.setStorageSync("tuiRoom-userInfo", JSON.stringify(currentUserInfo));
   basicStore.setBasicInfo(currentUserInfo);
-  userInfo.userName = currentUserInfo.userName;
-  userInfo.avatarUrl = currentUserInfo.avatarUrl;
-  userInfo.userId = currentUserInfo.userId;
+  userInfo.value.userName = currentUserInfo.userName;
+  userInfo.value.avatarUrl = currentUserInfo.avatarUrl;
+  userInfo.value.userId = currentUserInfo.userId;
   const { sdkAppId, userSig } = currentUserInfo;
 
   TUILogin.login({
     SDKAppID: sdkAppId,
-    userID: userInfo.userId,
+    userID: userInfo.value.userId,
     userSig,
     useUploadPlugin: false, // If you need to send rich media messages, please set to true.
   });

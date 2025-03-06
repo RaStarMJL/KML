@@ -51,7 +51,7 @@ const handleLogin = () => {
       //   });
       // });
       // todo 登录并设置用户信息
-      userInfoStore.userInfo.userInfoStore.setProfile({
+      userInfoStore.setProfile({
         userName: "KML",
         userId: "1001",
         avatarUrl: "/src/static/images/ok.png",

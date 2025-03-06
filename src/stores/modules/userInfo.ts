@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 // 定义 Store
 export const useUserInfoStore = defineStore(
   "userInfo",
@@ -50,6 +50,3 @@ export const useUserInfoStore = defineStore(
     },
   }
 );
-function computed(arg0: () => boolean) {
-  throw new Error("Function not implemented.");
-}

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
-import tabber from "../components/tabbar/tabbar.vue";
+import tabbar from "../components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { onShow } from "@dcloudio/uni-app";
 
@@ -9,13 +9,15 @@ import { onShow } from "@dcloudio/uni-app";
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
 const userInfoStore = useUserInfoStore();
-const userInfo = ref();
-
-onShow(() => {
-  const data = useUserInfoStore();
-  userInfo.value = data.userInfo;
-  console.log(userInfo.value);
+const userInfo = ref({
+  avatarUrl: userInfoStore.userInfo.avatarUrl,
+  userName: userInfoStore.userInfo.userName,
+  userId: userInfoStore.userInfo.userId,
+  signature: userInfoStore.userInfo.signature,
+  token: userInfoStore.userInfo.token,
 });
+
+console.log(userInfo.value);
 
 const defaultAvatar = "/src/static/images/defaultAvatar.png";
 
@@ -34,7 +36,7 @@ const getUserInfo = async () => {
     if (res?.data) {
       userInfo.value = {
         avatarUrl: res.data.avatar || "/src/static/images/ok.png",
-        username: res.data.nick || res.data.id,
+        userame: res.data.nick || res.data.id,
         id: res.data.id,
         signature: res.data.signature || "这个人很懒什么都没留下..",
       };
@@ -139,9 +141,7 @@ const handleLogin = () => {
 
         <div class="user-info">
           <image
-            :src="
-              userInfo.avatarUrl === '' ? defaultAvatar : userInfo.avatarUrl
-            "
+            :src="userInfo.token ? userInfo.avatarUrl : defaultAvatar"
             class="avatar"></image>
           <div class="info-right">
             <text class="username">{{
@@ -165,7 +165,7 @@ const handleLogin = () => {
 
     <div class="meeting-info" @click="remind">
       <text>参会提醒</text>
-      <uni-icons type!="arrowright" size="20"></uni-icons>
+      <uni-icons type="arrowright" size="20"></uni-icons>
     </div>
 
     <!-- 功能区域 -->
@@ -190,11 +190,11 @@ const handleLogin = () => {
       </div>
       <div class="settings-item" @click="accountSecurity">
         <text>账号与安全</text>
-        <uni-icons type!="arrowright" size="20"></uni-icons>
+        <uni-icons type="arrowright" size="20"></uni-icons>
       </div>
       <div class="settings-item" @click="aboutUs">
         <text>关于我们</text>
-        <uni-icons type!="arrowright" size="20"></uni-icons>
+        <uni-icons type="arrowright" size="20"></uni-icons>
       </div>
     </div>
 
@@ -207,7 +207,7 @@ const handleLogin = () => {
       <button class="login-btn" @click="handleLogin">登录</button>
     </div>
   </div>
-  <tabber currentPath="/pages/mine/mine"></tabber>
+  <tabbar currentPath="/pages/mine/mine"></tabbar>
 </template>
 
 <style scoped>
