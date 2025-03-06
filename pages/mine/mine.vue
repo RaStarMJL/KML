@@ -1,29 +1,42 @@
-<script setup lang="ts">
+<script setup>
 import { ref } from "vue";
 import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
-import tabber from "../components/tabbar/tabbar.vue";
-interface UserInfo {
-  avatarUrl: string;
-  username: string;
-  id: string;
-  signature: string;
-}
+import tabbar from "../components/tabbar/tabbar.vue";
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import { onShow } from "@dcloudio/uni-app";
 
-const userInfo = ref<UserInfo>({
-  avatarUrl: "/src/static/images/ok.png",
-  username: "zyh",
-  id: "0001",
-  signature: "山风平平，湖水仄仄",
+// 距离手机头部的安全距离
+const { safeAreaInsets } = uni.getSystemInfoSync();
+
+const userInfoStore = useUserInfoStore();
+const userInfo = ref({
+  avatarUrl: userInfoStore.userInfo.avatarUrl,
+  userName: userInfoStore.userInfo.userName,
+  userId: userInfoStore.userInfo.userId,
+  signature: userInfoStore.userInfo.signature,
+  token: userInfoStore.userInfo.token,
 });
+
+console.log(userInfo.value);
+
+const defaultAvatar = "/src/static/images/defaultAvatar.png";
+
+const featureItems = [
+  { icon: "ai", text: "AI小助手", page: "aihelper" },
+  { icon: "meeting", text: "个人会议室", page: "meeting" },
+  { icon: "record", text: "录制", page: "record" },
+  { icon: "note", text: "我的笔记", page: "note" },
+];
 
 // 获取用户信息
 const getUserInfo = async () => {
   try {
     const res = await TUIUserService.getUserProfile();
+    console.log("TUIUserService.getUserProfile:", res.data);
     if (res?.data) {
       userInfo.value = {
         avatarUrl: res.data.avatar || "/src/static/images/ok.png",
-        username: res.data.nick || res.data.id,
+        userame: res.data.nick || res.data.id,
         id: res.data.id,
         signature: res.data.signature || "这个人很懒什么都没留下..",
       };
@@ -55,7 +68,7 @@ const remind = () => {
 };
 
 //小功能页面跳转
-const To = (page: string): void => {
+const To = (page) => {
   uni.navigateTo({
     url: "/pages/mine/" + page,
   });
@@ -86,8 +99,9 @@ const handleLogout = () => {
   uni.showModal({
     title: "提示",
     content: "确定要退出登录吗?",
-    success: (res: UniApp.ShowModalRes) => {
+    success: (res) => {
       if (res.confirm) {
+        userInfoStore.clearProfile();
         uni.reLaunch({
           url: "/pages/login/login", //返回到登录页面
         });
@@ -96,12 +110,17 @@ const handleLogout = () => {
   });
 };
 
-// 页面加载时获取用户信息
-getUserInfo();
+const handleLogin = () => {
+  uni.navigateTo({
+    url: "/pages/login/login",
+  });
+};
 </script>
 
 <template>
-  <div class="user-info-container">
+  <div
+    class="user-info-container"
+    :style="{ paddingTop: safeAreaInsets.top + 'px' }">
     <!-- 顶部用户信息 -->
     <div class="user-header">
       <!-- 添加一个包装器来实现相对定位 -->
@@ -121,11 +140,21 @@ getUserInfo();
         </div>
 
         <div class="user-info">
-          <image :src="userInfo.avatarUrl" class="avatar"></image>
+          <image
+            :src="userInfo.token ? userInfo.avatarUrl : defaultAvatar"
+            class="avatar"></image>
           <div class="info-right">
-            <text class="username">{{ userInfo.username }}</text>
+            <text class="username">{{
+              userInfo.token ? userInfo.userName : "未登录"
+            }}</text>
             <div class="user-type">
-              <text class="user-signature">签名：{{ userInfo.signature }}</text>
+              <text class="user-signature"
+                >签名：{{
+                  userInfo.token
+                    ? userInfo.signature
+                    : "这个人很懒，什么都没有留下~"
+                }}</text
+              >
             </div>
           </div>
         </div>
@@ -143,12 +172,7 @@ getUserInfo();
     <div class="feature-grid">
       <div
         class="feature-item"
-        v-for="(item, index) in [
-          { icon: 'ai', text: 'AI小助手', page: 'aihelper' },
-          { icon: 'meeting', text: '个人会议室', page: 'meeting' },
-          { icon: 'record', text: '录制', page: 'record' },
-          { icon: 'note', text: '我的笔记', page: 'note' },
-        ]"
+        v-for="(item, index) in featureItems"
         :key="index">
         <image
           :src="`/src/static/icons/tab/${item.icon}.svg`"
@@ -175,11 +199,15 @@ getUserInfo();
     </div>
 
     <!-- 添加退出登录按钮 -->
-    <div class="logout-wrapper">
+    <div class="log-wrapper" v-if="userInfo.token">
       <button class="logout-btn" @click="handleLogout">退出登录</button>
     </div>
+    <!-- 添加登录按钮 -->
+    <div class="log-wrapper" v-else>
+      <button class="login-btn" @click="handleLogin">登录</button>
+    </div>
   </div>
-  <tabber currentPath="/pages/mine/mine"></tabber>
+  <tabbar currentPath="/pages/mine/mine"></tabbar>
 </template>
 
 <style scoped>
@@ -373,7 +401,7 @@ getUserInfo();
 }
 
 /* 添加退出登录按钮样式 */
-.logout-wrapper {
+.log-wrapper {
   padding: 40rpx 20rpx;
 }
 
@@ -384,6 +412,18 @@ getUserInfo();
   text-align: center;
   background-color: #ffffff;
   color: #ff584c;
+  font-size: 32rpx;
+  border-radius: 12rpx;
+  border: none;
+}
+
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background-color: #ffffff;
+  color: #4cff5b;
   font-size: 32rpx;
   border-radius: 12rpx;
   border: none;

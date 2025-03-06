@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { TUILogin } from "@tencentcloud/tui-core";
 import PreConferenceView from "../TUIRoom/preConference.vue";
-import router from "../../router";
-import { reactive } from "vue";
+import router from "../../router/index";
+import { reactive, ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import { getBasicInfo } from "../config/basic-info-config";
 import { useBasicStore } from "../TUIRoom/stores/basic";
 import { roomChatInit } from "../TUIKit";
 import { onMounted } from "vue";
 import tabbar from "../../../pages/components/tabbar/tabbar.vue";
-
-onMounted(() => {
-  // 获取当前页面的页面栈
-  const pages = getCurrentPages();
-  // 当前页面就是页面栈的最后一个元素
-  const currentPage = pages[pages.length - 1];
-  // 打印当前页面的路由
-  console.log(currentPage.route);
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
+// 距离手机头部的安全距离
+const { safeAreaInsets } = uni.getSystemInfoSync();
+onShow(() => {
+  const data = useUserInfoStore();
+  userInfo.value.avatarUrl = data.userInfo.avatarUrl;
+  userInfo.value.userName = data.userInfo.userName;
+  userInfo.value.userId = data.userInfo.userId;
 });
-
-const userInfo = reactive({
+const userInfo = ref({
   userId: "",
   userName: "",
   avatarUrl: "",
@@ -87,14 +87,14 @@ async function handleInit() {
   }
   uni.setStorageSync("tuiRoom-userInfo", JSON.stringify(currentUserInfo));
   basicStore.setBasicInfo(currentUserInfo);
-  userInfo.userName = currentUserInfo.userName;
-  userInfo.avatarUrl = currentUserInfo.avatarUrl;
-  userInfo.userId = currentUserInfo.userId;
+  userInfo.value.userName = currentUserInfo.userName;
+  userInfo.value.avatarUrl = currentUserInfo.avatarUrl;
+  userInfo.value.userId = currentUserInfo.userId;
   const { sdkAppId, userSig } = currentUserInfo;
 
   TUILogin.login({
     SDKAppID: sdkAppId,
-    userID: userInfo.userId,
+    userID: userInfo.value.userId,
     userSig,
     useUploadPlugin: false, // If you need to send rich media messages, please set to true.
   });
@@ -110,8 +110,6 @@ handleInit();
       @on-create-room="handleCreateRoom"
       @on-enter-room="handleEnterRoom"></PreConferenceView>
   </div>
-  <!-- 底部导航栏 -->
-  <tabbar currentPath="/src/roomkit/pages/home"></tabbar>
 </template>
 <style lang="scss" scoped>
 .tui-theme-black.home-container {
