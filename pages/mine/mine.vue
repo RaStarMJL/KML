@@ -1,32 +1,52 @@
-<script setup>
-import { ref } from "vue";
+
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
-import tabbar from "../components/tabbar/tabbar.vue";
-import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import tabber from "../components/tabbar/tabbar.vue";
 import { onShow } from "@dcloudio/uni-app";
 
-// 距离手机头部的安全距离
+interface UserInfo {
+  avatarUrl: string;
+  username: string;
+  id: string;
+  signature: string;
+}
+
+// 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
-const userInfoStore = useUserInfoStore();
-const userInfo = ref({
-  avatarUrl: userInfoStore.userInfo.avatarUrl,
-  userName: userInfoStore.userInfo.userName,
-  userId: userInfoStore.userInfo.userId,
-  signature: userInfoStore.userInfo.signature,
-  token: userInfoStore.userInfo.token,
+const userInfo = ref<UserInfo>({
+  avatarUrl: "/src/static/images/ok.png",
+  username: "zyh",
+  id: "0001",
+  signature: "山风平平，湖水仄仄",
 });
 
-console.log(userInfo.value);
+// 功能列表
+const features = ref([
+  { icon: 'ai', text: 'AI助手', page: 'aihelper' },
+  { icon: 'record', text: '录制', page: 'record' },
+  { icon: 'note', text: '我的笔记', page: 'note' },
+  
+  { icon: 'message', text: '参会提醒', page: 'remind' },
+  { icon: 'favorite', text: '收藏', page: 'favorite' },
+  { icon: 'history', text: '历史', page: 'history' },
+]);
 
-const defaultAvatar = "/src/static/images/defaultAvatar.png";
+// 将自定义图标映射到uni-icons类型
+const getIconType = (iconName: string): string => {
+  const iconMap: Record<string, string> = {
+    'message': 'notification',
+    'record': 'videocam',
+    'note': 'compose',
+    'ai': 'help',
+    'favorite': 'star',
+    'history': 'calendar'
+  };
+  
+  return iconMap[iconName] || 'help';
+};
 
-const featureItems = [
-  { icon: "ai", text: "AI小助手", page: "aihelper" },
-  { icon: "meeting", text: "个人会议室", page: "meeting" },
-  { icon: "record", text: "录制", page: "record" },
-  { icon: "note", text: "我的笔记", page: "note" },
-];
 
 // 获取用户信息
 const getUserInfo = async () => {
@@ -35,16 +55,25 @@ const getUserInfo = async () => {
     console.log("TUIUserService.getUserProfile:", res.data);
     if (res?.data) {
       userInfo.value = {
-        avatarUrl: res.data.avatar || "/src/static/images/ok.png",
-        userame: res.data.nick || res.data.id,
-        id: res.data.id,
-        signature: res.data.signature || "这个人很懒什么都没留下..",
+        avatarUrl: res.data.avatar || userInfo.value.avatarUrl,
+        username: res.data.nick || userInfo.value.username, 
+        id: res.data.id || userInfo.value.id,
+        signature: res.data.signature || userInfo.value.signature,
+
       };
     }
   } catch (error) {
     console.warn("获取用户信息失败:", error);
   }
 };
+
+onMounted(() => {
+  getUserInfo();
+});
+
+onShow(() => {
+  getUserInfo();
+});
 
 //消息
 const message = () => {
@@ -74,6 +103,14 @@ const To = (page) => {
   });
 };
 
+//会员升级
+const upgradeVip = () => {
+  uni.showToast({
+    title: '即将推出，敬请期待',
+    icon: 'none'
+  });
+};
+
 //会议设置
 const meetingSetting = () => {
   uni.navigateTo({
@@ -94,6 +131,7 @@ const aboutUs = () => {
     url: "/pages/mine/aboutUs",
   });
 };
+
 // 退出登录
 const handleLogout = () => {
   uni.showModal({
@@ -110,232 +148,269 @@ const handleLogout = () => {
   });
 };
 
-const handleLogin = () => {
-  uni.navigateTo({
-    url: "/pages/login/login",
-  });
-};
 </script>
 
 <template>
-  <div
-    class="user-info-container"
-    :style="{ paddingTop: safeAreaInsets.top + 'px' }">
-    <!-- 顶部用户信息 -->
-    <div class="user-header">
-      <!-- 添加一个包装器来实现相对定位 -->
-      <div class="header-wrapper">
-        <!-- 消息图标和我的资料 -->
-        <div class="header-right">
-          <div class="message-icon" @click="message">
-            <uni-icons
-              custom-prefix="iconfont"
-              type="email"
-              size="30"></uni-icons>
-          </div>
-          <div class="profile-link" @click="myInfo">
-            <text>我的资料</text>
-            <uni-icons type="arrowright" size="14" color="#666"></uni-icons>
-          </div>
-        </div>
+	<view class="mine-container" :style="{paddingTop : safeAreaInsets.top + 'px'}">
+		<!-- 顶部用户信息 -->
+		<view class="user-header">
+			<!-- 添加一个包装器来实现相对定位 -->
+			<view class="header-wrapper">
+				<view class="user-info">
+					<image class="user-avatar" :src="userInfo.avatarUrl" mode="aspectFill"></image>
+					<view class="user-details">
+						<text class="username">{{ userInfo.username }}</text>
+						<text class="user-id">ID: {{ userInfo.id }}</text>
+					</view>
+				</view>
+				
+				<view class="header-actions">
+					<view class="action-item" @click="message">
+						<uni-icons type="notification" size="24" color="#fff"></uni-icons>
+					</view>
+					<view class="action-item" @click="myInfo">
+						<uni-icons type="gear" size="24" color="#fff"></uni-icons>
+					</view>
+				</view>
+			</view>
+			
+			<!-- 用户签名 -->
+			<view class="user-signature">
+				<text>{{ userInfo.signature }}</text>
+			</view>
+		</view>
+		
+		<!-- 会员卡片 -->
+		<view class="vip-card">
+			<view class="vip-info">
+				<view class="vip-title">
+					<uni-icons type="star-filled" size="24" color="#fff"></uni-icons>
+					<text>免费会员</text>
+				</view>
+				<text class="vip-desc">升级会员享受更多特权</text>
+			</view>
+			<view class="upgrade-btn" @click="upgradeVip">立即升级</view>
+		</view>
+		
+		<!-- 功能区域 -->
+		<view class="feature-section">
+			<view class="section-title">
+				<text>常用功能</text>
+			</view>
+			
+			<view class="feature-grid">
+				<view class="feature-item" v-for="(item, index) in features" :key="index" @click="To(item.page)">
+					<!-- 使用uni-icons替代图片 -->
+					<view class="feature-icon-wrapper">
+						<uni-icons :type="getIconType(item.icon)" size="28" color="#4075FF"></uni-icons>
+					</view>
+					<text class="feature-text">{{ item.text }}</text>
+				</view>
+			</view>
+		</view>
+		
+		<!-- 设置列表 -->
+		<view class="settings-section">
+			<view class="section-title">
+				<text>设置</text>
+			</view>
+			
+			<view class="settings-list">
+				<view class="settings-item" @click="meetingSetting">
+					<text>会议设置</text>
+					<view class="item-right">
+						<uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
+					</view>
+				</view>
+				
+				<view class="settings-item" @click="accountSecurity">
+					<text>账号与安全</text>
+					<view class="item-right">
+						<uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
+					</view>
+				</view>
+				
+				<view class="settings-item" @click="aboutUs">
+					<text>关于我们</text>
+					<view class="item-right">
+						<uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
+					</view>
+				</view>
+			</view>
+		</view>
+		
+		<!-- 退出登录按钮 -->
+		<view class="logout-wrapper">
+			<button class="logout-btn" @click="handleLogout">退出登录</button>
+		</view>
+  
+		<!-- 底部导航栏 -->
+		<tabber></tabber>
+	</view>
 
-        <div class="user-info">
-          <image
-            :src="userInfo.token ? userInfo.avatarUrl : defaultAvatar"
-            class="avatar"></image>
-          <div class="info-right">
-            <text class="username">{{
-              userInfo.token ? userInfo.userName : "未登录"
-            }}</text>
-            <div class="user-type">
-              <text class="user-signature"
-                >签名：{{
-                  userInfo.token
-                    ? userInfo.signature
-                    : "这个人很懒，什么都没有留下~"
-                }}</text
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 会议信息 -->
-
-    <div class="meeting-info" @click="remind">
-      <text>参会提醒</text>
-      <uni-icons type="arrowright" size="20"></uni-icons>
-    </div>
-
-    <!-- 功能区域 -->
-    <div class="feature-grid">
-      <div
-        class="feature-item"
-        v-for="(item, index) in featureItems"
-        :key="index">
-        <image
-          :src="`/src/static/icons/tab/${item.icon}.svg`"
-          class="feature-icon"
-          @click="To(item.page)"></image>
-        <text class="feature-text" @click="To(item.page)">{{ item.text }}</text>
-      </div>
-    </div>
-
-    <!-- 设置项 -->
-    <div class="settings-list">
-      <div class="settings-item" @click="meetingSetting">
-        <text>会议设置</text>
-        <uni-icons type="arrowright" size="20"></uni-icons>
-      </div>
-      <div class="settings-item" @click="accountSecurity">
-        <text>账号与安全</text>
-        <uni-icons type="arrowright" size="20"></uni-icons>
-      </div>
-      <div class="settings-item" @click="aboutUs">
-        <text>关于我们</text>
-        <uni-icons type="arrowright" size="20"></uni-icons>
-      </div>
-    </div>
-
-    <!-- 添加退出登录按钮 -->
-    <div class="log-wrapper" v-if="userInfo.token">
-      <button class="logout-btn" @click="handleLogout">退出登录</button>
-    </div>
-    <!-- 添加登录按钮 -->
-    <div class="log-wrapper" v-else>
-      <button class="login-btn" @click="handleLogin">登录</button>
-    </div>
-  </div>
-  <tabbar currentPath="/pages/mine/mine"></tabbar>
 </template>
 
-<style scoped>
-.user-info-container {
+<style lang="scss" scoped>
+.mine-container {
   min-height: 100vh;
   background-color: #f5f6f7;
-  padding: 20rpx;
-  padding-bottom: 120rpx; /* 增加底部间距 */
+  padding-bottom: 120rpx;
 }
 
 .user-header {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
+  background: linear-gradient(135deg, #4075FF, #3060E0);
+  padding: 40rpx 30rpx 50rpx;
+  border-radius: 0 0 30rpx 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(64, 117, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -100rpx;
+    right: -100rpx;
+    width: 300rpx;
+    height: 300rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 1;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50rpx;
+    left: -50rpx;
+    width: 200rpx;
+    height: 200rpx;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    z-index: 1;
+  }
 }
 
 .header-wrapper {
-  position: relative; /* 添加相对定位 */
-}
-
-.header-right {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: relative;
+  z-index: 2;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.message-icon {
-  padding: 10rpx;
-}
-
-.profile-link {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 10rpx;
-  margin-top: 10rpx;
-  font-size: 24rpx;
-  color: #666;
-}
-
-.profile-link text {
-  margin-right: 4rpx;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  margin-bottom: 30rpx;
-  padding-right: 120rpx;
 }
 
-.avatar {
+.user-avatar {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background-color: #f5f6f7; /* 添加背景色，防止头像加载前显示空白 */
+  border: 4rpx solid rgb(255, 255, 255);
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.1);
 }
 
-.info-right {
+.user-details {
   margin-left: 20rpx;
 }
 
 .username {
   font-size: 36rpx;
-  font-weight: 500;
-  margin-bottom: 10rpx;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 6rpx;
 }
 
-.user-type {
+.user-id {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.header-actions {
+  display: flex;
+}
+
+.action-item {
+  width: 80rpx;
+  height: 80rpx;
   display: flex;
   align-items: center;
-  margin-top: 5rpx;
-}
-
-.type-tag {
-  background-color: #f0f1f2;
-  color: #666;
-  font-size: 24rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 4rpx;
-  margin-right: 20rpx;
+  justify-content: center;
+  margin-left: 10rpx;
 }
 
 .user-signature {
-  color: #666;
-  font-size: 18rpx;
-}
-
-.meeting-info {
-  background-color: #ffffff;
-  border-radius: 12rpx;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.title {
-  font-size: 30rpx;
-  margin-bottom: 20rpx;
-}
-
-.meeting-types {
-  margin-bottom: 30rpx;
-}
-
-.type-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.type-title {
+  margin-top: 30rpx;
   font-size: 28rpx;
-  color: #333;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  z-index: 2;
+  position: relative;
+}
+
+.vip-card {
+  margin: -30rpx 30rpx 30rpx;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4rpx 20rpx rgba(255, 165, 0, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+.vip-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.vip-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+  
+  text {
+    font-size: 32rpx;
+    color: #fff;
+    font-weight: 600;
+    margin-left: 10rpx;
+  }
+}
+
+.vip-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .upgrade-btn {
-  background-color: #0052d9;
+  background-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
   text-align: center;
-  padding: 20rpx;
-  border-radius: 8rpx;
+  padding: 15rpx 30rpx;
+  border-radius: 30rpx;
   font-size: 28rpx;
+  font-weight: 500;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+  
+  &:active {
+    transform: scale(0.98);
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.section-title {
+  padding: 30rpx 30rpx 20rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.feature-section, .settings-section {
+  margin-bottom: 30rpx;
 }
 
 .feature-grid {
@@ -343,9 +418,10 @@ const handleLogin = () => {
   grid-template-columns: repeat(3, 1fr);
   gap: 2rpx;
   background-color: #ffffff;
-  border-radius: 12rpx;
-  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  margin: 0 30rpx;
   padding: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
 .feature-item {
@@ -353,11 +429,21 @@ const handleLogin = () => {
   flex-direction: column;
   align-items: center;
   padding: 30rpx 0;
+  transition: all 0.3s;
+  
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
-.feature-icon {
-  width: 56rpx;
-  height: 56rpx;
+.feature-icon-wrapper {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: rgba(64, 117, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 16rpx;
 }
 
@@ -368,7 +454,10 @@ const handleLogin = () => {
 
 .settings-list {
   background-color: #ffffff;
-  border-radius: 12rpx;
+  border-radius: 20rpx;
+  margin: 0 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 .settings-item {
@@ -377,6 +466,16 @@ const handleLogin = () => {
   align-items: center;
   padding: 30rpx;
   border-bottom: 1rpx solid #f5f6f7;
+  font-size: 30rpx;
+  color: #333;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    background-color: #f9f9f9;
+  }
 }
 
 .item-right {
@@ -384,25 +483,9 @@ const handleLogin = () => {
   align-items: center;
 }
 
-.right-icon {
-  width: 32rpx;
-  height: 32rpx;
-}
+.logout-wrapper {
+  padding: 40rpx 30rpx 80rpx;
 
-.right-icon-small {
-  width: 24rpx;
-  height: 24rpx;
-}
-
-.info-icon {
-  width: 28rpx;
-  height: 28rpx;
-  margin-left: 10rpx;
-}
-
-/* 添加退出登录按钮样式 */
-.log-wrapper {
-  padding: 40rpx 20rpx;
 }
 
 .logout-btn {
@@ -413,27 +496,14 @@ const handleLogin = () => {
   background-color: #ffffff;
   color: #ff584c;
   font-size: 32rpx;
-  border-radius: 12rpx;
+  border-radius: 44rpx;
   border: none;
-}
 
-.login-btn {
-  width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  text-align: center;
-  background-color: #ffffff;
-  color: #4cff5b;
-  font-size: 32rpx;
-  border-radius: 12rpx;
-  border: none;
-}
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  
+  &:active {
+    background-color: #f9f9f9;
+  }
 
-.meeting-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
 }
 </style>

@@ -137,7 +137,9 @@ const goToSearch = () => {
 
 const goToMine = () => {
   console.log("跳转到-‘我的’");
+
   uni.reLaunch({
+
     url: "/pages/mine/mine",
   });
 };

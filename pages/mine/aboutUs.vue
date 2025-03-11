@@ -59,6 +59,18 @@
 						name: '马超',
 						role: '后端开发',
 						description: '负责服务器端开发和数据库设计，确保系统的稳定性和安全性。精通后端架构设计和API开发。'
+					},
+					{
+						avatar: '/src/static/images/lzx.jpg',
+						name: '刘子璇',
+						role: '',
+						description: ''
+					},
+					{
+						avatar: '/src/static/images/zzy.jpg',
+						name: '周政月',
+						role: '',
+						description: ''	
 					}
 				]
 			}

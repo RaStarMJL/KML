@@ -94,18 +94,18 @@
       }
     },
     {
-      "path": "pages/login/login",
-      "style": {
-        // "navigationStyle": "custom",
-        "navigationBarTitleText": "登录"
-      }
+    	"path" : "pages/login/login",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : ""
+    	}
     },
     {
-      "path": "pages/room/room",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "登录"
-      }
+    	"path" : "pages/register/register",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : ""
+    	}
     }
   ],
   "subpackages": [
