@@ -132,7 +132,7 @@ const goToSearch = () => {
 
 const goToMine = () => {
   console.log("跳转到-‘我的’");
-  uni.switchTab({
+  uni.navigateTo({
     url: "/pages/mine/mine",
   });
 };
