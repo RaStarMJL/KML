@@ -19,7 +19,7 @@ import { GETSdkAppIdSDKSECRETKEY } from "/src/services/login";
  * 它是腾讯云用于区分客户的唯一标识。
  */
 
-export const SDKAPPID = 1600075412;
+export const SDKAPPID = 1600076337;
 
 /**
  * Encryption key for calculating signature, which can be obtained in the following steps:
@@ -45,7 +45,7 @@ export const SDKAPPID = 1600075412;
  * 文档：https://cloud.tencent.com/document/product/647/17275#Server
  */
 export const SDKSECRETKEY =
-  "e38f24ae8eed6783de389dafffe563d30b770bc6dd64bdfe8ebf47d76a550541";
+  "3756ff86d9064839890ad51403a8cc263be490180b5c2e73774826c7858236d4";
 
 /**
  * Signature expiration time, which should not be too short

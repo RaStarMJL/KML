@@ -137,7 +137,7 @@ const goToSearch = () => {
 
 const goToMine = () => {
   console.log("跳转到-‘我的’");
-  uni.switchTab({
+  uni.reLaunch({
     url: "/pages/mine/mine",
   });
 };
@@ -165,7 +165,7 @@ const goTomessage = () => {
       <!-- 搜索栏 -->
       <view class="search-bar">
         <image
-          src="@/src/static/images/defaultAvatar.png"
+          :src="userInfo.avatarUrl ? userInfo.avatarUrl : defaultAvatar"
           class="user-avatar"
           @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">
