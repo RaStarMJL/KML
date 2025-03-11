@@ -14,7 +14,7 @@
       </div> -->
       <div class="left-header" style="position: relative">
         <image
-          :src="userInfo.token ? userInfo.avatarUrl : defaultAvatar"
+          :src="userInfoStore.isLoggedIn ? userInfo.avatarUrl : defaultAvatar"
           class="my-avatar"
           mode="scaleToFill"
           style="border-radius: 50%; width: 50px; height: 50px" />
@@ -28,7 +28,7 @@
             position: absolute;
             top: 0;
           "
-          >{{ userInfo.userName || "未登录" }}</span
+          >{{ userInfoStore.isLoggedIn || "未登录" }}</span
         >
       </div>
       <div class="message-icon">

@@ -1,25 +1,29 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+
+// 定义用户信息接口
+interface UserInfoState {
+  userName: string;
+  userId: string;
+  avatarUrl: string;
+  signature: string;
+}
+
 // 定义 Store
 export const useUserInfoStore = defineStore(
   "userInfo",
   () => {
     // 用户信息
-    const userInfo = ref<any>({
-      userName: "",
-      userId: "",
-      avatarUrl: "",
-      signature: "",
-    });
+    const userInfo = ref<UserInfoState | null>(null);
 
     // 保存用户信息，登录时使用
-    const setProfile = (val: any) => {
+    const setProfile = (val: UserInfoState) => {
       userInfo.value = val;
     };
 
     // 清理用户信息，退出时使用
     const clearProfile = () => {
-      userInfo.value = undefined;
+      userInfo.value = null;
     };
 
     // 添加计算属性判断是否已登录

@@ -167,7 +167,7 @@ const goTomessage = () => {
       <!-- 搜索栏 -->
       <view class="search-bar">
         <image
-          :src="userInfo.avatarUrl ? userInfo.avatarUrl : defaultAvatar"
+          :src="userInfoStore.isLoggedIn ? userInfo.avatarUrl : defaultAvatar"
           class="user-avatar"
           @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">

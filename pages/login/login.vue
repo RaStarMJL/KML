@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import { login } from "/src/services/api";
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
 	export default {
 		data() {
 			return {
@@ -94,6 +96,7 @@
 			// 获取系统信息
 			this.systemInfo = uni.getSystemInfoSync();
 			this.windowHeight = this.systemInfo.windowHeight;
+			this.userInfoStore = useUserInfoStore();
 		},
 		mounted() {
 			// 延迟显示登录框，添加动画效果
@@ -166,39 +169,10 @@
 				}, 200);
 			},
 			
-			// 切换登录方式
-			switchLoginMethod(method) {
-				this.loginMethod = method;
-			},
 			
-			// 发送验证码
-			sendVerificationCode() {
-				if (!this.username) {
-					uni.showToast({
-						title: '请输入手机号',
-						icon: 'none'
-					});
-					return;
-				}
-				
-				// 开始倒计时
-				this.countdown = 60;
-				this.timer = setInterval(() => {
-					this.countdown--;
-					if (this.countdown <= 0) {
-						clearInterval(this.timer);
-					}
-				}, 1000);
-				
-				// 这里应该调用发送验证码的API
-				uni.showToast({
-					title: '验证码已发送',
-					icon: 'none'
-				});
-			},
 			
 			// 处理登录
-			handleLogin() {
+			async handleLogin () {
 				// 表单验证
 				if (!this.username) {
 					uni.showToast({
@@ -223,59 +197,48 @@
 				if (this.rememberPassword) {
 					uni.setStorageSync('savedUsername', this.username);
 					uni.setStorageSync('savedPassword', this.password);
-					uni.setStorageSync('rememberPassword', true);
 				} else {
 					uni.removeStorageSync('savedPassword');
 					uni.removeStorageSync('rememberPassword');
 				}
-				
-				// 调用登录API
-				uni.request({
-					url: "http://192.168.31.115:5000/login",
-					method: "GET",
-					data: {
-						uid: this.username,
-						pwd: this.password
-					},
-					success: (res) => {
-						console.log(res);
-						this.isLoading = false;
+
+				const res = await login({
+					username: this.username,
+					pwd: this.password
+				})
+				this.isLoading = false;
 						
-						if (res.data && res.data.code === 1) {
-							// 登录成功
-							uni.showToast({
-								title: '登录成功',
-								icon: 'success'
-							});
-							
-							// 保存用户信息
-							if (res.data.data) {
-								uni.setStorageSync('userInfo', res.data.data);
-							}
-							
-							// 跳转到推荐页面
-							setTimeout(() => {
-								uni.redirectTo({
-									url: '/pages/recommend/recommend'
-								});
-							}, 1500);
-						} else {
-							// 登录失败
-							uni.showToast({
-								title: res.data?.msg || '登录失败，请检查网络',
-								icon: 'none'
-							});
-						}
-					},
-					fail: (err) => {
-						console.log(err);
-						this.isLoading = false;
-						uni.showToast({
-							title: '网络错误，请稍后重试',
-							icon: 'none'
-						});
-					}
+				if (res && res.code === 1) {
+				// 登录成功
+				uni.showToast({
+					title: '登录成功',
+					icon: 'success'
 				});
+				
+				// 保存用户信息
+				if (res.data) {
+					this.userInfoStore.setProfile({
+						userName: res.data.username,
+						userId: res.data.uid,
+						avatarUrl: res.data.avatarUrl,
+						signature: res.data.signature,
+					});
+				}
+				
+				// 跳转到推荐页面
+				setTimeout(() => {
+					uni.redirectTo({
+						url: '/pages/recommend/recommend'
+					});
+				}, 1000);
+			} else {
+				// 登录失败
+				uni.showToast({
+					title: res.data?.msg || '登录失败，请检查网络',
+					icon: 'none'
+				});
+			}
+
 			},
 			
 			// 忘记密码

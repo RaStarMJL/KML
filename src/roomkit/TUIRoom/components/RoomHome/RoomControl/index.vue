@@ -262,7 +262,7 @@ watch(
 
 function createRoom() {
   // 未登录
-  if (!userInfoStore.isLoggedIn) {
+  if (!userInfoStore.userInfo) {
     uni.showToast({
       icon: "none",
       title: "请先登录",
@@ -276,7 +276,7 @@ function createRoom() {
 
 const createRoom2 = () => {
   // 未登录
-  if (!userInfoStore.isLoggedIn) {
+  if (!userInfoStore.userInfo) {
     uni.showToast({
       icon: "none",
       title: "请先登录",
@@ -287,7 +287,7 @@ const createRoom2 = () => {
 
 function reserveRoom() {
   // 未登录
-  if (!userInfoStore.isLoggedIn) {
+  if (!userInfoStore.userInfo) {
     uni.showToast({
       icon: "none",
       title: "请先登录",
@@ -301,7 +301,7 @@ function reserveRoom() {
 
 function enterRoom() {
   // 未登录
-  if (!userInfoStore.isLoggedIn) {
+  if (!userInfoStore.userInfo) {
     uni.showToast({
       icon: "none",
       title: "请先登录",
