@@ -14,20 +14,21 @@
       </div> -->
       <div class="left-header" style="position: relative">
         <image
-          src="/src/static/images/ok.png"
+          :src="userInfo.token ? userInfo.avatarUrl : defaultAvatar"
           class="my-avatar"
           mode="scaleToFill"
           style="border-radius: 50%; width: 50px; height: 50px" />
         <span
           class="user-name"
           style="
+            width: 30vw;
             left: 58px;
             font-size: 20px;
             font-weight: 500;
             position: absolute;
             top: 0;
           "
-          >username</span
+          >{{ userInfo.userName || "未登录" }}</span
         >
       </div>
       <div class="message-icon">
@@ -52,7 +53,14 @@ import TUIMessageBox from "./components/common/base/MessageBox/index";
 import TUIMessage from "./components/common/base/Message/index";
 import { MESSAGE_DURATION } from "./constants/message";
 import tabbar from "../../../pages/components/tabbar/tabbar.vue";
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
 const roomControlRef = ref();
+
+const userInfoStore = useUserInfoStore();
+
+const userInfo = userInfoStore.userInfo;
+
+const defaultAvatar = "/src/static/images/defaultAvatar.png";
 
 // 距离手机头部的安全距离
 const { safeAreaInsets } = uni.getSystemInfoSync();

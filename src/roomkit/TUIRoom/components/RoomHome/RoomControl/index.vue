@@ -9,14 +9,14 @@
           <div class="join-room2 common-button" @tap="enterRoom">
             <svg-icon class="enter-icon svg-icon" :icon="EnterRoomIcon" />
           </div>
-          <span class="text"> 加入房间</span>
+          <span class="text"> 加入会议</span>
         </div>
         <!-- 创建房间按钮 -->
         <div class="create-room2-body common-button-body" @tap="createRoom">
           <div class="create-room2 common-button">
             <svg-icon class="add-icon svg-icon" :icon="CreateRoomIcon" />
           </div>
-          <span class="text"> 新建房间</span>
+          <span class="text"> 快速会议</span>
         </div>
         <!-- 预约会议按钮 -->
         <div class="reserve-room2-body common-button-body" @tap="reserveRoom">
@@ -26,13 +26,13 @@
           <span class="text"> 预约会议</span>
         </div>
         <!-- 会议总结 / 会议回放 -->
-        <div class="summary-room2-body common-button-body" @tap="createRoom">
+        <div class="summary-room2-body common-button-body" @tap="createRoom2">
           <div class="summary-room2 common-button">
             <svg-icon
               class="summary-icon svg-icon"
               :icon="MeetingSummaryIcon" />
           </div>
-          <span class="text"> 会议总结</span>
+          <span class="text"> 创建会议</span>
         </div>
       </div>
       <!-- 历史会议 -->
@@ -188,6 +188,8 @@
         </div>
       </div>
     </div>
+    <!-- 底部导航栏 -->
+    <tabbar currentPath="/src/roomkit/pages/home"></tabbar>
   </div>
 </template>
 <script setup lang="ts">
@@ -203,12 +205,15 @@ import ArrowStrokeBackIcon from "../../../assets/icons/ArrowStrokeBackIcon.svg";
 import ArrowStrokeSelectDownIcon from "../../../assets/icons/ArrowStrokeSelectDownIcon.svg";
 import Logo from "../../common/Logo.vue";
 import TUIMessage from "../../common/base/Message/index";
-import func from "../../../../../../vue-temp/vue-editor-bridge";
 import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
 const { t } = useRoomControl();
 
 // 距离手机头部的安全距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
+
+// 用户信息
+const userInfoStore = useUserInfoStore();
 
 const moreTypeRef = ref();
 const roomStore = useRoomStore();
@@ -247,7 +252,7 @@ const hasGivenRoomId = computed(
 
 watch(
   () => props.givenRoomId,
-  (val) => {
+  (val: any) => {
     if (val) {
       roomId.value = val;
     }
@@ -256,17 +261,53 @@ watch(
 );
 
 function createRoom() {
+  // 未登录
+  if (!userInfoStore.isLoggedIn) {
+    uni.showToast({
+      icon: "none",
+      title: "请先登录",
+    });
+    return;
+  }
+
   showRoomDetail.value = !showRoomDetail.value;
   isJoinRoom.value = false;
 }
 
+const createRoom2 = () => {
+  // 未登录
+  if (!userInfoStore.isLoggedIn) {
+    uni.showToast({
+      icon: "none",
+      title: "请先登录",
+    });
+    return;
+  }
+};
+
 function reserveRoom() {
+  // 未登录
+  if (!userInfoStore.isLoggedIn) {
+    uni.showToast({
+      icon: "none",
+      title: "请先登录",
+    });
+    return;
+  }
   uni.navigateTo({
     url: `/src/roomkit/components/reservemeetings`,
   });
 }
 
 function enterRoom() {
+  // 未登录
+  if (!userInfoStore.isLoggedIn) {
+    uni.showToast({
+      icon: "none",
+      title: "请先登录",
+    });
+    return;
+  }
   showRoomDetail.value = !showRoomDetail.value;
   isJoinRoom.value = true;
 }
@@ -552,7 +593,7 @@ onUnmounted(() => {
   border-radius: 8px;
   padding: 10px;
   position: absolute;
-  bottom: 30px;
+  bottom: 230px;
 }
 
 .button {

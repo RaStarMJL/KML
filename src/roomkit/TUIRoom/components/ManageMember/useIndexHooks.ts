@@ -1,13 +1,13 @@
-import { Ref, computed, nextTick, ref, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import useGetRoomEngine from '../../hooks/useRoomEngine';
-import { UserInfo, useRoomStore } from '../../stores/room';
-import { useBasicStore } from '../../stores/basic';
-import { useI18n } from '../../locales';
-import { TUIMediaDevice } from '@tencentcloud/tuiroom-engine-uniapp-app';
-import TUIMessage from '../common/base/Message/index';
-import { MESSAGE_DURATION } from '../../constants/message';
-import { isMobile } from '../../utils/environment';
+import { Ref, computed, nextTick, ref, onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import useGetRoomEngine from "../../hooks/useRoomEngine";
+import { UserInfo, useRoomStore } from "../../stores/room";
+import { useBasicStore } from "../../stores/basic";
+import { useI18n } from "../../locales";
+import { TUIMediaDevice } from "@tencentcloud/tuiroom-engine-uniapp-app";
+import TUIMessage from "../common/base/Message/index";
+import { MESSAGE_DURATION } from "../../constants/message";
+import { isMobile } from "../../utils/environment";
 
 export default function useIndex() {
   const roomEngine = useGetRoomEngine();
@@ -16,16 +16,14 @@ export default function useIndex() {
 
   const basicStore = useBasicStore();
   const roomStore = useRoomStore();
-  const {
-    userList,
-    anchorUserList,
-    applyToAnchorList,
-    isOnStateTabActive,
-  } = storeToRefs(roomStore);
+  const { userList, anchorUserList, applyToAnchorList, isOnStateTabActive } =
+    storeToRefs(roomStore);
 
-  const audienceUserList = computed(() => userList.value.filter(user => !anchorUserList.value.includes(user)));
+  const audienceUserList = computed(() =>
+    userList.value.filter((user) => !anchorUserList.value.includes(user))
+  );
 
-  const searchText = ref('');
+  const searchText = ref("");
 
   function handleToggleStaged() {
     isOnStateTabActive.value = !isOnStateTabActive.value;
@@ -33,39 +31,62 @@ export default function useIndex() {
   }
 
   const filteredUserList = computed(() => {
+    // 计算属性：获取房间中所有用户的信息列表
     let list: UserInfo[] = [];
+    // 房间是任意通话模式
     if (roomStore.isFreeSpeakMode) {
       list = userList.value;
-    } else if (roomStore.isSpeakAfterTakingSeatMode) {
-      list = isOnStateTabActive.value ? anchorUserList.value : audienceUserList.value;
     }
+    // 房间是点名模式
+    else if (roomStore.isSpeakAfterTakingSeatMode) {
+      list = isOnStateTabActive.value
+        ? anchorUserList.value
+        : audienceUserList.value;
+    }
+    // 搜索为空
     if (!searchText.value) {
       return list;
     }
-    return list.filter((item: UserInfo) => item.userName?.includes(searchText.value) || item.userId.includes(searchText.value));
+    return list.filter(
+      (item: UserInfo) =>
+        item.userName?.includes(searchText.value) ||
+        item.userId.includes(searchText.value)
+    );
   });
-  const alreadyStaged = computed(() => `${t('Already on stage')} (${(anchorUserList.value.length)})`);
-  const notStaged = computed(() => `${t('Not on stage')} (${(audienceUserList.value.length)})`);
+  const alreadyStaged = computed(
+    () => `${t("Already on stage")} (${anchorUserList.value.length})`
+  );
+  const notStaged = computed(
+    () => `${t("Not on stage")} (${audienceUserList.value.length})`
+  );
 
   function handleInvite() {
-    basicStore.setSidebarName('invite');
+    basicStore.setSidebarName("invite");
   }
 
-  const audioManageInfo = computed(() => (roomStore.isMicrophoneDisableForAllUser ? t('Lift all mute') : t('All mute')));
-  const videoManageInfo = computed(() => (roomStore.isCameraDisableForAllUser ? t('Lift stop all video') : t('All stop video')));
+  const audioManageInfo = computed(() =>
+    roomStore.isMicrophoneDisableForAllUser ? t("Lift all mute") : t("All mute")
+  );
+  const videoManageInfo = computed(() =>
+    roomStore.isCameraDisableForAllUser
+      ? t("Lift stop all video")
+      : t("All stop video")
+  );
 
   const showManageAllUserDialog: Ref<boolean> = ref(false);
-  const dialogContent: Ref<string> = ref('');
-  const dialogTitle: Ref<string> = ref('');
-  const dialogActionInfo: Ref<string> = ref('');
+  const dialogContent: Ref<string> = ref("");
+  const dialogTitle: Ref<string> = ref("");
+  const dialogActionInfo: Ref<string> = ref("");
   let stateForAllAudio: boolean = false;
   let stateForAllVideo: boolean = false;
 
   enum ManageControlType {
-    AUDIO = 'audio',
-    VIDEO = 'video',
+    AUDIO = "audio",
+    VIDEO = "video",
   }
-  const currentControlType: Ref<ManageControlType> = ref(ManageControlType.AUDIO);
+  const currentControlType: Ref<ManageControlType> = ref(
+    ManageControlType.AUDIO
+  );
 
   async function toggleManageAllMember(type: ManageControlType) {
     showManageAllUserDialog.value = true;
@@ -73,21 +94,23 @@ export default function useIndex() {
     switch (type) {
       case ManageControlType.AUDIO:
         dialogTitle.value = roomStore.isMicrophoneDisableForAllUser
-          ? t('Enable all audios') : t('All current and new members will be muted');
+          ? t("Enable all audios")
+          : t("All current and new members will be muted");
         dialogContent.value = roomStore.isMicrophoneDisableForAllUser
-          ? t('After unlocking, users can freely turn on the microphone')
-          : t('Members will not be able to open the microphone');
-        stateForAllAudio =  !roomStore.isMicrophoneDisableForAllUser;
+          ? t("After unlocking, users can freely turn on the microphone")
+          : t("Members will not be able to open the microphone");
+        stateForAllAudio = !roomStore.isMicrophoneDisableForAllUser;
         // 小程序更新视图
         await nextTick();
         dialogActionInfo.value = audioManageInfo.value;
         break;
       case ManageControlType.VIDEO:
         dialogTitle.value = roomStore.isCameraDisableForAllUser
-          ? t('Enable all videos') : t('All and new members will be banned from the camera');
+          ? t("Enable all videos")
+          : t("All and new members will be banned from the camera");
         dialogContent.value = roomStore.isCameraDisableForAllUser
-          ? t('After unlocking, users can freely turn on the camera')
-          : t('Members will not be able to open the camera');
+          ? t("After unlocking, users can freely turn on the camera")
+          : t("Members will not be able to open the camera");
         stateForAllVideo = !roomStore.isCameraDisableForAllUser;
         // 小程序更新视图
         await nextTick();
@@ -114,7 +137,7 @@ export default function useIndex() {
   function showApplyUserList() {
     if (isMobile) {
       basicStore.setSidebarOpenStatus(true);
-      basicStore.setSidebarName('apply');
+      basicStore.setSidebarName("apply");
     } else {
       basicStore.setShowApplyUserList(true);
     }
@@ -122,9 +145,11 @@ export default function useIndex() {
 
   async function toggleAllAudio() {
     if (roomStore.isMicrophoneDisableForAllUser === stateForAllAudio) {
-      const tipMessage = stateForAllAudio ? t('All audios disabled') : t('All audios enabled');
+      const tipMessage = stateForAllAudio
+        ? t("All audios disabled")
+        : t("All audios enabled");
       TUIMessage({
-        type: 'success',
+        type: "success",
         message: tipMessage,
         duration: MESSAGE_DURATION.NORMAL,
       });
@@ -139,9 +164,11 @@ export default function useIndex() {
 
   async function toggleAllVideo() {
     if (roomStore.isCameraDisableForAllUser === stateForAllVideo) {
-      const tipMessage = stateForAllVideo ? t('All videos disabled') : t('All videos enabled');
+      const tipMessage = stateForAllVideo
+        ? t("All videos disabled")
+        : t("All videos enabled");
       TUIMessage({
-        type: 'success',
+        type: "success",
         message: tipMessage,
         duration: MESSAGE_DURATION.NORMAL,
       });
@@ -155,11 +182,15 @@ export default function useIndex() {
   }
 
   const applyToAnchorUserContent = computed(() => {
-    const userName = applyToAnchorList.value[0]?.userName || applyToAnchorList.value[0]?.userId;
+    const userName =
+      applyToAnchorList.value[0]?.userName ||
+      applyToAnchorList.value[0]?.userId;
     if (applyToAnchorList.value.length === 1) {
-      return `${userName} ${t('Applying for the stage')}`;
+      return `${userName} ${t("Applying for the stage")}`;
     }
-    return  `${userName} ${t('and so on number people applying to stage', { number: applyToAnchorList.value.length })}`;
+    return `${userName} ${t("and so on number people applying to stage", {
+      number: applyToAnchorList.value.length,
+    })}`;
   });
 
   return {

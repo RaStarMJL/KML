@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { recommendListdata, swiperListdata } from "./assets/data";
-import tabbar from "../components/tabbar/tabbar.vue";
+import tabbar from "/pages/components/tabbar/tabbar.vue";
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -32,7 +33,12 @@ interface ApiResponse {
   };
 }
 
-const defaultAvatar = "/src/static/images/ok.png";
+const userInfoStore = useUserInfoStore();
+
+const userInfo = userInfoStore.userInfo;
+
+const defaultAvatar = "/src/static/images/defaultAvatar.png";
+const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
@@ -79,7 +85,6 @@ const getRecommendListData = () => {
   }
   const res = getRecommendListDataAPI(pageParams);
   setTimeout(() => {
-    console.log(res);
     // 数组追加
     recommendList.value.push(...res.result.items);
     // 分页条件
@@ -132,24 +137,25 @@ const goToSearch = () => {
 
 const goToMine = () => {
   console.log("跳转到-‘我的’");
-  uni.navigateTo({
+
+  uni.reLaunch({
+
     url: "/pages/mine/mine",
   });
 };
 
-const goTomeetingshow = (meetingid:string) =>{
-	console.log("跳转到-'会议信息'")
-	uni.navigateTo({
-		url:'/pages/recommend/meetingshow?meetingId='+ meetingid
-	})
-}
+const goTomeetingshow = (meetingid: string) => {
+  console.log("跳转到-'会议信息'");
+  uni.navigateTo({
+    url: "/pages/recommend/meetingshow?meetingId=" + meetingid,
+  });
+};
 
 const goTomessage = () => {
   uni.navigateTo({
     url: "/pages/mine/message",
   });
 };
-
 </script>
 
 <template>
@@ -160,13 +166,20 @@ const goTomessage = () => {
     <view class="header">
       <!-- 搜索栏 -->
       <view class="search-bar">
-        <image :src="defaultAvatar" class="user-avatar" @tap="goToMine"></image>
+        <image
+          :src="userInfo.avatarUrl ? userInfo.avatarUrl : defaultAvatar"
+          class="user-avatar"
+          @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">
           <uni-icons type="search" size="20" color="#666"></uni-icons>
           <input type="text" placeholder="搜索会议" />
         </view>
         <!-- <uni-icons type="videocam" size="24" color="#666"></uni-icons> -->
-        <uni-icons type="email" size="24" color="#666" @click="goTomessage"></uni-icons>
+        <uni-icons
+          type="email"
+          size="24"
+          color="#666"
+          @click="goTomessage"></uni-icons>
       </view>
 
       <!-- 导航栏 -->
@@ -181,6 +194,7 @@ const goTomessage = () => {
 
     <!-- 滚动内容区域 -->
     <scroll-view
+      style="margin-bottom: 1vh"
       scroll-y
       class="content-scroll"
       @scroll="onScroll"
@@ -207,10 +221,13 @@ const goTomessage = () => {
 
       <!-- 会议推荐网格 -->
       <view class="meeting-grid">
-        <view class="meeting-item" v-for="item in recommendList" :key="item.meetingId">
+        <view
+          class="meeting-item"
+          v-for="item in recommendList"
+          :key="item.meetingId">
           <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
-            <image :src="item.cover" mode="aspectFill"></image>
-           <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
+            <image :src="defaultCover" mode="aspectFill"></image>
+            <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
           </view>
           <view class="meeting-info">
             <view class="meeting-title">{{ item.title }}</view>
@@ -240,7 +257,7 @@ const goTomessage = () => {
 .page-container {
   display: flex;
   flex-direction: column;
-  height: 93vh;
+  height: 92vh;
   overflow: hidden;
 }
 .header {

@@ -1,4 +1,4 @@
-import { stringify } from './queryString';
+import { stringify } from "./queryString";
 
 interface ILocation {
   path?: string;
@@ -8,7 +8,7 @@ interface ILocation {
 }
 
 function parseUrl(location: ILocation) {
-  if (typeof location === 'string') return location;
+  if (typeof location === "string") return location;
   const { path, query } = location;
   const queryStr = stringify(query);
   if (!queryStr) return path;
@@ -22,18 +22,20 @@ function parseRoute($mp: any) {
     page: `/${path}`,
     params: {},
     query: _$mp.query,
-    hash: '',
+    hash: "",
     fullPath: parseUrl({
       path: `/${path}`,
       query: _$mp.query,
     }),
-    name: path && path.replace(/\/(\w)/g, ($0: any, $1: string) => $1.toUpperCase()),
+    name:
+      path &&
+      path.replace(/\/(\w)/g, ($0: any, $1: string) => $1.toUpperCase()),
   };
 }
 declare const uni: any;
 declare const getCurrentPages: any;
-uni.onAppRoute
-  && uni.onAppRoute(() => {
+uni.onAppRoute &&
+  uni.onAppRoute(() => {
     const page = getCurrentPages();
     const thisPage = page[page.length - 1];
     route.setRoute(parseRoute(thisPage));
@@ -73,16 +75,23 @@ class Router {
   }
 
   replace(location: ILocation, complete?: any, fail?: any, success?: any) {
-    const url = parseUrl(location);
-    const params = {
-      url,
-      complete,
-      fail,
-      success,
-    } as any;
-    route.setRoute(parseRoute(location));
-		uni.setStorageSync('routeInfo', parseRoute(location));
-    uni.redirectTo(params);
+    try {
+      fail = (err) => {
+        console.log("replace fail:", err);
+      };
+      const url = parseUrl(location);
+      const params = {
+        url,
+        complete,
+        fail,
+        success,
+      } as any;
+      route.setRoute(parseRoute(location));
+      uni.setStorageSync("routeInfo", parseRoute(location));
+      uni.redirectTo(params);
+    } catch (error) {
+      console.error("replace error:", error);
+    }
   }
 
   go(delta: any) {

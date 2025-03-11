@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
@@ -46,16 +47,19 @@ const getIconType = (iconName: string): string => {
   return iconMap[iconName] || 'help';
 };
 
+
 // 获取用户信息
 const getUserInfo = async () => {
   try {
     const res = await TUIUserService.getUserProfile();
+    console.log("TUIUserService.getUserProfile:", res.data);
     if (res?.data) {
       userInfo.value = {
         avatarUrl: res.data.avatar || userInfo.value.avatarUrl,
         username: res.data.nick || userInfo.value.username, 
         id: res.data.id || userInfo.value.id,
         signature: res.data.signature || userInfo.value.signature,
+
       };
     }
   } catch (error) {
@@ -93,7 +97,7 @@ const remind = () => {
 };
 
 //小功能页面跳转
-const To = (page: string): void => {
+const To = (page) => {
   uni.navigateTo({
     url: "/pages/mine/" + page,
   });
@@ -133,8 +137,9 @@ const handleLogout = () => {
   uni.showModal({
     title: "提示",
     content: "确定要退出登录吗?",
-    success: (res: UniApp.ShowModalRes) => {
+    success: (res) => {
       if (res.confirm) {
+        userInfoStore.clearProfile();
         uni.reLaunch({
           url: "/pages/login/login", //返回到登录页面
         });
@@ -142,6 +147,7 @@ const handleLogout = () => {
     },
   });
 };
+
 </script>
 
 <template>
@@ -241,6 +247,7 @@ const handleLogout = () => {
 		<!-- 底部导航栏 -->
 		<tabber></tabber>
 	</view>
+
 </template>
 
 <style lang="scss" scoped>
@@ -478,6 +485,7 @@ const handleLogout = () => {
 
 .logout-wrapper {
   padding: 40rpx 30rpx 80rpx;
+
 }
 
 .logout-btn {
@@ -490,10 +498,12 @@ const handleLogout = () => {
   font-size: 32rpx;
   border-radius: 44rpx;
   border: none;
+
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
   
   &:active {
     background-color: #f9f9f9;
   }
+
 }
 </style>
