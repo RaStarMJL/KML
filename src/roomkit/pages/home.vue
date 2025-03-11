@@ -52,6 +52,7 @@ async function generateRoomId(): Promise<string> {
  * 处理点击【创建房间】
  **/
 async function handleCreateRoom(roomOption: Record<string, any>) {
+  console.log("roomOption", roomOption);
   setTUIRoomData("createRoom", roomOption);
   const roomId = await generateRoomId();
   router.replace({

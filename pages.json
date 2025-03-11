@@ -99,6 +99,13 @@
         // "navigationStyle": "custom",
         "navigationBarTitleText": "登录"
       }
+    },
+    {
+      "path": "pages/room/room",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "登录"
+      }
     }
   ],
   "subpackages": [
