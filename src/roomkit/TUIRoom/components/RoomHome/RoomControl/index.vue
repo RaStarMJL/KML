@@ -26,13 +26,13 @@
           <span class="text"> 预约会议</span>
         </div>
         <!-- 会议总结 / 会议回放 -->
-        <div class="summary-room2-body common-button-body" @tap="createRoom2">
-          <div class="summary-room2 common-button">
+        <div class="summary-room2-body common-button-body" @click="handlecreate">
+          <div class="summary-room2 common-button" >
             <svg-icon
               class="summary-icon svg-icon"
               :icon="MeetingSummaryIcon" />
           </div>
-          <span class="text"> 创建会议</span>
+          <span class="text" > 创建会议</span>
         </div>
       </div>
       <!-- 历史会议 -->
@@ -349,6 +349,14 @@ function handleDocumentClick(event: MouseEvent) {
   if (showMoreType.value && !moreTypeRef.value.contains(event.target)) {
     showMoreType.value = false;
   }
+}
+
+function handlecreate(){
+  uni.navigateTo(
+    {
+      url:'/pages/meetting/createMeeting'
+    }
+  )
 }
 
 function handleRoomOption(type: string) {

@@ -94,18 +94,22 @@
       }
     },
     {
-    	"path" : "pages/login/login",
-    	"style" : 
-    	{
-    		"navigationBarTitleText" : ""
-    	}
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": ""
+      }
     },
     {
-    	"path" : "pages/register/register",
-    	"style" : 
-    	{
-    		"navigationBarTitleText" : ""
-    	}
+      "path": "pages/register/register",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/meetting/createMeeting",
+      "style": {
+        "navigationBarTitleText": "创建会议"
+      }
     }
   ],
   "subpackages": [
