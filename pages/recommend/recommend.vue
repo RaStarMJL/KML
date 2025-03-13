@@ -175,7 +175,7 @@ const goTomessage = () => {
           :key="item.meetingId">
           <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
             <image
-              :src="item.meetinglmageUrl || defaultAvatar"
+              :src="item.meetingImageUrl || defaultCover"
               mode="aspectFill"></image>
             <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
           </view>
