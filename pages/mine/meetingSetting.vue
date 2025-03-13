@@ -121,7 +121,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .container {
   min-height: 100vh;
   background-color: #f5f6f7;

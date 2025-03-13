@@ -94,18 +94,22 @@
       }
     },
     {
-    	"path" : "pages/login/login",
-    	"style" : 
-    	{
-    		"navigationBarTitleText" : ""
-    	}
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": ""
+      }
     },
     {
-    	"path" : "pages/register/register",
-    	"style" : 
-    	{
-    		"navigationBarTitleText" : ""
-    	}
+      "path": "pages/register/register",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/meetting/ReserveMeeting/ReserveMeeting",
+      "style": {
+        "navigationBarTitleText": "预约会议"
+      }
     }
   ],
   "subpackages": [
@@ -117,12 +121,6 @@
           "style": {
             "navigationStyle": "custom", // 隐藏默认导航
             "navigationBarTitleText": "home"
-          }
-        },
-        {
-          "path": "roomkit/components/reservemeetings",
-          "style": {
-            "navigationBarTitleText": "预约会议"
           }
         },
         {
