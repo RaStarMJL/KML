@@ -28,7 +28,7 @@
             position: absolute;
             top: 0;
           "
-          >{{ userInfoStore.isLoggedIn || "未登录" }}</span
+          >{{ userInfoStore.isLoggedIn ? userInfo.userName : "未登录" }}</span
         >
       </div>
       <div class="message-icon">

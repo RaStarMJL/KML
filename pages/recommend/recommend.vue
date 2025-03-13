@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import { recommendListdata, swiperListdata } from "./assets/data";
 import tabbar from "/pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import { getRecommendList } from "../../src/services/api";
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -33,101 +35,52 @@ interface ApiResponse {
   };
 }
 
-const userInfoStore = useUserInfoStore();
-
-const userInfo = userInfoStore.userInfo;
-
 const defaultAvatar = "/src/static/images/defaultAvatar.png";
 const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
 // 使用定义的接口类型
-const swiperList = ref<SwiperItem[]>(swiperListdata);
-const allrecommendList = ref<RecommendItem[]>(recommendListdata);
-const recommendList = ref<RecommendItem[]>([]);
+const swiperList = ref(swiperListdata);
+const allrecommendList = ref();
+const recommendList = ref();
+const userInfo = ref();
 
 // 控制返回顶部按钮的显示/隐藏
 const showBackTop = ref(false);
 const scrollTop = ref(0);
+
+onShow(() => {
+  console.log(111);
+  const userInfoStore = useUserInfoStore();
+  userInfo.value = userInfoStore.userInfo;
+  getRecommendListData();
+});
 // scroll-view 的滚动事件处理
 const onScroll = (e: any) => {
   // event.detail.scrollTop 是滚动距离
-  if (e.detail.scrollTop > 800) {
+  /*   if (e.detail.scrollTop > 800) {
     showBackTop.value = true;
   } else {
     showBackTop.value = false;
-  }
+  } */
 };
 // 返回顶部方法
 const backToTop = () => {
-  console.log(222);
   uni.pageScrollTo({
     scrollTop: 0,
     duration: 300,
   });
 };
-const loadMore = () => {
-  getRecommendListData();
-  console.log("滑动到底部了");
-};
-// 分页参数
-const pageParams = {
-  page: 1,
-  pageSize: 10,
-};
+
 // 已结束标记
-const finish = ref(false);
-const getRecommendListData = () => {
-  // 退出分页判断
-  if (finish.value === true) {
-    return uni.showToast({ icon: "none", title: "没有更多数据~" });
-  }
-  const res = getRecommendListDataAPI(pageParams);
-  setTimeout(() => {
-    // 数组追加
-    recommendList.value.push(...res.result.items);
-    // 分页条件
-    if (pageParams.page < res.result.pages) {
-      // 页码累加
-      pageParams.page++;
-    } else {
-      finish.value = true;
-    }
-  }, 1000);
+const finish = ref(true);
+const getRecommendListData = async () => {
+  const res = await getRecommendList(userInfo.value.userId);
+  console.log(res);
+  recommendList.value = res.data;
 };
-const getRecommendListDataAPI = (params: PageParams): ApiResponse => {
-  const totalPage = Math.ceil(allrecommendList.value.length / params.pageSize);
-  const items = allrecommendList.value.slice(
-    (params.page - 1) * params.pageSize,
-    params.page * params.pageSize
-  );
-  const pages = totalPage;
-  return { result: { items, pages } };
-};
-const isTriggered = ref(false);
-const onRefresh = () => {
-  // 开启动画
-  isTriggered.value = true;
-  setTimeout(() => {
-    pageParams.page = 1;
-    recommendList.value = [];
-    finish.value = false;
-    isTriggered.value = false;
-    getRecommendListData();
-  }, 1000);
-  console.log("下拉刷新");
-};
-// fab 按钮配置，简化为单个按钮
-const fabPattern = {
-  color: "#0052d9",
-  backgroundColor: "#fff",
-  selectedColor: "#0052d9",
-  buttonColor: "#0052d9",
-};
-onMounted(() => {
-  getRecommendListData();
-});
+const onRefresh = () => {};
 
 const goToSearch = () => {
   uni.navigateTo({
@@ -139,7 +92,6 @@ const goToMine = () => {
   console.log("跳转到-‘我的’");
 
   uni.reLaunch({
-
     url: "/pages/mine/mine",
   });
 };
@@ -167,7 +119,7 @@ const goTomessage = () => {
       <!-- 搜索栏 -->
       <view class="search-bar">
         <image
-          :src="userInfoStore.isLoggedIn ? userInfo.avatarUrl : defaultAvatar"
+          :src="userInfo.avatarUrl || defaultAvatar"
           class="user-avatar"
           @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">
@@ -198,10 +150,6 @@ const goTomessage = () => {
       scroll-y
       class="content-scroll"
       @scroll="onScroll"
-      @scrolltolower="loadMore"
-      :refresher-triggered="isTriggered"
-      refresher-enabled
-      @refresherrefresh="onRefresh"
       scroll-with-animation>
       <!-- 轮播图 -->
       <swiper
@@ -226,14 +174,16 @@ const goTomessage = () => {
           v-for="item in recommendList"
           :key="item.meetingId">
           <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
-            <image :src="defaultCover" mode="aspectFill"></image>
+            <image
+              :src="item.meetinglmageUrl || defaultAvatar"
+              mode="aspectFill"></image>
             <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
           </view>
           <view class="meeting-info">
-            <view class="meeting-title">{{ item.title }}</view>
+            <view class="meeting-title">{{ item.meetingName }}</view>
             <view class="meeting-views">
-              <uni-icons type="eye" size="12" color="#999"></uni-icons>
-              <text>{{ item.views }}</text>
+              <uni-icons type="fire-filled" size="12" color="#100"></uni-icons>
+              <text>{{ item.meetingHeat }}</text>
             </view>
           </view>
         </view>
@@ -245,11 +195,6 @@ const goTomessage = () => {
 
     <!-- 底部导航栏 -->
     <tabbar currentPath="/pages/recommend/recommend"></tabbar>
-
-    <!-- 简单的返回顶部按钮 -->
-    <view v-show="showBackTop" class="back-to-top" @click="backToTop">
-      <uni-icons type="top" size="20" color="#fff"></uni-icons>
-    </view>
   </view>
 </template>
 
