@@ -214,12 +214,14 @@ const sendVerificationCode = () => {
 	
 	// 生成4位随机验证码
 	generatedCode.value = generateVerificationCode();
-	console.log('验证码：', generatedCode.value); // 实际项目中应该通过短信发送
+	
+	// 自动填充验证码到输入框
+	formData.code = generatedCode.value;
 	
 	uni.showToast({
 		title: '验证码：' + generatedCode.value,
-		icon: 'none',
-		duration: 3000
+		icon: 'success',
+		duration: 2000
 	});
 	
 	// 开始倒计时

@@ -98,6 +98,10 @@
       "style": {
         "navigationBarTitleText": ""
       }
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": ""
+      }
     },
     {
       "path": "pages/register/register",
