@@ -3,10 +3,14 @@
     <!-- 会议状态卡片 -->
     <view class="status-card">
       <view class="status-tag" :class="meetingInfo.meetingStatus">
-        {{ getMeetingStatus(meetingInfo.meetingStatus) }}
+        {{ status }}
       </view>
       <view class="heat-info">
-        <image src="/static/icons/fire.png" class="fire-icon" />
+        <uni-icons
+          type="fire-filled"
+          color="red"
+          size="24"
+          class="title-icon" />
         <text>热度 {{ meetingInfo.meetingHeat }}</text>
       </view>
     </view>
@@ -62,7 +66,7 @@
     <!-- 会议介绍 -->
     <view class="section">
       <view class="section-title">
-        <image src="/static/icons/intro.png" class="title-icon" />
+        <uni-icons type="compose" color="" size="24" class="title-icon" />
         会议简介
       </view>
       <view class="section-content">{{ meetingInfo.meetingDescription }}</view>
@@ -71,7 +75,7 @@
     <!-- 会议详细介绍 -->
     <view class="section">
       <view class="section-title">
-        <image src="/static/icons/detail.png" class="title-icon" />
+        <uni-icons type="wallet" color="" size="24" class="title-icon" />
         详细介绍
       </view>
       <view class="section-content">{{ meetingInfo.aiSummary }}</view>
@@ -80,7 +84,8 @@
     <!-- 参会人员 -->
     <view class="section">
       <view class="section-title">
-        <image src="/static/icons/users.png" class="title-icon" />
+        <uni-icons type="person" color="" size="24" class="title-icon" />
+        <!-- <image src="/src/static/images/ok.png" class="title-icon" /> -->
         参会人员
       </view>
       <view class="attendees-list">
@@ -129,25 +134,19 @@
 
     <!-- 底部按钮 -->
     <view class="bottom-buttons">
-      <button
-        class="btn join-btn"
-        @click="
-          joinMeeting({
-            roomId: meetingInfo.meetingId,
-            memberRole: 'host',
-          })
-        ">
-        参加会议
+      <button class="btn join-btn" @click="handleEnterMeeting()">
+        {{ this.isHost ? "开始会议" : "加入会议" }}
       </button>
       <button class="btn nav-btn" @click="openNavigation">地图导航</button>
-      <button class="btn nav-btn" @click="test">测试</button>
     </view>
   </view>
 </template>
 
 <script>
 import { useRoomStore } from "../../src/roomkit/TUIRoom/stores/room.ts";
+import { useUserInfoStore } from "../../src/stores/modules/userInfo.ts";
 import router from "../../src/router/index.ts";
+import { getMeetingData } from "../../src/services/api.ts";
 export default {
   onLoad: function (option) {
     // 获取meetingId
@@ -155,7 +154,11 @@ export default {
     console.log("meetingId:", this.meetingInfo.meetingId);
     // 获取会议数据
     this.fetchMeetingInfo();
+    // 获取房间信息
     this.roomStore = useRoomStore();
+    // 获取用户信息
+    const userInfoStore = useUserInfoStore();
+    this.userId = userInfoStore.userInfo.userId;
   },
 
   data() {
@@ -181,11 +184,6 @@ export default {
         meetingHeat: 0,
         TUIRoomRef: null,
       },
-      roomOption: {
-        roomMode: null,
-        roomParam: null,
-        isSeatEnabled: null,
-      },
       tuiRoomParam: {
         isOpenCamera: true,
         isOpenMicrophone: true,
@@ -195,10 +193,11 @@ export default {
       },
       mode: "FreeToSpeak",
       roomStore: null,
+      userId: "111",
     };
   },
   methods: {
-    test() {
+    startMeeting() {
       const roomMode = this.mode;
       const isSeatEnabled = Boolean(roomMode === "SpeakAfterTakingSeat");
       const roomParam = this.getRoomParam();
@@ -210,7 +209,6 @@ export default {
 
       this.setTUIRoomData("createRoom", roomOption);
       const roomId = this.meetingInfo.meetingId;
-      console.log("roomId123:", roomId);
       router.replace({
         path: "/src/roomkit/pages/room",
         query: {
@@ -218,6 +216,29 @@ export default {
         },
       });
     },
+    joinMeeting() {
+      const roomParam = this.getRoomParam();
+      const roomOption = {
+        roomId: this.meetingInfo.meetingId,
+        roomParam,
+      };
+      this.setTUIRoomData("enterRoom", roomOption);
+      router.replace({
+        path: "/src/roomkit/pages/room",
+        query: {
+          roomId: roomOption.roomId,
+        },
+      });
+    },
+    // 获取rommParam
+    getRoomParam() {
+      this.tuiRoomParam.defaultCameraId = this.roomStore.currentCameraId;
+      this.tuiRoomParam.defaultMicrophoneId =
+        this.roomStore.currentMicrophoneId;
+      this.tuiRoomParam.defaultSpeakerId = this.roomStore.currentSpeakerId;
+      return this.tuiRoomParam;
+    },
+
     setTUIRoomData(action, roomOption) {
       uni.setStorageSync(
         "tuiRoom-roomInfo",
@@ -230,13 +251,9 @@ export default {
     async fetchMeetingInfo() {
       try {
         // 这里替换为实际的API调用
-        const response = await uni.request({
-          url: `http://192.168.31.115:5000/meetMessage?meetId=${this.meetingInfo.meetingId}`,
-          method: "GET",
-        });
-        console.log("response", response);
-        if (response.data.code === 1) {
-          this.meetingInfo = response.data.data;
+        const res = await getMeetingData(this.meetingInfo.meetingId);
+        if (res.code === 1) {
+          this.meetingInfo = res.data;
         }
       } catch (error) {
         uni.showToast({
@@ -245,39 +262,68 @@ export default {
         });
       }
     },
-    // 获取rommParam
-    getRoomParam() {
-      this.tuiRoomParam.defaultCameraId = this.roomStore.currentCameraId;
-      this.tuiRoomParam.defaultMicrophoneId =
-        this.roomStore.currentMicrophoneId;
-      this.tuiRoomParam.defaultSpeakerId = this.roomStore.currentSpeakerId;
-      return this.tuiRoomParam;
-    },
-
-    joinMeeting(obj) {
-      /* params
-				obj.roomId  房间id
-				obj.memberRole  参会人员的角色
-				*/
-      // 如果是会议创建者点击按钮，则创建房间并开始会议
-      if (obj.memberRole === "host") {
-        this.roomOption.roomMode = "FreeToSpeak";
-        this.roomOption.roomParam = this.getRoomParam();
-        this.roomOption.isSeatEnabled = Boolean(
-          this.mode === "SpeakAfterTakingSeat"
-        );
-        this.handleCreateRoom(this.roomOption);
+    handleEnterMeeting() {
+      if (this.isHost) {
+        uni.showModal({
+          title: "提示",
+          content: "确定开始会议吗",
+          showCancel: true,
+          success: ({ confirm, cancel }) => {
+            if (confirm) {
+              this.startMeeting();
+            } else if (cancel) {
+              return;
+            }
+          },
+        });
+      } else {
+        console.log(this.meetingInfo.meetingStatus);
+        switch (this.meetingInfo.meetingStatus) {
+          case "Waiting": {
+            // uni.showToast({
+            //   title: "会议还未开始，请耐心等待",
+            //   icon: "none",
+            // });
+            uni.showModal({
+              title: "提示",
+              content: "会议正在进行中，确定加入会议吗",
+              showCancel: true,
+              success: ({ confirm, cancel }) => {
+                if (confirm) {
+                  this.joinMeeting();
+                } else if (cancel) {
+                  return;
+                }
+              },
+            });
+            break;
+          }
+          case "Ongoing": {
+            uni.showModal({
+              title: "提示",
+              content: "会议正在进行中，确定加入会议吗",
+              showCancel: true,
+              success: ({ confirm, cancel }) => {
+                if (confirm) {
+                  this.joinMeeting();
+                } else if (cancel) {
+                  return;
+                }
+              },
+            });
+            break;
+          }
+          case "Ended": {
+            uni.showToast({
+              title: "会议已经结束",
+              icon: "none",
+            });
+            break;
+          }
+          default:
+            return;
+        }
       }
-    },
-    // 设置房间信息
-    setTUIRoomData(action, roomOption) {
-      uni.setStorageSync(
-        "tuiRoom-roomInfo",
-        JSON.stringify({
-          action,
-          ...roomOption,
-        })
-      );
     },
     async handleCreateRoom(roomOption) {
       this.setTUIRoomData("createRoom", roomOption);
@@ -298,15 +344,6 @@ export default {
         address: this.meetingInfo.meetingLocation,
       });
     },
-
-    getMeetingStatus(status) {
-      const statusMap = {
-        upcoming: "即将开始",
-        ongoing: "进行中",
-        ended: "已结束",
-      };
-      return statusMap[status] || status;
-    },
     formatDate(dateStr) {
       const date = new Date(dateStr);
       return `${date.getMonth() + 1}月${date.getDate()}日`;
@@ -323,6 +360,32 @@ export default {
       const end = new Date(this.meetingInfo.endTime);
       const hours = Math.round((end - start) / (1000 * 60 * 60));
       return `${hours}小时`;
+    },
+  },
+  computed: {
+    isHost() {
+      console.log(this.userId, this.meetingInfo.organizerUid);
+      if (this.userId === this.meetingInfo.organizerUid) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    status() {
+      switch (this.meetingInfo.meetingStatus) {
+        case "Waiting": {
+          return "会议即将开始";
+        }
+        case "Ongoing": {
+          return "会议进行中";
+        }
+        case "Ended": {
+          return "会议已结束";
+        }
+        default: {
+          return "error";
+        }
+      }
     },
   },
 };
@@ -350,17 +413,17 @@ export default {
     border-radius: 20rpx;
     font-size: 24rpx;
 
-    &.upcoming {
+    &.Waiting {
       background: rgba(43, 88, 249, 0.1);
       color: #2b58f9;
     }
 
-    &.ongoing {
+    &.Ongoing {
       background: rgba(82, 196, 26, 0.1);
       color: #52c41a;
     }
 
-    &.ended {
+    &.Ended {
       background: rgba(153, 153, 153, 0.1);
       color: #999;
     }
@@ -446,16 +509,20 @@ export default {
 
 .quick-info {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   background: #fff;
   padding: 20rpx;
   border-radius: 16rpx;
   margin-bottom: 12rpx;
 
   .info-box {
+    width: 30%;
     flex: 1;
     text-align: center;
-
+    display: flex;
+    flex-direction: column;
     .number {
       font-size: 36rpx;
       font-weight: 600;
@@ -500,6 +567,7 @@ export default {
     width: 36rpx;
     height: 36rpx;
     margin-right: 12rpx;
+    margin-bottom: 10rpx;
   }
 }
 

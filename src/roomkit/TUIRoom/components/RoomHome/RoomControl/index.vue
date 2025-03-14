@@ -121,26 +121,81 @@
             <span class="roomid-input">{{ userName }}</span>
           </div>
         </div>
-        <div class="room-detail-setting">
-          <div class="room-detail-setting-list">
-            {{ t("Turn on the microphone") }}
-            <div
-              class="slider-box"
-              :class="[isMicOn && 'slider-open']"
-              @tap="() => toggle('isMicOn')">
-              <span class="slider-block"></span>
+        <scroll-view scroll-y style="margin-top: 20px">
+          <div class="room-detail-setting">
+            <!-- 入会开启麦克风 -->
+            <div class="room-detail-setting-list">
+              {{ t("Turn on the microphone") }}
+              <div
+                class="slider-box"
+                :class="[isMicOn && 'slider-open']"
+                @tap="() => toggle('isMicOn')">
+                <span class="slider-block"></span>
+              </div>
             </div>
-          </div>
-          <div class="room-detail-setting-list">
-            {{ t("Turn on the video") }}
-            <div
-              class="slider-box"
-              :class="[isCamerOn && 'slider-open']"
-              @tap="() => toggle('isCamerOn')">
-              <span class="slider-block"></span>
+            <!--入会 开启视频 -->
+            <div class="room-detail-setting-list">
+              {{ t("Turn on the video") }}
+              <div
+                class="slider-box"
+                :class="[isCamerOn && 'slider-open']"
+                @tap="() => toggle('isCamerOn')">
+                <span class="slider-block"></span>
+              </div>
             </div>
+            <!-- 入会开启扬声器 -->
+            <div class="room-detail-setting-list">
+              开启扬声器
+              <div
+                class="slider-box"
+                :class="[isCamerOn && 'slider-open']"
+                @tap="() => toggle('isCamerOn')">
+                <span class="slider-block"></span>
+              </div>
+            </div>
+            <!-- AI浮窗 -->
+            <div class="room-detail-setting-list">
+              显示AI浮窗
+              <div
+                class="slider-box"
+                :class="[isCamerOn && 'slider-open']"
+                @tap="() => toggle('isCamerOn')">
+                <span class="slider-block"></span>
+              </div>
+            </div>
+            <!-- 虚拟头像 -->
+            <div class="room-detail-setting-list">
+              使用虚拟头像
+              <div
+                class="slider-box"
+                :class="[isCamerOn && 'slider-open']"
+                @tap="() => toggle('isCamerOn')">
+                <span class="slider-block"></span>
+              </div>
+            </div>
+            <!-- 显示弹幕 -->
+            <div class="room-detail-setting-list">
+              自动显示弹幕
+              <div
+                class="slider-box"
+                :class="[isCamerOn && 'slider-open']"
+                @tap="() => toggle('isCamerOn')">
+                <span class="slider-block"></span>
+              </div>
+            </div>
+            <!-- 实时语音转文字 -->
+            <div class="room-detail-setting-list">
+              实时语音转文字
+              <div
+                class="slider-box"
+                :class="[isCamerOn && 'slider-open']"
+                @tap="() => toggle('isCamerOn')">
+                <span class="slider-block"></span>
+              </div>
+            </div>
+            <!-- <meetingSetting></meetingSetting> -->
           </div>
-        </div>
+        </scroll-view>
       </div>
       <div class="room-detail-bottom">
         <span
@@ -207,6 +262,7 @@ import Logo from "../../common/Logo.vue";
 import TUIMessage from "../../common/base/Message/index";
 import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import meetingSetting from "../../../../../../pages/mine/meetingSetting.vue";
 const { t } = useRoomControl();
 
 // 距离手机头部的安全距离
@@ -295,8 +351,9 @@ function reserveRoom() {
     return;
   }
   uni.navigateTo({
-    url: `/src/roomkit/components/reservemeetings`,
+    url: "/pages/meetting/ReserveMeeting/ReserveMeeting",
   });
+  console.log(111);
 }
 
 function enterRoom() {
@@ -579,8 +636,8 @@ onUnmounted(() => {
 }
 
 .room-detail-setting {
+  height: 56vh;
   background: white;
-  margin-top: 20px;
   border-radius: 6px;
 }
 
@@ -599,9 +656,9 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   border-radius: 8px;
-  padding: 10px;
+  padding: 10px 0;
   position: absolute;
-  bottom: 230px;
+  bottom: 10vh;
 }
 
 .button {
