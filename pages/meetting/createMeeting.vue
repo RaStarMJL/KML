@@ -12,13 +12,12 @@
           <view class="input-group">
             <view class="input-item">
               <text class="label">会议主题</text>
-              <input 
-                v-model="meeting.meetingName" 
-                class="input" 
-                placeholder="请输入会议主题" 
-                required 
-                @input="onInputChange"
-              />
+              <input
+                v-model="meeting.meetingName"
+                class="input"
+                placeholder="请输入会议主题"
+                required
+                @input="onInputChange" />
             </view>
 
             <view class="input-item">
@@ -28,8 +27,7 @@
                 class="textarea"
                 placeholder="请输入会议简介"
                 required
-                @input="onInputChange"
-              />
+                @input="onInputChange" />
             </view>
           </view>
         </view>
@@ -42,13 +40,12 @@
               mode="date"
               :value="meeting.startDate"
               @change="onStartDateChange"
-              class="picker-item"
-            >
+              class="picker-item">
               <view class="picker-content">
                 <text class="label">开始日期</text>
                 <view class="picker-value">
                   <text class="icon">📅</text>
-                  <text>{{meeting.startDate || '请选择日期'}}</text>
+                  <text>{{ meeting.startDate || "请选择日期" }}</text>
                 </view>
               </view>
             </picker>
@@ -57,13 +54,12 @@
               mode="time"
               :value="meeting.startTime"
               @change="onStartTimeChange"
-              class="picker-item"
-            >
+              class="picker-item">
               <view class="picker-content">
                 <text class="label">开始时间</text>
                 <view class="picker-value">
                   <text class="icon">🕒</text>
-                  <text>{{meeting.startTime || '请选择时间'}}</text>
+                  <text>{{ meeting.startTime || "请选择时间" }}</text>
                 </view>
               </view>
             </picker>
@@ -72,13 +68,12 @@
               mode="date"
               :value="meeting.endDate"
               @change="onEndDateChange"
-              class="picker-item"
-            >
+              class="picker-item">
               <view class="picker-content">
                 <text class="label">结束日期</text>
                 <view class="picker-value">
                   <text class="icon">📅</text>
-                  <text>{{meeting.endDate || '请选择日期'}}</text>
+                  <text>{{ meeting.endDate || "请选择日期" }}</text>
                 </view>
               </view>
             </picker>
@@ -87,38 +82,35 @@
               mode="time"
               :value="meeting.endTime"
               @change="onEndTimeChange"
-              class="picker-item"
-            >
+              class="picker-item">
               <view class="picker-content">
                 <text class="label">结束时间</text>
                 <view class="picker-value">
                   <text class="icon">🕒</text>
-                  <text>{{meeting.endTime || '请选择时间'}}</text>
+                  <text>{{ meeting.endTime || "请选择时间" }}</text>
                 </view>
               </view>
             </picker>
 
             <view class="input-item">
               <text class="label">会议地点</text>
-              <input 
-                v-model="meeting.meetingLocation" 
+              <input
+                v-model="meeting.meetingLocation"
                 class="input"
                 placeholder="请输入会议地点"
-                required 
-                @input="onInputChange"
-              />
+                required
+                @input="onInputChange" />
             </view>
 
             <view class="input-item">
               <text class="label">预计人数</text>
-              <input 
-                v-model.number="meeting.numAttendees" 
-                class="input" 
+              <input
+                v-model.number="meeting.numAttendees"
+                class="input"
                 type="number"
                 placeholder="请输入预计人数"
-                required 
-                @input="onInputChange"
-              />
+                required
+                @input="onInputChange" />
             </view>
           </view>
         </view>
@@ -130,12 +122,11 @@
             <view class="upload-section">
               <text class="label">会议封面</text>
               <view class="upload-area" @click="chooseImage">
-                <image 
-                  v-if="imagePreview" 
-                  :src="imagePreview" 
-                  mode="aspectFill" 
-                  class="preview-image"
-                />
+                <image
+                  v-if="imagePreview"
+                  :src="imagePreview"
+                  mode="aspectFill"
+                  class="preview-image" />
                 <view v-else class="upload-placeholder">
                   <text class="upload-icon">📸</text>
                   <text class="upload-text">点击上传封面图片</text>
@@ -149,35 +140,30 @@
                 v-model="meeting.meetingRules"
                 class="textarea"
                 placeholder="请输入会场规则"
-                @input="onInputChange"
-              />
+                @input="onInputChange" />
             </view>
 
             <view class="input-item">
               <text class="label">会场布局</text>
-              <input 
-                v-model="meeting.venueLayout" 
+              <input
+                v-model="meeting.venueLayout"
                 class="input"
-                placeholder="请输入会场布局" 
-                @input="onInputChange"
-              />
+                placeholder="请输入会场布局"
+                @input="onInputChange" />
             </view>
 
             <view class="input-item">
               <text class="label">餐饮服务</text>
-              <input 
-                v-model="meeting.cateringService" 
+              <input
+                v-model="meeting.cateringService"
                 class="input"
-                placeholder="请输入餐饮安排" 
-                @input="onInputChange"
-              />
+                placeholder="请输入餐饮安排"
+                @input="onInputChange" />
             </view>
           </view>
         </view>
 
-        <button class="submit-btn" @click="submitForm">
-          创建会议
-        </button>
+        <button class="submit-btn" @click="submitForm">创建会议</button>
       </view>
     </view>
   </view>
@@ -189,80 +175,80 @@ export default {
   data() {
     return {
       meeting: {
-        meetingId: '',
-        meetingName: '',
-        meetingDescription: '',
-        meetingImageUrl: '',
-        meetingLocation: '',
-        meetingRules: '',
-        venueLayout: '',
-        cateringService: '',
+        meetingId: "",
+        meetingName: "",
+        meetingDescription: "",
+        meetingImageUrl: "",
+        meetingLocation: "",
+        meetingRules: "",
+        venueLayout: "",
+        cateringService: "",
         meetingAttachments: [],
         numAttendees: 0,
-        attendeesUid: '',
-        startDate: '',
-        startTime: '',
-        endDate: '',
-        endTime: '',
-        organizerUid: '',
-        meetingStatus: 'Waiting',
-        meetingType: 'online',
-        aiSummary: '',
+        attendeesUid: "",
+        startDate: "",
+        startTime: "",
+        endDate: "",
+        endTime: "",
+        organizerUid: "",
+        meetingStatus: "Waiting",
+        meetingType: "online",
+        aiSummary: "",
         meetingHeat: 0,
         //meetingImage: '',
       },
-      imagePreview: '',
+      imagePreview: "",
       imageFile: null,
       formRules: {
-        meetingName: { required: true, message: '请输入会议主题' },
-        meetingDescription: { required: true, message: '请输入会议简介' },
-        startDate: { required: true, message: '请选择开始日期' },
-        startTime: { required: true, message: '请选择开始时间' },
-        endDate: { required: true, message: '请选择结束日期' },
-        endTime: { required: true, message: '请选择结束时间' },
-        meetingLocation: { required: true, message: '请输入会议地点' },
-        numAttendees: { required: true, message: '请输入预计人数' },
-        meetingRules: { required: true, message: '请输入会场规则' },
-        venueLayout: { required: true, message: '请输入会场布局' },
-        cateringService: { required: true, message: '请输入餐饮安排' },
+        meetingName: { required: true, message: "请输入会议主题" },
+        meetingDescription: { required: true, message: "请输入会议简介" },
+        startDate: { required: true, message: "请选择开始日期" },
+        startTime: { required: true, message: "请选择开始时间" },
+        endDate: { required: true, message: "请选择结束日期" },
+        endTime: { required: true, message: "请选择结束时间" },
+        meetingLocation: { required: true, message: "请输入会议地点" },
+        numAttendees: { required: true, message: "请输入预计人数" },
+        meetingRules: { required: true, message: "请输入会场规则" },
+        venueLayout: { required: true, message: "请输入会场布局" },
+        cateringService: { required: true, message: "请输入餐饮安排" },
         //meetingImage: { required: true, message: '请选择会议封面图片' },
       },
       isFormModified: false,
       isNavigatingBack: false,
-    }
+    };
   },
   watch: {
     meeting: {
       handler(newVal, oldVal) {
-        if (oldVal.meetingName !== '') {
+        if (oldVal.meetingName !== "") {
           this.isFormModified = true;
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   onBackPress(options) {
     if (this.isNavigatingBack) {
       return false;
     }
-    
+
     if (!this.isFormModified) {
       return false;
     }
-    
+
     uni.showModal({
-      title: '提示',
-      content: '当前页面内容未保存，是否确认退出？',
-      cancelText: '取消',
-      confirmText: '确认退出',
+      title: "提示",
+      content: "当前页面内容未保存，是否确认退出？",
+      cancelText: "取消",
+      confirmText: "确认退出",
       success: (res) => {
         if (res.confirm) {
           this.isNavigatingBack = true;
           uni.navigateBack();
         }
-      }
+      },
     });
-    
+
     return true;
   },
   onUnload() {
@@ -292,18 +278,18 @@ export default {
       try {
         const res = await uni.chooseImage({
           count: 1,
-          sizeType: ['compressed'],
-          sourceType: ['album', 'camera']
+          sizeType: ["compressed"],
+          sourceType: ["album", "camera"],
         });
-        
+
         this.imagePreview = res.tempFilePaths[0];
         this.imageFile = res.tempFiles[0];
         this.onInputChange();
       } catch (error) {
-        console.error('选择图片失败:', error);
+        console.error("选择图片失败:", error);
         uni.showToast({
-          title: '选择图片失败',
-          icon: 'none'
+          title: "选择图片失败",
+          icon: "none",
         });
       }
     },
@@ -311,77 +297,93 @@ export default {
       for (const key in this.formRules) {
         const rule = this.formRules[key];
         const value = this.meeting[key];
-        
+
         if (rule.required && !value) {
           uni.showToast({
             title: rule.message,
-            icon: 'none',
-            duration: 2000
+            icon: "none",
+            duration: 2000,
           });
           return false;
         }
       }
-      
-      if (this.meeting.startDate && this.meeting.startTime && 
-          this.meeting.endDate && this.meeting.endTime) {
-        const startDateTime = new Date(`${this.meeting.startDate} ${this.meeting.startTime}`);
-        const endDateTime = new Date(`${this.meeting.endDate} ${this.meeting.endTime}`);
-        
+
+      if (
+        this.meeting.startDate &&
+        this.meeting.startTime &&
+        this.meeting.endDate &&
+        this.meeting.endTime
+      ) {
+        const startDateTime = new Date(
+          `${this.meeting.startDate} ${this.meeting.startTime}`
+        );
+        const endDateTime = new Date(
+          `${this.meeting.endDate} ${this.meeting.endTime}`
+        );
+
         if (endDateTime <= startDateTime) {
           uni.showToast({
-            title: '结束时间必须晚于开始时间',
-            icon: 'none',
-            duration: 2000
+            title: "结束时间必须晚于开始时间",
+            icon: "none",
+            duration: 2000,
           });
           return false;
         }
       }
-      
+
       if (this.meeting.numAttendees <= 0) {
         uni.showToast({
-          title: '预计人数必须大于0',
-          icon: 'none',
-          duration: 2000
+          title: "预计人数必须大于0",
+          icon: "none",
+          duration: 2000,
         });
         return false;
       }
-      
+
       return true;
+    },
+    generateRoomId() {
+      const roomId = String(Math.ceil(Math.random() * 1000000));
+      return roomId;
     },
 
     async submitForm() {
       if (!this.validateForm()) {
         return;
       }
-      
+
       try {
         uni.showLoading({
-          title: '创建中...'
+          title: "创建中...",
         });
 
         // 获取用户信息
         const userInfoStore = useUserInfoStore();
         const userId = userInfoStore.userInfo?.userId;
-        
+
         if (!userId) {
-          throw new Error('用户未登录');
+          throw new Error("用户未登录");
         }
 
         // 检查是否选择了图片
         if (!this.imagePreview) {
-          throw new Error('请选择会议封面图片');
+          throw new Error("请选择会议封面图片");
         }
 
         // 组合日期和时间为ISO格式
-        const startDateTime = new Date(`${this.meeting.startDate} ${this.meeting.startTime}`).toISOString();
-        const endDateTime = new Date(`${this.meeting.endDate} ${this.meeting.endTime}`).toISOString();
+        const startDateTime = new Date(
+          `${this.meeting.startDate} ${this.meeting.startTime}`
+        ).toISOString();
+        const endDateTime = new Date(
+          `${this.meeting.endDate} ${this.meeting.endTime}`
+        ).toISOString();
 
         // 准备会议记录数据
         const meetrec = {
-          meetingId: `M${Date.now()}`,
+          meetingId: this.generateRoomId(),
           meetingName: this.meeting.meetingName,
           meetingDescription: this.meeting.meetingDescription,
-          meetingImageUrl: '', // 这个字段会由后端处理后返回
+          meetingImageUrl: "", // 这个字段会由后端处理后返回
           meetingLocation: this.meeting.meetingLocation,
           meetingRules: this.meeting.meetingRules,
           venueLayout: this.meeting.venueLayout,
@@ -392,75 +394,74 @@ export default {
           startTime: startDateTime,
           endTime: endDateTime,
           organizerUid: userId,
-          meetingStatus: 'Waiting',
+          meetingStatus: "Waiting",
           meetingType: this.meeting.meetingType,
-          aiSummary: '',
+          aiSummary: "",
           meetingHeat: 0,
           meetingDetail: this.meeting.meetingDescription, // 使用会议简介作为详细信息
         };
 
-        console.log('准备发送的会议数据:', meetrec);
-        console.log('图片信息:', {
+        console.log("准备发送的会议数据:", meetrec);
+        console.log("图片信息:", {
           path: this.imagePreview,
-          size: this.imageFile.size
+          size: this.imageFile.size,
         });
-        
+
         // 发送请求
         const response = await new Promise((resolve, reject) => {
           uni.uploadFile({
-            url: 'http://192.168.31.115:5000/user/hostmeetings',
+            url: "http://192.168.31.115:5000/user/hostmeetings",
             filePath: this.imagePreview,
-            name: 'meetingImage', // 与后端 MultipartFile meetingImage 字段对应
+            name: "meetingImage", // 与后端 MultipartFile meetingImage 字段对应
             formData: {
-              meetrec: JSON.stringify(meetrec)
+              meetrec: JSON.stringify(meetrec),
             },
             success: (uploadRes) => {
               try {
-                console.log('上传响应:', uploadRes);
+                console.log("上传响应:", uploadRes);
                 const result = JSON.parse(uploadRes.data);
                 resolve(result);
               } catch (e) {
-                console.error('解析响应失败:', e);
-                reject(new Error('解析响应失败'));
+                console.error("解析响应失败:", e);
+                reject(new Error("解析响应失败"));
               }
             },
             fail: (error) => {
-              console.error('上传失败:', error);
+              console.error("上传失败:", error);
               reject(error);
-            }
+            },
           });
         });
 
         uni.hideLoading();
-        
-        console.log('response是',response);
+
+        console.log("response是", response);
 
         if (response.code === 1) {
           this.isFormModified = false;
           uni.showToast({
-            title: '创建成功',
-            icon: 'success'
+            title: "创建成功",
+            icon: "success",
           });
           setTimeout(() => {
             uni.navigateBack({
-              delta: 1
+              delta: 1,
             });
           }, 1500);
         } else {
-          throw new Error(response.msg || '创建失败');
+          throw new Error(response.msg || "创建失败");
         }
-        
       } catch (error) {
         uni.hideLoading();
-        console.error('创建失败:', error);
+        console.error("创建失败:", error);
         uni.showToast({
-          title: error.message || '创建失败',
-          icon: 'none'
+          title: error.message || "创建失败",
+          icon: "none",
         });
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -503,18 +504,18 @@ export default {
 
 /* 为不同区块设置不同的样式 */
 .section-block:nth-child(2) {
-  background: linear-gradient(to right bottom, #EEF2FF, #ffffff);
-  border: 1px solid #C7D2FE;
+  background: linear-gradient(to right bottom, #eef2ff, #ffffff);
+  border: 1px solid #c7d2fe;
 }
 
 .section-block:nth-child(3) {
-  background: linear-gradient(to right bottom, #F0FDF4, #ffffff);
-  border: 1px solid #BBF7D0;
+  background: linear-gradient(to right bottom, #f0fdf4, #ffffff);
+  border: 1px solid #bbf7d0;
 }
 
 .section-block:nth-child(4) {
-  background: linear-gradient(to right bottom, #FEF2F2, #ffffff);
-  border: 1px solid #FECACA;
+  background: linear-gradient(to right bottom, #fef2f2, #ffffff);
+  border: 1px solid #fecaca;
 }
 
 .section-title {
@@ -528,15 +529,15 @@ export default {
 
 /* 为不同区块的标题添加不同的颜色 */
 .section-block:nth-child(2) .section-title {
-  color: #4F46E5;
+  color: #4f46e5;
 }
 
 .section-block:nth-child(3) .section-title {
-  color: #16A34A;
+  color: #16a34a;
 }
 
 .section-block:nth-child(4) .section-title {
-  color: #DC2626;
+  color: #dc2626;
 }
 
 .input-group {
@@ -598,19 +599,19 @@ export default {
 
 .section-block:nth-child(2) .input:focus,
 .section-block:nth-child(2) .textarea:focus {
-  border-color: #4F46E5;
+  border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .section-block:nth-child(3) .input:focus,
 .section-block:nth-child(3) .textarea:focus {
-  border-color: #16A34A;
+  border-color: #16a34a;
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
 }
 
 .section-block:nth-child(4) .input:focus,
 .section-block:nth-child(4) .textarea:focus {
-  border-color: #DC2626;
+  border-color: #dc2626;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
@@ -690,7 +691,7 @@ export default {
 .submit-btn {
   width: 100%;
   height: 44px;
-  background: linear-gradient(135deg, #4F46E5, #3730A3);
+  background: linear-gradient(135deg, #4f46e5, #3730a3);
   border: none;
   border-radius: 8px;
   color: white;
@@ -702,7 +703,7 @@ export default {
 }
 
 .submit-btn:active {
-  background: linear-gradient(135deg, #3730A3, #312E81);
+  background: linear-gradient(135deg, #3730a3, #312e81);
   transform: translateY(1px);
 }
 
@@ -724,17 +725,17 @@ export default {
   .page {
     padding: 12px;
   }
-  
+
   .sticky-note {
     padding: 16px;
   }
-  
+
   .section-block {
     padding: 20px;
   }
-  
+
   .section-title {
     font-size: 16px;
   }
 }
-</style> 
+</style>

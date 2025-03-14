@@ -98,10 +98,6 @@
       "style": {
         "navigationBarTitleText": ""
       }
-      "path": "pages/login/login",
-      "style": {
-        "navigationBarTitleText": ""
-      }
     },
     {
       "path": "pages/register/register",
@@ -113,6 +109,12 @@
       "path": "pages/meetting/ReserveMeeting/ReserveMeeting",
       "style": {
         "navigationBarTitleText": "预约会议"
+      }
+    },
+    {
+      "path": "pages/meetting/createMeeting",
+      "style": {
+        "navigationBarTitleText": "创建会议"
       }
     }
   ],

@@ -222,9 +222,9 @@ export default {
         roomId: this.meetingInfo.meetingId,
         roomParam,
       };
-      setTUIRoomData("enterRoom", roomOption);
+      this.setTUIRoomData("enterRoom", roomOption);
       router.replace({
-        path: "room",
+        path: "/src/roomkit/pages/room",
         query: {
           roomId: roomOption.roomId,
         },
@@ -280,9 +280,21 @@ export default {
         console.log(this.meetingInfo.meetingStatus);
         switch (this.meetingInfo.meetingStatus) {
           case "Waiting": {
-            uni.showToast({
-              title: "会议还未开始，请耐心等待",
-              icon: "none",
+            // uni.showToast({
+            //   title: "会议还未开始，请耐心等待",
+            //   icon: "none",
+            // });
+            uni.showModal({
+              title: "提示",
+              content: "会议正在进行中，确定加入会议吗",
+              showCancel: true,
+              success: ({ confirm, cancel }) => {
+                if (confirm) {
+                  this.joinMeeting();
+                } else if (cancel) {
+                  return;
+                }
+              },
             });
             break;
           }

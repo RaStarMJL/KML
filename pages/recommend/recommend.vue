@@ -119,7 +119,7 @@ const goTomessage = () => {
       <!-- 搜索栏 -->
       <view class="search-bar">
         <image
-          :src="userInfo.avatarUrl || defaultAvatar"
+          :src="userInfo?.avatarUrl || defaultAvatar"
           class="user-avatar"
           @tap="goToMine"></image>
         <view class="search-input" @click="goToSearch">
