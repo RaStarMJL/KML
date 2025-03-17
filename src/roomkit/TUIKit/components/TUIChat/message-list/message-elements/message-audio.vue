@@ -2,35 +2,26 @@
   <div
     :class="{
       'message-audio': true,
-      'reserve': props.messageItem.flow === 'out',
+      reserve: props.messageItem.flow === 'out',
     }"
-    @click="toggleClick"
-  >
+    @click="toggleClick">
     <div class="audio-icon-container">
-      <div :class="{ 'mask': true, 'play': isAudioPlaying }" />
-      <Icon
-        class="icon"
-        width="15px"
-        height="20px"
-        :file="audioIcon"
-      />
+      <div :class="{ mask: true, play: isAudioPlaying }" />
+      <Icon class="icon" width="15px" height="20px" :file="audioIcon" />
     </div>
-    <div
-      class="time"
-      :style="{ width: `${props.content.second * 5}px` }"
-    >
+    <div class="time" :style="{ width: `${props.content.second * 5}px` }">
       {{ props.content.second || 1 }} "
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, watch } from '../../../../adapter-vue';
-import { IMessageModel } from '@tencentcloud/chat-uikit-engine';
-import Icon from '../../../common/Icon.vue';
-import { Toast } from '../../../common/Toast/index';
-import audioIcon from '../../../../assets/icon/msg-audio.svg';
-import { IAudioMessageContent, IAudioContext } from '../../../../interface';
+import { onUnmounted, ref, watch } from "../../../../adapter-vue";
+import { IMessageModel } from "@tencentcloud/chat-uikit-engine";
+import Icon from "../../../common/Icon.vue";
+import { Toast } from "../../../common/Toast/index";
+import audioIcon from "../../../../assets/icon/msg-audio.svg";
+import { IAudioMessageContent, IAudioContext } from "../../../../interface";
 
 interface IProps {
   broadcastNewAudioSrc: string;
@@ -40,17 +31,17 @@ interface IProps {
 
 interface IEmits {
   (
-    e: 'getGlobalAudioContext',
+    e: "getGlobalAudioContext",
     map: Map<string, IAudioContext>,
     options?: { newAudioSrc: string }
   ): void;
-  (e: 'setAudioPlayed', messageID: string): void;
+  (e: "setAudioPlayed", messageID: string): void;
 }
 
 const emits = defineEmits<IEmits>();
 const props = withDefaults(defineProps<IProps>(), {
-  messageItem: () => ({}) as IMessageModel,
-  content: () => ({}) as IAudioMessageContent,
+  messageItem: () => ({} as IMessageModel),
+  content: () => ({} as IAudioMessageContent),
 });
 
 const audioMap = new Map<string, IAudioContext>();
@@ -62,29 +53,32 @@ onUnmounted(() => {
     stopAudio();
   }
   audioContext?.destroy?.();
-  audioMap.delete('audio');
+  audioMap.delete("audio");
 });
 
-watch(() => props.broadcastNewAudioSrc, (newSrc) => {
-  if (newSrc !== props.content.url && isAudioPlaying.value) {
-    stopAudio();
-    // The audioContext may have been destroyed. Manually execute the pause
-    isAudioPlaying.value = false;
+watch(
+  () => props.broadcastNewAudioSrc,
+  (newSrc) => {
+    if (newSrc !== props.content.url && isAudioPlaying.value) {
+      stopAudio();
+      // The audioContext may have been destroyed. Manually execute the pause
+      isAudioPlaying.value = false;
+    }
   }
-});
+);
 
 function toggleClick() {
-  emits('getGlobalAudioContext', audioMap, { newAudioSrc: props.content.url });
+  emits("getGlobalAudioContext", audioMap, { newAudioSrc: props.content.url });
   if (props.messageItem.hasRiskContent || !props.content.url) {
     Toast({
-      message: '暂不支持播放',
+      message: "暂不支持播放",
     });
     return;
   }
   // audioContext will be cached, it must be get first
   const audioContext = getAudio();
   if (!audioContext) {
-    audioMap.set('audio', uni.createInnerAudioContext() as IAudioContext);
+    audioMap.set("audio", uni.createInnerAudioContext() as IAudioContext);
     // #ifdef MP
     uni.setInnerAudioOption({
       obeyMuteSwitch: false,
@@ -108,6 +102,7 @@ function initAudioSrc() {
   if (!audioContext) {
     return;
   }
+
   audioContext.src = props.content.url;
   isAudioPlaying.value = false;
   audioContext.onPlay(onAudioPlay);
@@ -122,8 +117,8 @@ function playAudio() {
     return;
   }
   audioContext.play();
-  if (props.messageItem.flow === 'in') {
-    emits('setAudioPlayed', props.messageItem.ID);
+  if (props.messageItem.flow === "in") {
+    emits("setAudioPlayed", props.messageItem.ID);
   }
 }
 
@@ -153,11 +148,11 @@ function onAudioEnded() {
 }
 
 function onAudioError() {
-  console.warn('audio played error');
+  console.warn("audio played error");
 }
 
 function getAudio(): IAudioContext | undefined {
-  return audioMap.get('audio');
+  return audioMap.get("audio");
 }
 </script>
 

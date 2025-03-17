@@ -5,6 +5,7 @@ import { recommendListdata, swiperListdata } from "./assets/data";
 import tabbar from "/pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { getRecommendList } from "../../src/services/api";
+import subtitle from "/pages/components/SubtitleDraggable/index.vue";
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -39,6 +40,12 @@ const defaultAvatar = "/src/static/images/defaultAvatar.png";
 const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
+
+const aaa = () => {
+  uni.navigateTo({
+    url: "/pages/components/SubtitleDraggable/index",
+  });
+};
 
 // 使用定义的接口类型
 const swiperList = ref(swiperListdata);
@@ -191,6 +198,7 @@ const goTomessage = () => {
       <view class="loading-text">
         {{ finish ? "没有更多数据~" : "正在加载..." }}
       </view>
+      <button @tap="aaa">去翻译</button>
     </scroll-view>
 
     <!-- 底部导航栏 -->

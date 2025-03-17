@@ -80,7 +80,7 @@ async function handleEnterRoom(roomOption: Record<string, any>) {
 async function handleInit() {
   uni.removeStorageSync("tuiRoom-roomInfo");
   uni.removeStorageSync("tuiRoom-userInfo");
-  const currentUserInfo = getBasicInfo();
+  const currentUserInfo = await getBasicInfo();
   console.log({ "currentUserInfo?.userSig": currentUserInfo?.userSig });
   if (!currentUserInfo) {
     return;
