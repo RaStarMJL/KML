@@ -191,9 +191,9 @@ export default {
         defaultMicrophoneId: "",
         defaultSpeakerId: "",
       },
-      mode: "FreeToSpeak",
+      mode: "SpeakAfterTakingSeat",
       roomStore: null,
-      userId: "111",
+      userId: "",
     };
   },
   methods: {

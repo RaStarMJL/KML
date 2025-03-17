@@ -9,34 +9,48 @@
       </div>
       <room-time class="text"></room-time>
     </div>
-    <div v-if="isShowRoomInfo" class="roomInfo-container" @touchmove.stop.prevent="() => {}">
+    <div
+      v-if="isShowRoomInfo"
+      class="roomInfo-container"
+      @touchmove.stop.prevent="() => {}">
       <div class="roomInfo-container-main">
         <div class="roomInfo-conference-title">
           <text class="master-header">{{ conferenceTitle }}</text>
-          <text class="cancel" @click="handleCloseRoomInfo">{{ t('Cancel') }}</text>
+          <text class="cancel" @click="handleCloseRoomInfo">{{
+            t("Cancel")
+          }}</text>
         </div>
         <div v-for="item in roomInfoTabList" :key="item.id">
           <div v-if="item.visible" class="roomInfo-content">
             <text class="roomInfo-title">{{ t(item.title) }}</text>
             <text class="roomInfo-item">{{ item.content }}</text>
-            <div v-if="item.isShowCopyIcon && item.visible" class="copy-container" @click="onCopy(item.copyLink)">
-              <svg-icon style="display: flex" class="copy" icon="CopyIcon"></svg-icon>
+            <div
+              v-if="item.isShowCopyIcon && item.visible"
+              class="copy-container"
+              @click="onCopy(item.copyLink)">
+              <svg-icon
+                style="display: flex"
+                class="copy"
+                icon="CopyIcon"></svg-icon>
             </div>
           </div>
         </div>
         <div v-if="isH5" class="roomInfo-bottom">
-          <span>{{ t('You can share the room number or link to invite more people to join the room.') }}</span>
+          <span>{{
+            t(
+              "You can share the room number or link to invite more people to join the room."
+            )
+          }}</span>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import useRoomInfo from './useRoomInfoHooks';
-import SvgIcon from '../../common/base/SvgIcon.vue';
-import RoomTime from '../../common/RoomTime.vue';
-import { isH5 } from '../../../utils/environment';
-
+import useRoomInfo from "./useRoomInfoHooks";
+import SvgIcon from "../../common/base/SvgIcon.vue";
+import RoomTime from "../../common/RoomTime.vue";
+import { isH5 } from "../../../utils/environment";
 
 const {
   t,
@@ -118,7 +132,7 @@ const {
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 20px 0;
-        font-family: 'PingFang SC';
+        font-family: "PingFang SC";
         font-style: normal;
         font-weight: 500;
         font-size: 20px;
@@ -133,7 +147,7 @@ const {
         flex: 1;
         text-align: right;
         font-weight: 400;
-      	padding-right: 30px;
+        padding-right: 30px;
         font-size: 16px;
       }
     }
@@ -158,8 +172,8 @@ const {
         color: #141313;
       }
       .copy-container {
-				position: absolute;
-				right: 40rpx;
+        position: absolute;
+        right: 40rpx;
         .copy {
           width: 20px;
           height: 20px;
@@ -168,7 +182,7 @@ const {
     }
 
     .roomInfo-bottom {
-      font-family: 'PingFang SC';
+      font-family: "PingFang SC";
       font-style: normal;
       font-weight: 400;
       font-size: 12px;
@@ -176,7 +190,7 @@ const {
       text-align: center;
       color: #141313;
       padding-top: 2vh;
-			padding-left: 40rpx;
+      padding-left: 40rpx;
     }
   }
 }

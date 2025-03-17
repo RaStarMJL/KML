@@ -3,10 +3,9 @@
  * @Description: TUIRoomKit 应用的基础信息配置
  */
 
-import { url } from "inspector";
 import LibGenerateTestUserSig from "./lib-generate-test-usersig-es.min";
 
-import { GETSdkAppIdSDKSECRETKEY } from "/src/services/login";
+import { getLatest_SdkAppId_SDKSECRETKEY } from "/src/services/api";
 
 /**
  * Tencent Cloud SDKAppId, which should be replaced with user's SDKAppId.
@@ -19,7 +18,7 @@ import { GETSdkAppIdSDKSECRETKEY } from "/src/services/login";
  * 它是腾讯云用于区分客户的唯一标识。
  */
 
-export const SDKAPPID = 1600076337;
+export let SDKAPPID = Number(0);
 
 /**
  * Encryption key for calculating signature, which can be obtained in the following steps:
@@ -44,8 +43,7 @@ export const SDKAPPID = 1600076337;
  * 注意：该方案仅适用于调试Demo，正式上线前请将 UserSig 计算代码和密钥迁移到您的后台服务器上，以避免加密密钥泄露导致的流量盗用。
  * 文档：https://cloud.tencent.com/document/product/647/17275#Server
  */
-export const SDKSECRETKEY =
-  "3756ff86d9064839890ad51403a8cc263be490180b5c2e73774826c7858236d4";
+export let SDKSECRETKEY = String("");
 
 /**
  * Signature expiration time, which should not be too short
@@ -73,13 +71,15 @@ export const userInfo = {
 };
 
 // 从服务器上获取最新的SDKAPPID和SDKSECRETKEY
-const onGETSdkAppIdSDKSECRETKEY = async () => {
-  const res = await GETSdkAppIdSDKSECRETKEY();
-  SDKAPPID = res.SDKAPPID;
-  SDKSECRETKEY = res.SDKSECRETKEY;
+const handleGetLatest_SdkAppId_SDKSECRETKEY = async () => {
+  const res = await getLatest_SdkAppId_SDKSECRETKEY();
+  console.log("handleGetLatest_SdkAppId_SDKSECRETKEY_RES:", res);
+  SDKAPPID = Number(res.data.sdkId);
+  SDKSECRETKEY = String(res.data.sdkSecret);
 };
-export const getBasicInfo = () => {
-  // onGETSdkAppIdSDKSECRETKEY();
+export const getBasicInfo = async () => {
+  await handleGetLatest_SdkAppId_SDKSECRETKEY();
+  console.log("handleGetLatest_SdkAppId_SDKSECRETKEY:", SDKAPPID, SDKSECRETKEY);
 
   if (SDKAPPID === Number(0) || SDKSECRETKEY === String("")) {
     alert("Please configure your SDKAPPID in config/basic-info-config.js");

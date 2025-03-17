@@ -24,3 +24,11 @@ export const getRecommendList = (userId: string) => {
     method: "GET",
   });
 };
+
+// 获取最新的SDKAPPID和SDKSECRETKEY
+export const getLatest_SdkAppId_SDKSECRETKEY = () => {
+  return http({
+    method: "GET",
+    url: "tencent",
+  });
+};

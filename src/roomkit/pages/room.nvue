@@ -5,9 +5,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
 import ConferenceMainView from "../TUIRoom/conference.vue";
+import SubtitleDraggable from "../../../pages/components/SubtitleDraggable/SubtitleDraggable.vue";
 import router from "../../router";
 import { useI18n } from "../TUIRoom/locales";
 import { conference, RoomEvent } from "../TUIRoom/index.ts";
+import { ref } from "vue";
 
 const { t } = useI18n();
 
@@ -92,9 +94,4 @@ const goToPage = (routePath: string) => {
 };
 </script>
 
-<style lang="scss">
-.room-container {
-  display: flex;
-  flex: 1;
-}
-</style>
+<style lang="scss"></style>

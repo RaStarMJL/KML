@@ -20,36 +20,35 @@ const userInfoStore = useUserInfoStore();
 // 用户信息，使用计算属性来响应式获取 store 中的数据
 const userInfo = computed(() => ({
   avatarUrl: userInfoStore.userInfo?.avatarUrl || defaultAvatar,
-  username: userInfoStore.userInfo?.userName || '未登录',
-  id: userInfoStore.userInfo?.userId || '',
-  signature: userInfoStore.userInfo?.signature || '这个人很懒，什么都没有留下'
+  username: userInfoStore.userInfo?.userName || "未登录",
+  id: userInfoStore.userInfo?.userId || "",
+  signature: userInfoStore.userInfo?.signature || "这个人很懒，什么都没有留下",
 }));
 
 // 功能列表
 const features = ref([
-  { icon: 'ai', text: 'AI助手', page: 'aihelper' },
-  { icon: 'record', text: '录制', page: 'record' },
-  { icon: 'note', text: '我的笔记', page: 'note' },
-  
-  { icon: 'message', text: '参会提醒', page: 'remind' },
-  { icon: 'favorite', text: '收藏', page: 'favorite' },
-  { icon: 'history', text: '历史', page: 'history' },
+  { icon: "ai", text: "AI助手", page: "aihelper" },
+  { icon: "record", text: "录制", page: "record" },
+  { icon: "note", text: "我的笔记", page: "note" },
+
+  { icon: "message", text: "参会提醒", page: "remind" },
+  { icon: "favorite", text: "收藏", page: "favorite" },
+  { icon: "history", text: "历史", page: "history" },
 ]);
 
 // 将自定义图标映射到uni-icons类型
 const getIconType = (iconName: string): string => {
   const iconMap: Record<string, string> = {
-    'message': 'notification',
-    'record': 'videocam',
-    'note': 'compose',
-    'ai': 'help',
-    'favorite': 'star',
-    'history': 'calendar'
+    message: "notification",
+    record: "videocam",
+    note: "compose",
+    ai: "help",
+    favorite: "star",
+    history: "calendar",
   };
-  
-  return iconMap[iconName] || 'help';
-};
 
+  return iconMap[iconName] || "help";
+};
 
 //消息
 const message = () => {
@@ -82,8 +81,8 @@ const To = (page) => {
 //会员升级
 const upgradeVip = () => {
   uni.showToast({
-    title: '即将推出，敬请期待',
-    icon: 'none'
+    title: "即将推出，敬请期待",
+    icon: "none",
   });
 };
 
@@ -112,160 +111,171 @@ const aboutUs = () => {
 const handleLogout = () => {
   if (userInfoStore.isLoggedIn) {
     uni.showModal({
-    title: "提示",
-    content: "确定要退出登录吗?",
-    success: (res) => {
-      if (res.confirm) {
-        userInfoStore.clearProfile();
-        uni.reLaunch({
-          url: "/pages/mine/mine", //返回到登录页面
-        });
-      }
-    },
+      title: "提示",
+      content: "确定要退出登录吗?",
+      success: (res) => {
+        if (res.confirm) {
+          userInfoStore.clearProfile();
+          uni.reLaunch({
+            url: "/pages/mine/mine", //返回到登录页面
+          });
+        }
+      },
     });
-  }else {
-      console.log(111)
-  uni.navigateTo({
-    url: "/pages/login/login"
-  })
+  } else {
+    console.log(111);
+    uni.navigateTo({
+      url: "/pages/login/login",
+    });
   }
-  
 };
 
 // 跳转到登录页面
-const handleLogin = () => {
+const handleLogin = () => {};
 
-}
-
+// 计算屏幕可用高度
+const calculateScreenHeight = () => {};
 </script>
 
 <template>
-	<view class="mine-container" :style="{paddingTop : safeAreaInsets.top + 'px'}">
-		<!-- 顶部用户信息 -->
-		<view class="user-header">
-			<!-- 添加一个包装器来实现相对定位 -->
-			<view class="header-wrapper">
-				<view class="user-info">
-					<image class="user-avatar" :src="userInfo.avatarUrl" mode="aspectFill"></image>
-					<view class="user-details">
-						<text class="username">{{ userInfo.username }}</text>
-						<text class="user-id" v-if="userInfoStore.isLoggedIn">ID: {{ userInfo.id }}</text>
-					</view>
-				</view>
-				
-				<!-- 只有登录后才显示这些操作按钮 -->
-				<view class="header-actions" v-if="userInfoStore.isLoggedIn">
-					<view class="action-item" @click="message">
-						<uni-icons type="notification" size="24" color="#fff"></uni-icons>
-					</view>
-					<view class="action-item" @click="myInfo">
-						<uni-icons type="gear" size="24" color="#fff"></uni-icons>
-					</view>
-				</view>
-			</view>
-			
-			<!-- 用户签名 -->
-			<view class="user-signature">
-				<text>{{ userInfo.signature }}</text>
-			</view>
-		</view>
-		
-		<!-- 只有登录后才显示会员卡片和功能区域 -->
-		<template v-if="userInfoStore.isLoggedIn">
-			<!-- 会员卡片 -->
-			<view class="vip-card">
-				<view class="vip-info">
-					<view class="vip-title">
-						<uni-icons type="star-filled" size="24" color="#fff"></uni-icons>
-						<text>免费会员</text>
-					</view>
-					<text class="vip-desc">升级会员享受更多特权</text>
-				</view>
-				<view class="upgrade-btn" @click="upgradeVip">立即升级</view>
-			</view>
-			
-			<!-- 功能区域 -->
-			<view class="feature-section">
-				<view class="section-title">
-					<text>常用功能</text>
-				</view>
-				
-				<view class="feature-grid">
-					<view class="feature-item" v-for="(item, index) in features" :key="index" @click="To(item.page)">
-						<!-- 使用uni-icons替代图片 -->
-						<view class="feature-icon-wrapper">
-							<uni-icons :type="getIconType(item.icon)" size="28" color="#4075FF"></uni-icons>
-						</view>
-						<text class="feature-text">{{ item.text }}</text>
-					</view>
-				</view>
-			</view>
-			
-			<!-- 设置列表 -->
-			<view class="settings-section">
-				<view class="section-title">
-					<text>设置</text>
-				</view>
-				
-				<view class="settings-list">
-					<view class="settings-item" @click="meetingSetting">
-						<text>会议设置</text>
-						<view class="item-right">
-							<uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
-						</view>
-					</view>
-					
-					<view class="settings-item" @click="accountSecurity">
-						<text>账号与安全</text>
-						<view class="item-right">
-							<uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
-						</view>
-					</view>
-					
-					<view class="settings-item" @click="aboutUs">
-						<text>关于我们</text>
-						<view class="item-right">
-							<uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
-						</view>
-					</view>
-				</view>
-			</view>
-		</template>
-		
-		<!-- 根据登录状态显示不同的按钮 -->
-		<view class="logout-wrapper">
-			<button 
-				class="logout-btn" 
-				:class="{ 'login-btn': !userInfoStore.isLoggedIn }"
-				@click="handleLogout"
-			>
-				{{ userInfoStore.isLoggedIn ? '退出登录' : '立即登录' }}
-			</button>
-		</view>
-  
-		<!-- 底部导航栏 -->
-		<tabber currentPath="/pages/mine/mine"></tabber>
-	</view>
+  <view
+    class="mine-container"
+    :style="{ paddingTop: safeAreaInsets.top + 'px' }">
+    <!-- 顶部用户信息 -->
+    <view class="user-header">
+      <!-- 添加一个包装器来实现相对定位 -->
+      <view class="header-wrapper">
+        <view class="user-info">
+          <image
+            class="user-avatar"
+            :src="userInfo.avatarUrl"
+            mode="aspectFill"></image>
+          <view class="user-details">
+            <text class="username">{{ userInfo.username }}</text>
+            <text class="user-id" v-if="userInfoStore.isLoggedIn"
+              >ID: {{ userInfo.id }}</text
+            >
+          </view>
+        </view>
 
+        <!-- 只有登录后才显示这些操作按钮 -->
+        <view class="header-actions" v-if="userInfoStore.isLoggedIn">
+          <view class="action-item" @click="message">
+            <uni-icons type="notification" size="24" color="#fff"></uni-icons>
+          </view>
+          <view class="action-item" @click="myInfo">
+            <uni-icons type="gear" size="24" color="#fff"></uni-icons>
+          </view>
+        </view>
+      </view>
+
+      <!-- 用户签名 -->
+      <view class="user-signature">
+        <text>{{ userInfo.signature }}</text>
+      </view>
+    </view>
+
+    <!-- 只有登录后才显示会员卡片和功能区域 -->
+    <template v-if="userInfoStore.isLoggedIn">
+      <!-- 会员卡片 -->
+      <view class="vip-card">
+        <view class="vip-info">
+          <view class="vip-title">
+            <uni-icons type="star-filled" size="24" color="#fff"></uni-icons>
+            <text>免费会员</text>
+          </view>
+          <text class="vip-desc">升级会员享受更多特权</text>
+        </view>
+        <view class="upgrade-btn" @click="upgradeVip">立即升级</view>
+      </view>
+
+      <!-- 功能区域 -->
+      <view class="feature-section">
+        <view class="section-title">
+          <text>常用功能</text>
+        </view>
+
+        <view class="feature-grid">
+          <view
+            class="feature-item"
+            v-for="(item, index) in features"
+            :key="index"
+            @click="To(item.page)">
+            <!-- 使用uni-icons替代图片 -->
+            <view class="feature-icon-wrapper">
+              <uni-icons
+                :type="getIconType(item.icon)"
+                size="28"
+                color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">{{ item.text }}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 设置列表 -->
+      <view class="settings-section">
+        <view class="section-title">
+          <text>设置</text>
+        </view>
+
+        <view class="settings-list">
+          <view class="settings-item" @click="meetingSetting">
+            <text>会议设置</text>
+            <view class="item-right">
+              <uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
+            </view>
+          </view>
+
+          <view class="settings-item" @click="accountSecurity">
+            <text>账号与安全</text>
+            <view class="item-right">
+              <uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
+            </view>
+          </view>
+
+          <view class="settings-item" @click="aboutUs">
+            <text>关于我们</text>
+            <view class="item-right">
+              <uni-icons type="right" size="16" color="#CCCCCC"></uni-icons>
+            </view>
+          </view>
+        </view>
+      </view>
+    </template>
+
+    <!-- 根据登录状态显示不同的按钮 -->
+    <view class="logout-wrapper">
+      <button
+        class="logout-btn"
+        :class="{ 'login-btn': !userInfoStore.isLoggedIn }"
+        @click="handleLogout">
+        {{ userInfoStore.isLoggedIn ? "退出登录" : "立即登录" }}
+      </button>
+    </view>
+
+    <!-- 底部导航栏 -->
+    <tabber currentPath="/pages/mine/mine"></tabber>
+  </view>
 </template>
 
 <style lang="scss" scoped>
 .mine-container {
-  min-height: 100vh;
+  // height: calc(100vh - 120rpx - env(safe-area-inset-top));
   background-color: #f5f6f7;
   padding-bottom: 120rpx;
 }
 
 .user-header {
-  background: linear-gradient(135deg, #4075FF, #3060E0);
+  background: linear-gradient(135deg, #4075ff, #3060e0);
   padding: 40rpx 30rpx 50rpx;
   border-radius: 0 0 30rpx 30rpx;
   box-shadow: 0 4rpx 20rpx rgba(64, 117, 255, 0.2);
   position: relative;
   overflow: hidden;
-  
+
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -100rpx;
     right: -100rpx;
@@ -275,9 +285,9 @@ const handleLogin = () => {
     border-radius: 50%;
     z-index: 1;
   }
-  
+
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -50rpx;
     left: -50rpx;
@@ -354,7 +364,7 @@ const handleLogin = () => {
 
 .vip-card {
   margin: -30rpx 30rpx 30rpx;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background: linear-gradient(135deg, #ffd700, #ffa500);
   border-radius: 20rpx;
   padding: 30rpx;
   display: flex;
@@ -374,7 +384,7 @@ const handleLogin = () => {
   display: flex;
   align-items: center;
   margin-bottom: 10rpx;
-  
+
   text {
     font-size: 32rpx;
     color: #fff;
@@ -398,7 +408,7 @@ const handleLogin = () => {
   font-weight: 500;
   border: 1rpx solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s;
-  
+
   &:active {
     transform: scale(0.98);
     background-color: rgba(255, 255, 255, 0.3);
@@ -412,7 +422,8 @@ const handleLogin = () => {
   color: #333;
 }
 
-.feature-section, .settings-section {
+.feature-section,
+.settings-section {
   margin-bottom: 30rpx;
 }
 
@@ -433,7 +444,7 @@ const handleLogin = () => {
   align-items: center;
   padding: 30rpx 0;
   transition: all 0.3s;
-  
+
   &:active {
     transform: scale(0.95);
   }
@@ -471,11 +482,11 @@ const handleLogin = () => {
   border-bottom: 1rpx solid #f5f6f7;
   font-size: 30rpx;
   color: #333;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:active {
     background-color: #f9f9f9;
   }
@@ -488,7 +499,6 @@ const handleLogin = () => {
 
 .logout-wrapper {
   padding: 40rpx 30rpx 80rpx;
-
 }
 
 .logout-btn {
@@ -503,16 +513,15 @@ const handleLogin = () => {
   border: none;
 
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  
+
   &:active {
     background-color: #f9f9f9;
   }
-
 }
 
 // 添加登录按钮样式
 .login-btn {
-  background: linear-gradient(135deg, #4075FF, #3060E0) !important;
+  background: linear-gradient(135deg, #4075ff, #3060e0) !important;
   color: #ffffff !important;
 }
 </style>

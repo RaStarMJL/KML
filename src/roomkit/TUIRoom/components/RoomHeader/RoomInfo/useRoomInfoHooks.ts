@@ -30,10 +30,12 @@ export default function useRoomInfo() {
 
   const isShowRoomInfoTitle = computed(() => masterUserName.value);
 
+  // 快速会议的会议标题
   const conferenceTitle = computed(
     () => `${masterUserName.value}${t("Quick Meeting")}`
   );
 
+  // 拷贝会议信息的数组
   const roomInfoTabList = computed(() => [
     {
       id: 1,
