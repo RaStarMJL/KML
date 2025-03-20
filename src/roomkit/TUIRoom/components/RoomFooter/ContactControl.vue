@@ -10,6 +10,11 @@
       :is-active="sidebarName === 'more'"
       :title="t('Contact us')"
       @click-icon="toggleContactSidebar" />
+    <icon-button
+      icon="MoreIcon"
+      :is-active="sidebarName === 'more'"
+      title="实时翻译"
+      @click-icon="openRealtimeTranslation" />
     <div v-if="isShowContactTab" class="contact-container">
       <room-contact
         ref="contactRef"
@@ -55,6 +60,24 @@ function toggleContactSidebar() {
 function handleOnCloseContact() {
   isShowContactTab.value = false;
 }
+
+const openRealtimeTranslation = () => {
+  if (basicStore.isTranslate) {
+    basicStore.setRealtimeTranslation(false);
+    uni.showToast({
+      title: "实时翻译已关闭",
+      icon: "none",
+      duration: 1000,
+    });
+  } else {
+    basicStore.setRealtimeTranslation(true);
+    uni.showToast({
+      title: "实时翻译已开启",
+      icon: "none",
+      duration: 1000,
+    });
+  }
+};
 </script>
 
 <style lang="scss" scoped>

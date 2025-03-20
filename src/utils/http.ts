@@ -1,7 +1,8 @@
 import { useUserInfoStore } from "../stores/modules/userInfo";
 
 // 请求基地址
-const baseURL = "http://192.168.31.115:5000/";
+export const baseURL = "http://192.168.31.115:5000/";
+export const socketBaseURL = "ws://192.168.31.115:5000/socket";
 
 // 拦截器配置
 const httpInterceptor = {
@@ -20,10 +21,10 @@ const httpInterceptor = {
     };
     // 4. 添加 token 请求头标识
     const userInfoStore = useUserInfoStore();
-    const token = userInfoStore.userInfo?.token;
-    if (token) {
-      options.header.Authorization = token;
-    }
+    // const token = userInfoStore.userInfo?.token;
+    // if (token) {
+    //   options.header.Authorization = token;
+    // }
   },
 };
 

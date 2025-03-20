@@ -88,21 +88,6 @@ export default {
     });
   },
   methods: {
-    //测试--------------------------------------------------------
-    startRecord() {
-      console.log("开始录音");
-      this.rec.start();
-    },
-    toBase64(buffer) {
-      let binary = "";
-      const bytes = new Uint8Array(buffer);
-      const len = bytes.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return window.btoa(binary);
-    },
-    //-----------------------------------------------------------
     resumeUi() {
       this.downed = false;
       this.downtime = -1;

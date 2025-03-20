@@ -72,8 +72,26 @@ export const userInfo = {
 
 // 从服务器上获取最新的SDKAPPID和SDKSECRETKEY
 const handleGetLatest_SdkAppId_SDKSECRETKEY = async () => {
-  const res = await getLatest_SdkAppId_SDKSECRETKEY();
-  console.log("handleGetLatest_SdkAppId_SDKSECRETKEY_RES:", res);
+  let res;
+  try {
+    res = await getLatest_SdkAppId_SDKSECRETKEY();
+  } catch (err) {
+    console.log("获取sdk失败");
+  }
+  console.log("aksfhjoanf:", res);
+  if (!res) {
+    uni.showToast({
+      title: "sdk初始化失败,使用本地sdk",
+      duration: 1000,
+    });
+    res = {
+      data: {
+        sdkId: 1600077775,
+        sdkSecret:
+          "b8072812ad37a9ebcedc473007719e1f46ce4403e52ade443ab52313ac045dfb",
+      },
+    };
+  }
   SDKAPPID = Number(res.data.sdkId);
   SDKSECRETKEY = String(res.data.sdkSecret);
 };
