@@ -10,7 +10,7 @@
     {
       "path": "pages/components/SubtitleDraggable/index",
       "style": {
-        "navigationStyle": "custom",
+        // "navigationStyle": "custom",
         "navigationBarTitleText": "翻译"
       }
     },

@@ -136,8 +136,8 @@ export default {
         this.isResizing = true;
         const touch = e.touches[0];
         this.resizeStart = {
-          x: touch.clientX,
-          y: touch.clientY,
+          x: touch.pageX,
+          y: touch.pageY,
           width: this.size.width,
           height: this.size.height,
         };
@@ -256,8 +256,8 @@ export default {
 .subtitle-content {
   position: absolute;
   color: white;
-  width: 100%;
-  height: 100%;
+  width: inherit;
+  height: inherit;
   display: flex;
   /* align-items: center; */
   /* justify-content: center; */
