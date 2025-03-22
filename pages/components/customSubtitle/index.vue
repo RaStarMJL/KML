@@ -12,9 +12,9 @@
     @touchmove.stop.prevent="handleTouchMove"
     @touchend="handleTouchEnd"
     @mousedown="handleMouseDown">
-    <view class="subtitle-content">
+    <text class="subtitle-content">
       {{ text }}
-    </view>
+    </text>
     <!-- 修改调整大小的手柄样式 -->
     <view
       class="resize-handle"
@@ -33,15 +33,19 @@ export default {
     },
     initialPosition: {
       type: Object,
-      default: () => ({ x: 20, y: 100 }),
+      default: () => ({ x: 50, y: 750 }),
     },
     initialSize: {
       type: Object,
-      default: () => ({ width: 300, height: 80 }),
+      default: () => ({ width: 300, height: 50 }),
     },
   },
   data() {
     return {
+      // 是否可拖动
+      isDraggable: false,
+      // 是否可调整大小
+      isResizable: false,
       // 位置和大小状态
       position: { ...this.initialPosition },
       size: { ...this.initialSize },
@@ -93,13 +97,10 @@ export default {
   methods: {
     // 触摸事件处理 - 开始拖动
     handleTouchStart(e) {
-      console.log("001");
+      if (!this.isDraggable) return;
       if (e.touches && e.touches.length) {
-        console.log("002");
         this.isDragging = true;
         const touch = e.touches[0];
-        console.log("touch12345:", touch);
-        console.log("pageX:", touch.pageX, "pageY:", touch.pageY);
         this.dragStart = {
           x: touch.pageX - this.position.x,
           y: touch.pageY - this.position.y,
@@ -115,7 +116,7 @@ export default {
 
     // 鼠标事件处理 - 开始拖动
     handleMouseDown(e) {
-      console.log("003");
+      if (!this.isDraggable) return;
       this.isDragging = true;
       this.dragStart = {
         x: e.clientX - this.position.x,
@@ -131,6 +132,7 @@ export default {
 
     // 触摸事件处理 - 开始调整大小
     handleResizeStart(e) {
+      if (!this.isResizable) return;
       if (e.touches && e.touches.length) {
         e.stopPropagation();
         this.isResizing = true;
@@ -146,6 +148,7 @@ export default {
 
     // 鼠标事件处理 - 开始调整大小
     handleResizeMouseStart(e) {
+      if (!this.isResizable) return;
       e.stopPropagation();
       this.isResizing = true;
       this.resizeStart = {
@@ -158,29 +161,25 @@ export default {
 
     // 触摸事件处理 - 移动
     handleTouchMove(e) {
-      console.log(111);
+      if (!this.isDraggable) return;
       if (e.touches && e.touches.length) {
-        console.log("004");
         const touch = e.touches[0];
-        console.log(touch);
         this.handleMove(touch.pageX, touch.pageY);
       }
     },
 
     // 鼠标事件处理 - 移动
     handleMouseMove(e) {
-      console.log(222);
+      if (!this.isDraggable) return;
       if (this.isDragging || this.isResizing) {
-        console.log("005");
         this.handleMove(e.clientX, e.clientY);
       }
     },
 
     // 通用移动处理
     handleMove(clientX, clientY) {
-      console.log(333);
+      if (!this.isDraggable) return;
       if (this.isDragging) {
-        console.log("006");
         // 计算新位置
         const newX = clientX - this.dragStart.x;
         const newY = clientY - this.dragStart.y;
@@ -193,12 +192,6 @@ export default {
         this.position.y = Math.max(
           0,
           Math.min(newY, this.screenHeight - this.size.height)
-        );
-        console.log(
-          "newPositionX:",
-          this.position.x,
-          "newPositionY:",
-          this.position.y
         );
       } else if (this.isResizing) {
         // 计算新尺寸
@@ -218,20 +211,16 @@ export default {
 
     // 触摸事件处理 - 结束
     handleTouchEnd() {
-      console.log("007");
+      if (!this.isDraggable) return;
       this.isDragging = false;
       this.isResizing = false;
     },
 
     // 鼠标事件处理 - 结束
     handleMouseUp() {
+      if (!this.isDraggable) return;
       this.isDragging = false;
       this.isResizing = false;
-    },
-  },
-  watch: {
-    position(o, n) {
-      console.log(o, n);
     },
   },
 };
@@ -241,43 +230,38 @@ export default {
 .subtitle-display {
   position: fixed;
   background-color: rgba(0, 0, 0, 0.7);
-  color: white;
   border-radius: 8px;
-  padding: 4px;
+  padding: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  overflow: hidden;
-  display: flex;
-  font-size: 16px;
-  line-height: 1.4;
-  text-align: center;
+  /* nvue 必须显式声明 flex 方向 */
+  flex-direction: column;
 }
 
 .subtitle-content {
-  position: absolute;
   color: white;
-  width: inherit;
-  height: inherit;
-  display: flex;
-  /* align-items: center; */
-  /* justify-content: center; */
-  overflow: hidden;
+  font-size: 12px;
+  text-align: center;
+  /* nvue 专用文本限制属性 */
+  lines: 2;
+  text-overflow: ellipsis;
+  /* 自动换行配置 */
+  word-wrap: break-word;
+  /* 关键：使文本容器自动撑开 */
+  flex: 1;
 }
 
-/* 修改调整大小手柄的样式，解决多个手柄显示问题 */
 .resize-handle {
-  position: absolute;
   width: 20px;
   height: 20px;
+  position: absolute;
   right: 0;
   bottom: 0;
+  /* nvue 需要显式声明无背景 */
   background-color: transparent;
-  cursor: nwse-resize;
-  z-index: 1001;
 }
 
 .resize-handle::after {
-  content: "";
   position: absolute;
   right: 0;
   bottom: 0;

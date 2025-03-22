@@ -28,15 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  onMounted,
-  onUnmounted,
-  Ref,
-  watch,
-  provide,
-  defineComponent,
-} from "vue";
+import { ref, onMounted, onUnmounted, Ref, watch, provide } from "vue";
 import subTitle from "/pages/components/customSubtitle/index.vue";
 import RoomHeader from "./components/RoomHeader/index/index.vue";
 import RoomFooter from "./components/RoomFooter/index/index.vue";
@@ -64,7 +56,10 @@ import useDeviceManager from "./hooks/useDeviceManager";
 import { storeToRefs } from "pinia";
 import { useBasicStore } from "./stores/basic";
 import { useRoomStore } from "./stores/room";
-import { baseURL, socketBaseURL } from "/src/utils/http";
+import { baseURL } from "/src/utils/http";
+import { onShow } from "@dcloudio/uni-app";
+import crypto from "crypto-js";
+import yueasrxf from "/uni_modules/yue-asr-xf/components/yue-asr-xf/yue-asr-xf.vue";
 import * as SpeechRealTimeTrans from "../../../uni_modules/bsf-baidu-realtime-speech-trans";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 
@@ -342,20 +337,12 @@ let Totalsentence = "";
 const roomStore = useRoomStore();
 const { userVolumeObj, localUser } = storeToRefs(roomStore);
 
-const subtitleText = ref("等待识别发言中...");
+const subtitleText = ref("等待发言...");
 const showSubtitle = ref(true);
 const currentSpeakerId = ref("");
 const recorderManager = uni.getRecorderManager();
 let isRecording = false;
 const translatedText = ref("");
-// 监听翻译文字
-watch(
-  () => translatedText.value,
-  (newValue) => {
-    console.log(newValue);
-    subtitleText.value = newValue;
-  }
-);
 // 监听麦克风状态
 watch(
   () => basicStore.isTranslate,
@@ -381,15 +368,46 @@ watch(
         onWebsocketConnected: () => {
           console.log("百度翻译WebSocket已连接");
           socketTask = uni.connectSocket({
-            url: socketBaseURL,
+            url: "ws://192.168.31.115:5000/socket",
             complete: () => {
+              const userId = userInfoStore.userInfo.userId;
+              if (!totalSpeakerInfo.value[userId]) return;
+              const userName = userInfoStore.userInfo.userName;
+              const avatarUrl = userInfoStore.userInfo.avatarUrl;
+              const totalSentence = "";
+              const speakerInfo = {
+                userId,
+                userName,
+                avatarUrl,
+                totalSentence,
+              };
+              totalSpeakerInfo.value[userId] = speakerInfo;
+              console.log("totalSpeakerInfo", totalSpeakerInfo.value);
               console.log("服务器socket已连接");
             },
           });
           socketTask.onMessage((res) => {
             const res_ = JSON.parse(res.data);
-            const sentence = res_.zimu;
-            translatedText.value = sentence;
+            const sentenceInfo = res_.zimu;
+            const userId = sentenceInfo.userId;
+            // 如果接收到的userId不存在于totalSpeakerInfo中，则创建一个新的对象并添加到totalSpeakerInfo中
+            if (!totalSpeakerInfo[userId]) {
+              const userName = sentenceInfo.userName;
+              const avatarUrl = sentenceInfo.avatarUrl;
+              const totalSentence = sentenceInfo.sentence;
+              const speakerInfo = {
+                userId,
+                userName,
+                avatarUrl,
+                totalSentence,
+              };
+              totalSpeakerInfo.value[userId] = speakerInfo;
+              return;
+            }
+            // 如果接收到的userId存在于totalSpeakerInfo中，则更新totalSentence的值
+            totalSpeakerInfo.value[sentenceInfo.userId].totalSentence +=
+              sentenceInfo.sentence;
+            translatedText.value = sentenceInfo.sentence;
           });
         },
 
@@ -401,15 +419,30 @@ watch(
         // 接收文本消息回调
         onReceiveTextMessage: (message) => {
           const res = JSON.parse(message);
-          const sentence = res.data.result.sentence_trans;
+          const sentence = res.data.result.sentence;
           if (sentence === "") {
             return;
           }
+          const userId = userInfoStore.userInfo.userId;
+          const userName = userInfoStore.userInfo.userName;
+          const avatarUrl = userInfoStore.userInfo.avatarUrl;
+          // const payload = JSON.stringify({
+          //   type: "subtitle",
+          //   userName: userInfoStore.userInfo.userName,
+          //   zimu: sentence,
+          //   timestamp: Date.now(),
+          //   meetingId: "123211",
+          //   attendeesUid: '["U88888"]',
+          // });
           const payload = JSON.stringify({
             type: "subtitle",
             userName: userInfoStore.userInfo.userName,
-            avatarUrl: userInfoStore.userInfo.avatarUrl,
-            zimu: sentence,
+            zimu: {
+              userId,
+              userName,
+              avatarUrl,
+              sentence,
+            },
             timestamp: Date.now(),
             meetingId: "123211",
             attendeesUid: '["U88888"]',
@@ -439,16 +472,15 @@ watch(
 
 // #endregion ------------------- 百度实时翻译相关代码 end --------------------
 
-// #region ---------------------- 识别发言人 start ------------------
 // 配置录音参数
-// const recordOptions = {
-//   duration: 5000,
-//   sampleRate: 16000,
-//   numberOfChannels: 1,
-//   encodeBitRate: 96000,
-//   format: "mp3",
-//   frameSize: 50,
-// };
+const recordOptions = {
+  duration: 5000,
+  sampleRate: 16000,
+  numberOfChannels: 1,
+  encodeBitRate: 96000,
+  format: "mp3",
+  frameSize: 50,
+};
 
 // 监听录音结束事件
 /* recorderManager.onStop((res) => {
@@ -498,8 +530,8 @@ watch(
     }
   },
   { deep: true }
-); */
-
+);
+ */
 // 模拟语音识别和翻译过程
 // function simulateRecognitionAndTranslation(speakerId) {
 //   const speaker =
@@ -518,7 +550,35 @@ watch(
 //   }, 1000);
 // }
 
-// #endregion ------------------- 识别发言人 end --------------------
+// 监听翻译文字
+watch(
+  () => translatedText.value,
+  (newValue) => {
+    console.log(newValue);
+    subtitleText.value = newValue;
+  }
+);
+
+onShow(() => {
+  // #ifdef APP
+  plus.android.requestPermissions(
+    ["android.permission.RECORD_AUDIO"],
+    (e) => {},
+    (e) => {}
+  );
+  // #endif
+
+  socketTask = uni.connectSocket({
+    url: `ws://${baseURL}socket`,
+    complete: () => {
+      console.log("socket连接成功");
+    },
+  });
+  socketTask.onMessage((res) => {
+    console.log("收到消息:", res.data);
+  });
+});
+// -------------实时翻译相关代码 end-----------------
 </script>
 
 <style lang="scss" scoped>
@@ -538,5 +598,6 @@ watch(
 }
 .subtitle-layer {
   z-index: 9999 !important; /* 确保字幕显示在其他UI元素之上 */
+  pointer-events: auto !important; /* 确保触摸事件能够被捕获 */
 }
 </style>

@@ -4,7 +4,7 @@ import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
 import tabber from "../components/tabbar/tabbar.vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
-import subTitle from "/pages/components/customSubtitle/index.vue";
+import subTitle from "/pages/components/customSubtitle/customSubtitle.vue";
 interface UserInfo {
   avatarUrl: string;
   username: string;

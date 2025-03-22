@@ -41,12 +41,6 @@ const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
-const aaa = () => {
-  uni.navigateTo({
-    url: "/pages/components/SubtitleDraggable/index",
-  });
-};
-
 // 使用定义的接口类型
 const swiperList = ref(swiperListdata);
 const allrecommendList = ref();
@@ -198,7 +192,6 @@ const goTomessage = () => {
       <view class="loading-text">
         {{ finish ? "没有更多数据~" : "正在加载..." }}
       </view>
-      <button @tap="aaa">去翻译</button>
     </scroll-view>
 
     <!-- 底部导航栏 -->
