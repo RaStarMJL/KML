@@ -12,6 +12,11 @@
     @touchmove.stop.prevent="handleTouchMove"
     @touchend="handleTouchEnd"
     @mousedown="handleMouseDown">
+    <!-- 头像容器 -->
+    <view class="avatar-box">
+      <image class="avatar" :src="avatarUrl" resize-mode="contain" />
+    </view>
+    <!-- 字幕内容容器 -->
     <text class="subtitle-content">
       {{ text }}
     </text>
@@ -38,6 +43,10 @@ export default {
     initialSize: {
       type: Object,
       default: () => ({ width: 300, height: 50 }),
+    },
+    avatarUrl: {
+      type: String,
+      default: "/src/static/images/defaultAvatar.png",
     },
   },
   data() {
@@ -235,10 +244,28 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   /* nvue 必须显式声明 flex 方向 */
+  flex-direction: row;
+}
+
+/* 头像盒子 */
+.avatar-box {
   flex-direction: column;
+  width: 30px;
+  height: 30px;
+  margin-right: 5px; /* 与内容间隔 */
+  border-radius: 15px;
+  overflow: hidden; /* 确保圆形裁剪生效 */
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  overflow: hidden; /* 确保圆形裁剪生效 */
 }
 
 .subtitle-content {
+  flex-direction: column;
   color: white;
   font-size: 12px;
   text-align: center;

@@ -23,11 +23,16 @@
       @touchmove.stop.prevent="() => {}" />
     <room-sidebar></room-sidebar>
     <room-setting></room-setting>
-    <subTitle :text="subtitleText" class="subtitle-layer" v-if="showSubtitle" />
+    <subTitle
+      :text="subtitleText"
+      :avatarUrl="avatarUrl"
+      class="subtitle-layer"
+      v-if="showSubtitle" />
   </div>
 </template>
 
 <script setup lang="ts">
+// #region ---------------------- 导包 start ------------------
 import {
   ref,
   onMounted,
@@ -36,6 +41,7 @@ import {
   watch,
   provide,
   defineComponent,
+  computed,
 } from "vue";
 import subTitle from "/pages/components/customSubtitle/index.vue";
 import RoomHeader from "./components/RoomHeader/index/index.vue";
@@ -67,7 +73,9 @@ import { useRoomStore } from "./stores/room";
 import { baseURL, socketBaseURL } from "/src/utils/http";
 import * as SpeechRealTimeTrans from "../../../uni_modules/bsf-baidu-realtime-speech-trans";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+// #endregion ------------------- 导包 end --------------------
 
+// #region ---------------------- 腾讯会议会议相关代码 start ------------------
 useDeviceManager({ listenForDeviceChange: true });
 
 const { t } = roomService;
@@ -158,6 +166,83 @@ onMounted(() => {
 
   // 请求录音权限
   SpeechRealTimeTrans.requestRecordingPermission();
+  if (basicStore.isTranslate) {
+    showSubtitle.value = true;
+    console.log("开始百度实时翻译");
+    SpeechRealTimeTrans.start({
+      url: "wss://aip.baidubce.com/ws/realtime_speech_trans", // WebSocket服务地址
+      appId: "115883236", // 百度应用的AppID
+      appKey: "sqL04acqrwEWEwgGCPVIdM3e", // 百度应用的AppKey
+      samplingRate: 16000, // 音频采样率
+      fromLan: "zh", // 源语言
+      toLan: "en", // 目标语言
+      isReturnTts: true, // 是否返回TTS语音
+      ttsSpeaker: "man", // TTS发音人
+
+      // 开始失败回调
+      onStartFailure: (code, msg) => {
+        console.log("百度翻译启动失败", code, msg);
+      },
+
+      // WebSocket连接成功回调
+      onWebsocketConnected: () => {
+        console.log("百度翻译WebSocket已连接");
+        // 连接服务器的WebSocket，转发消息
+        socketTask = uni.connectSocket({
+          url: socketBaseURL,
+          complete: () => {
+            console.log("服务器socket已连接");
+          },
+        });
+        // 监听WebSocket消息发送
+        socketTask.onMessage((res) => {
+          const res_ = JSON.parse(res.data);
+          // 获取发言人头像
+          avatarUrl.value = res_.avatarUrl;
+          // 获取发言人字幕
+          translatedText.value = res_.zimu;
+        });
+      },
+
+      // WebSocket断开连接回调
+      onWebsocketDisconnect: (code, reason) => {
+        console.log("百度翻译WebSocket断开连接", code, reason);
+      },
+
+      // 接收文本消息回调
+      onReceiveTextMessage: (message) => {
+        const res = JSON.parse(message);
+        const sentence = res.data.result.sentence_trans;
+        if (sentence === "") {
+          return;
+        }
+        const payload = JSON.stringify({
+          type: "subtitle",
+          userName: userInfoStore.userInfo.userName,
+          userId: userInfoStore.userInfo.userId,
+          avatarUrl: userInfoStore.userInfo.avatarUrl,
+          zimu: sentence,
+          timestamp: Date.now(),
+          meetingId: "123211",
+          attendeesUid: '["U88888"]',
+        });
+        socketTask.send({ data: payload });
+        // translatedText.value = sentence;
+        Totalsentence += sentence;
+        // console.log("收到总文本消息：", Totalsentence);
+      },
+
+      // 接收TTS语音回调
+      onReceiveTtsMessage: (audioPath) => {
+        console.log("收到TTS音频文件路径", audioPath);
+      },
+
+      // 接收消息失败回调
+      onReceiveMessageFailure: (error) => {
+        console.log("接收消息失败", error);
+      },
+    });
+  }
 });
 onUnmounted(() => {
   roomService.off(EventType.ROOM_NOTICE_MESSAGE, showMessage);
@@ -172,6 +257,10 @@ onUnmounted(() => {
   roomService.off(EventType.USER_LOGOUT, onLogout);
   roomService.resetStore();
   RoomService.destroyInstance();
+  // 房间销毁时停止百度实时翻译以及断开服务器的WebSocket连接
+  socketTask.close();
+  SpeechRealTimeTrans.stop();
+  basicStore.setRealtimeTranslation(false);
 });
 
 const { sdkAppId } = roomService.basicStore;
@@ -332,6 +421,7 @@ const onKickedOffLine = (eventInfo: { message: string }) => {
   const { message } = eventInfo;
   emit("on-kicked-off-line", { message });
 };
+// #endregion ------------------- 腾讯会议会议相关代码 end --------------------
 
 // #region ---------------------- 百度实时翻译相关代码 start ------------------
 const userInfoStore = useUserInfoStore();
@@ -343,11 +433,13 @@ const roomStore = useRoomStore();
 const { userVolumeObj, localUser } = storeToRefs(roomStore);
 
 const subtitleText = ref("等待识别发言中...");
-const showSubtitle = ref(true);
+const showSubtitle = ref(false);
 const currentSpeakerId = ref("");
 const recorderManager = uni.getRecorderManager();
 let isRecording = false;
 const translatedText = ref("");
+const avatarUrl = ref("");
+computed(() => {});
 // 监听翻译文字
 watch(
   () => translatedText.value,
@@ -362,6 +454,7 @@ watch(
   (newValue) => {
     if (newValue) {
       console.log("开始百度实时翻译");
+      showSubtitle.value = true;
       SpeechRealTimeTrans.start({
         url: "wss://aip.baidubce.com/ws/realtime_speech_trans", // WebSocket服务地址
         appId: "115883236", // 百度应用的AppID
@@ -380,16 +473,20 @@ watch(
         // WebSocket连接成功回调
         onWebsocketConnected: () => {
           console.log("百度翻译WebSocket已连接");
+          // 连接服务器的WebSocket，转发消息
           socketTask = uni.connectSocket({
             url: socketBaseURL,
             complete: () => {
               console.log("服务器socket已连接");
             },
           });
+          // 监听WebSocket消息发送
           socketTask.onMessage((res) => {
             const res_ = JSON.parse(res.data);
-            const sentence = res_.zimu;
-            translatedText.value = sentence;
+            // 获取发言人头像
+            avatarUrl.value = res_.avatarUrl;
+            // 获取发言人字幕
+            translatedText.value = res_.zimu;
           });
         },
 
@@ -431,8 +528,11 @@ watch(
         },
       });
     } else {
-      console.log("结束翻译");
+      console.log("结束百度实时翻译");
+      // 停止百度实时翻译以及断开服务器的WebSocket连接
+      socketTask.close();
       SpeechRealTimeTrans.stop();
+      showSubtitle.value = false;
     }
   }
 );
