@@ -23,28 +23,12 @@
       @touchmove.stop.prevent="() => {}" />
     <room-sidebar></room-sidebar>
     <room-setting></room-setting>
-    <subTitle :text="subtitleText" class="subtitle-layer" />
-    <!-- <yueasrxf
-      ref="yueAsrRefs"
-      :options="optionsxf"
-      @countDown="countDown"
-      @result="resultMsg"
-      @onStop="onStop"
-      @onOpen="onOpen"
-      @change="change"></yueasrxf>
-    <button
-      class="btn-bottom"
-      :disabled="disabled"
-      @touchstart.stop="start"
-      @touchend.stop="end">
-      按下说话
-    </button> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, Ref, watch, provide } from "vue";
-import subTitle from "/pages/components/customSubtitle/index.vue";
+
 import RoomHeader from "./components/RoomHeader/index/index.vue";
 import RoomFooter from "./components/RoomFooter/index/index.vue";
 import RoomSidebar from "./components/RoomSidebar/index.vue";
@@ -73,9 +57,7 @@ import { useBasicStore } from "./stores/basic";
 import { useRoomStore } from "./stores/room";
 import { baseURL } from "/src/utils/http";
 import { onShow } from "@dcloudio/uni-app";
-import crypto from "crypto-js";
-import yueasrxf from "/uni_modules/yue-asr-xf/components/yue-asr-xf/yue-asr-xf.vue";
-import * as SpeechRealTimeTrans from "../../../uni_modules/bsf-baidu-realtime-speech-trans";
+
 
 useDeviceManager({ listenForDeviceChange: true });
 
