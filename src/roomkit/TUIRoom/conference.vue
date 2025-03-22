@@ -23,11 +23,25 @@
       @touchmove.stop.prevent="() => {}" />
     <room-sidebar></room-sidebar>
     <room-setting></room-setting>
-    <subTitle
-      :text="subtitleText"
-      :avatarUrl="avatarUrl"
-      class="subtitle-layer"
-      v-if="showSubtitle" />
+    <div
+      class="subTitle-container"
+      :style="{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+      }">
+      <subTitle
+        :text="subtitleText"
+        :avatarUrl="avatarUrl"
+        class="subtitle-layer"
+        v-if="showSubtitle" />
+      <subTitle
+        :text="subtitleText"
+        :avatarUrl="avatarUrl"
+        class="subtitle-layer"
+        v-if="showSubtitle" />
+    </div>
   </div>
 </template>
 
@@ -166,83 +180,6 @@ onMounted(() => {
 
   // 请求录音权限
   SpeechRealTimeTrans.requestRecordingPermission();
-  if (basicStore.isTranslate) {
-    showSubtitle.value = true;
-    console.log("开始百度实时翻译");
-    SpeechRealTimeTrans.start({
-      url: "wss://aip.baidubce.com/ws/realtime_speech_trans", // WebSocket服务地址
-      appId: "115883236", // 百度应用的AppID
-      appKey: "sqL04acqrwEWEwgGCPVIdM3e", // 百度应用的AppKey
-      samplingRate: 16000, // 音频采样率
-      fromLan: "zh", // 源语言
-      toLan: "en", // 目标语言
-      isReturnTts: true, // 是否返回TTS语音
-      ttsSpeaker: "man", // TTS发音人
-
-      // 开始失败回调
-      onStartFailure: (code, msg) => {
-        console.log("百度翻译启动失败", code, msg);
-      },
-
-      // WebSocket连接成功回调
-      onWebsocketConnected: () => {
-        console.log("百度翻译WebSocket已连接");
-        // 连接服务器的WebSocket，转发消息
-        socketTask = uni.connectSocket({
-          url: socketBaseURL,
-          complete: () => {
-            console.log("服务器socket已连接");
-          },
-        });
-        // 监听WebSocket消息发送
-        socketTask.onMessage((res) => {
-          const res_ = JSON.parse(res.data);
-          // 获取发言人头像
-          avatarUrl.value = res_.avatarUrl;
-          // 获取发言人字幕
-          translatedText.value = res_.zimu;
-        });
-      },
-
-      // WebSocket断开连接回调
-      onWebsocketDisconnect: (code, reason) => {
-        console.log("百度翻译WebSocket断开连接", code, reason);
-      },
-
-      // 接收文本消息回调
-      onReceiveTextMessage: (message) => {
-        const res = JSON.parse(message);
-        const sentence = res.data.result.sentence_trans;
-        if (sentence === "") {
-          return;
-        }
-        const payload = JSON.stringify({
-          type: "subtitle",
-          userName: userInfoStore.userInfo.userName,
-          userId: userInfoStore.userInfo.userId,
-          avatarUrl: userInfoStore.userInfo.avatarUrl,
-          zimu: sentence,
-          timestamp: Date.now(),
-          meetingId: "123211",
-          attendeesUid: '["U88888"]',
-        });
-        socketTask.send({ data: payload });
-        // translatedText.value = sentence;
-        Totalsentence += sentence;
-        // console.log("收到总文本消息：", Totalsentence);
-      },
-
-      // 接收TTS语音回调
-      onReceiveTtsMessage: (audioPath) => {
-        console.log("收到TTS音频文件路径", audioPath);
-      },
-
-      // 接收消息失败回调
-      onReceiveMessageFailure: (error) => {
-        console.log("接收消息失败", error);
-      },
-    });
-  }
 });
 onUnmounted(() => {
   roomService.off(EventType.ROOM_NOTICE_MESSAGE, showMessage);
@@ -258,9 +195,11 @@ onUnmounted(() => {
   roomService.resetStore();
   RoomService.destroyInstance();
   // 房间销毁时停止百度实时翻译以及断开服务器的WebSocket连接
-  socketTask.close();
-  SpeechRealTimeTrans.stop();
-  basicStore.setRealtimeTranslation(false);
+  if (basicStore.isTranslate) {
+    socketTask.close();
+    SpeechRealTimeTrans.stop();
+    basicStore.setRealtimeTranslation(false);
+  }
 });
 
 const { sdkAppId } = roomService.basicStore;
@@ -505,6 +444,7 @@ watch(
           const payload = JSON.stringify({
             type: "subtitle",
             userName: userInfoStore.userInfo.userName,
+            userId: userInfoStore.userInfo.userId,
             avatarUrl: userInfoStore.userInfo.avatarUrl,
             zimu: sentence,
             timestamp: Date.now(),
@@ -539,6 +479,16 @@ watch(
 
 // #endregion ------------------- 百度实时翻译相关代码 end --------------------
 
+// #region ---------------------- 字幕参数设置 start ------------------
+const position = ref({
+  x: 50,
+  y: 600,
+});
+const size = ref({
+  width: 300,
+  height: 150,
+});
+// #endregion ------------------- 字幕参数设置 end --------------------
 // #region ---------------------- 识别发言人 start ------------------
 // 配置录音参数
 // const recordOptions = {
@@ -636,7 +586,11 @@ watch(
   bottom: 300px;
   width: 100vw;
 }
-.subtitle-layer {
-  z-index: 9999 !important; /* 确保字幕显示在其他UI元素之上 */
+
+.subTitle-container {
+  position: absolute;
+  margin: auto;
+  flex-direction: column;
+  // background-color: pink;
 }
 </style>

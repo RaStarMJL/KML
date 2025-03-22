@@ -3,8 +3,6 @@
     ref="subtitleRef"
     class="subtitle-display"
     :style="{
-      left: `${position.x}px`,
-      top: `${position.y}px`,
       width: `${size.width}px`,
       height: `${size.height}px`,
     }"
@@ -34,7 +32,7 @@ export default {
   props: {
     text: {
       type: String,
-      default: "这是默认字幕文本",
+      default: "",
     },
     initialPosition: {
       type: Object,
@@ -237,7 +235,8 @@ export default {
 
 <style scoped>
 .subtitle-display {
-  position: fixed;
+  background-color: red;
+  position: relative;
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 8px;
   padding: 8px;
