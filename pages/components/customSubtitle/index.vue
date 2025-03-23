@@ -1,28 +1,32 @@
 <template>
-  <view
-    ref="subtitleRef"
-    class="subtitle-display"
-    :style="{
-      width: `${size.width}px`,
-      height: `${size.height}px`,
-    }"
-    @touchstart="handleTouchStart"
-    @touchmove.stop.prevent="handleTouchMove"
-    @touchend="handleTouchEnd"
-    @mousedown="handleMouseDown">
-    <!-- 头像容器 -->
-    <view class="avatar-box">
-      <image class="avatar" :src="avatarUrl" resize-mode="contain" />
-    </view>
-    <!-- 字幕内容容器 -->
-    <text class="subtitle-content">
-      {{ text }}
-    </text>
-    <!-- 修改调整大小的手柄样式 -->
+  <view class="subtitle" :style="subtitleStyle">
     <view
-      class="resize-handle"
-      @touchstart.stop.prevent="handleResizeStart"
-      @mousedown.stop.prevent="handleResizeMouseStart"></view>
+      ref="subtitleRef"
+      class="subtitle-display"
+      :style="{
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+      }"
+      v-for="(item, index) in totalSubtitleInfo"
+      :key="index"
+      @touchstart="handleTouchStart"
+      @touchmove.stop.prevent="handleTouchMove"
+      @touchend="handleTouchEnd"
+      @mousedown="handleMouseDown">
+      <!-- 头像容器 -->
+      <view class="avatar-box">
+        <image class="avatar" :src="item.avatarUrl" resize-mode="contain" />
+      </view>
+      <!-- 字幕内容容器 -->
+      <text class="subtitle-content">
+        {{ item.zimu }}
+      </text>
+      <!-- 修改调整大小的手柄样式 -->
+      <view
+        class="resize-handle"
+        @touchstart.stop.prevent="handleResizeStart"
+        @mousedown.stop.prevent="handleResizeMouseStart"></view>
+    </view>
   </view>
 </template>
 
@@ -30,6 +34,10 @@
 export default {
   name: "SubtitleDisplay",
   props: {
+    totalSubtitleInfo: {
+      type: Object,
+      default: () => ({}),
+    },
     text: {
       type: String,
       default: "",
@@ -40,7 +48,7 @@ export default {
     },
     initialSize: {
       type: Object,
-      default: () => ({ width: 300, height: 50 }),
+      default: () => ({ width: 400, height: 50 }),
     },
     avatarUrl: {
       type: String,
@@ -49,6 +57,8 @@ export default {
   },
   data() {
     return {
+      // 字幕样式
+      subtitleStyle: {},
       // 是否可拖动
       isDraggable: false,
       // 是否可调整大小
@@ -83,6 +93,13 @@ export default {
       const sysInfo = uni.getSystemInfoSync();
       this.screenWidth = sysInfo.windowWidth;
       this.screenHeight = sysInfo.windowHeight;
+      this.size.width = this.screenWidth * 0.9;
+      this.subtitleStyle = {
+        // 字幕距离屏幕左边距离：（屏幕宽度 - 字幕宽度）/ 2
+        left: (this.screenWidth - this.size.width) / 2 + "px",
+        // 字幕距离屏幕底部距离：（底部导航栏高度 + 字幕高度） + 10
+        bottom: this.size.height + 40 + 10 + "px",
+      };
       // #endif
 
       // #ifdef H5
@@ -234,15 +251,18 @@ export default {
 </script>
 
 <style scoped>
-.subtitle-display {
-  background-color: red;
-  position: relative;
+.subtitle {
+  display: flex;
+  position: absolute;
   background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 8px;
-  padding: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  /* nvue 必须显式声明 flex 方向 */
+  flex-direction: column;
+  border-radius: 8px;
+}
+.subtitle-display {
+  position: relative;
+  padding: 10px;
   flex-direction: row;
 }
 

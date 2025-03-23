@@ -12,16 +12,12 @@ import tabbar from "../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 // 距离手机头部的安全距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
-onShow(() => {
-  const data = useUserInfoStore();
-  userInfo.value.avatarUrl = data.userInfo.avatarUrl;
-  userInfo.value.userName = data.userInfo.userName;
-  userInfo.value.userId = data.userInfo.userId;
-});
+
+const userInfoStore = useUserInfoStore();
 const userInfo = ref({
-  userId: "",
-  userName: "",
-  avatarUrl: "",
+  userId: userInfoStore.userInfo.userId,
+  userName: userInfoStore.userInfo.userName,
+  avatarUrl: userInfoStore.userInfo.avatarUrl,
 });
 
 const basicStore = useBasicStore();
@@ -80,16 +76,13 @@ async function handleEnterRoom(roomOption: Record<string, any>) {
 async function handleInit() {
   uni.removeStorageSync("tuiRoom-roomInfo");
   uni.removeStorageSync("tuiRoom-userInfo");
-  const currentUserInfo = await getBasicInfo();
-  console.log({ "currentUserInfo?.userSig": currentUserInfo?.userSig });
-  if (!currentUserInfo) {
+  const BasicInfo = await getBasicInfo(userInfo.value.userId);
+  if (!BasicInfo) {
     return;
   }
+  const currentUserInfo = { ...BasicInfo, ...userInfo.value };
   uni.setStorageSync("tuiRoom-userInfo", JSON.stringify(currentUserInfo));
   basicStore.setBasicInfo(currentUserInfo);
-  userInfo.value.userName = currentUserInfo.userName;
-  userInfo.value.avatarUrl = currentUserInfo.avatarUrl;
-  userInfo.value.userId = currentUserInfo.userId;
   const { sdkAppId, userSig } = currentUserInfo;
 
   TUILogin.login({

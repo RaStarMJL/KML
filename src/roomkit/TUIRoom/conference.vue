@@ -23,22 +23,10 @@
       @touchmove.stop.prevent="() => {}" />
     <room-sidebar></room-sidebar>
     <room-setting></room-setting>
-    <div
-      class="subTitle-container"
-      v-if="showSubtitle"
-      :style="{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: `${size.width}px`,
-        height: `${size.height}px`,
-      }">
-      <subTitle
-        v-for="(item, index) in totalSubtitleInfo"
-        :key="index"
-        :text="item.zimu"
-        :avatarUrl="item.avatarUrl"
-        class="subtitle-layer" />
-    </div>
+
+    <subTitle
+      :totalSubtitleInfo="totalSubtitleInfo"
+      v-if="showSubtitle"></subTitle>
   </div>
 </template>
 
@@ -222,6 +210,7 @@ const roomContentRef = ref<InstanceType<typeof RoomContent>>();
 const showRoomTool: Ref<boolean> = ref(true);
 const roomRef: Ref<Node | undefined> = ref();
 function handleHideRoomTool() {
+  console.log("隐藏控制栏");
   showRoomTool.value = false;
 }
 provide("showRoomTool", showRoomTool);
@@ -247,6 +236,7 @@ const showTool = () => {
   handleHideRoomToolDebounce();
 };
 const showToolThrottle = () => {
+  console.log("显示控制栏");
   showRoomTool.value = true;
   handleHideRoomToolThrottle();
 };
@@ -368,13 +358,7 @@ type totalSpeakerInfoType = {
   };
 };
 const userInfoStore = useUserInfoStore();
-const totalSpeakerInfo = ref({
-  U88888: {
-    userName: "梦见离",
-    avatarUrl: "/src/static/images/defaultAvatar.png",
-    zimu: "这是测试字幕",
-  },
-});
+const totalSpeakerInfo = ref({});
 const basicStore = useBasicStore();
 let socketTask;
 let Totalsentence = "";
@@ -382,7 +366,7 @@ const roomStore = useRoomStore();
 const { userVolumeObj, localUser } = storeToRefs(roomStore);
 
 const subtitleText = ref("等待识别发言中...");
-const showSubtitle = ref(true);
+const showSubtitle = ref(false);
 const currentSpeakerId = ref("");
 const recorderManager = uni.getRecorderManager();
 let isRecording = false;
@@ -521,6 +505,7 @@ const size = ref({
   width: 300,
   height: 150,
 });
+
 // #endregion ------------------- 字幕参数设置 end --------------------
 
 // #region ---------------------- 识别发言人 start ------------------
