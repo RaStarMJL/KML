@@ -25,6 +25,7 @@
     <room-setting></room-setting>
     <div
       class="subTitle-container"
+      v-if="showSubtitle"
       :style="{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -32,15 +33,11 @@
         height: `${size.height}px`,
       }">
       <subTitle
-        :text="subtitleText"
-        :avatarUrl="avatarUrl"
-        class="subtitle-layer"
-        v-if="showSubtitle" />
-      <subTitle
-        :text="subtitleText"
-        :avatarUrl="avatarUrl"
-        class="subtitle-layer"
-        v-if="showSubtitle" />
+        v-for="(item, index) in totalSubtitleInfo"
+        :key="index"
+        :text="item.zimu"
+        :avatarUrl="item.avatarUrl"
+        class="subtitle-layer" />
     </div>
   </div>
 </template>
@@ -363,8 +360,21 @@ const onKickedOffLine = (eventInfo: { message: string }) => {
 // #endregion ------------------- 腾讯会议会议相关代码 end --------------------
 
 // #region ---------------------- 百度实时翻译相关代码 start ------------------
+type totalSpeakerInfoType = {
+  [userId: string]: {
+    userName: string;
+    avatarUrl: string;
+    zimu: string;
+  };
+};
 const userInfoStore = useUserInfoStore();
-const totalSpeakerInfo = ref({});
+const totalSpeakerInfo = ref({
+  U88888: {
+    userName: "梦见离",
+    avatarUrl: "/src/static/images/defaultAvatar.png",
+    zimu: "这是测试字幕",
+  },
+});
 const basicStore = useBasicStore();
 let socketTask;
 let Totalsentence = "";
@@ -372,18 +382,25 @@ const roomStore = useRoomStore();
 const { userVolumeObj, localUser } = storeToRefs(roomStore);
 
 const subtitleText = ref("等待识别发言中...");
-const showSubtitle = ref(false);
+const showSubtitle = ref(true);
 const currentSpeakerId = ref("");
 const recorderManager = uni.getRecorderManager();
 let isRecording = false;
 const translatedText = ref("");
 const avatarUrl = ref("");
-computed(() => {});
+const totalSubtitleInfo = computed(() => {
+  console.log("totalSpeakerInfo.value", totalSpeakerInfo.value);
+  return Object.fromEntries(
+    Object.entries(totalSpeakerInfo.value).filter(([key, value]) => ({
+      key,
+      value,
+    }))
+  );
+});
 // 监听翻译文字
 watch(
   () => translatedText.value,
   (newValue) => {
-    console.log(newValue);
     subtitleText.value = newValue;
   }
 );
@@ -426,11 +443,27 @@ watch(
             avatarUrl.value = res_.avatarUrl;
             // 获取发言人字幕
             translatedText.value = res_.zimu;
+            const SpeakerInfo = {
+              userName: res_.userName,
+              avatarUrl: res_.avatarUrl,
+              zimu: res_.zimu,
+            };
+            // 获取发言人ID
+            const SpeakerId = res_.userId;
+            totalSpeakerInfo.value[SpeakerId] = SpeakerInfo;
+            console.log(res_);
           });
         },
 
         // WebSocket断开连接回调
         onWebsocketDisconnect: (code, reason) => {
+          uni.showToast({
+            title: reason,
+            icon: "none",
+            duration: 2500,
+          });
+          basicStore.setRealtimeTranslation(false);
+          showSubtitle.value = false;
           console.log("百度翻译WebSocket断开连接", code, reason);
         },
 
@@ -489,6 +522,7 @@ const size = ref({
   height: 150,
 });
 // #endregion ------------------- 字幕参数设置 end --------------------
+
 // #region ---------------------- 识别发言人 start ------------------
 // 配置录音参数
 // const recordOptions = {

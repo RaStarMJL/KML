@@ -293,7 +293,7 @@ const isTranslateOn = ref(false);
 const mode = ref("FreeToSpeak");
 const roomId = ref("");
 const tuiRoomParam = {
-  isOpenCamera: true,
+  isOpenCamera: false,
   isOpenMicrophone: true,
   defaultCameraId: "",
   defaultMicrophoneId: "",

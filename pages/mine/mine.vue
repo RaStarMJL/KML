@@ -4,7 +4,6 @@ import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
 import tabber from "../components/tabbar/tabbar.vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
-import subTitle from "/pages/components/customSubtitle/customSubtitle.vue";
 interface UserInfo {
   avatarUrl: string;
   username: string;
@@ -145,7 +144,6 @@ const calculateScreenHeight = () => {};
   <view
     class="mine-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
-    <subTitle :text="subtitleText" />
     <!-- 顶部用户信息 -->
     <view class="user-header">
       <!-- 添加一个包装器来实现相对定位 -->

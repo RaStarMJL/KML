@@ -16,7 +16,7 @@
 import { ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoomStore } from "../../../src/roomkit/TUIRoom/stores/room";
-import subTitle from "../customSubtitle/index.vue";
+import subTitle from "../customSubtitle/index_bak.vue";
 
 export default {
   components: {
