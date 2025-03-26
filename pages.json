@@ -124,11 +124,16 @@
       }
     },
     {
-    	"path" : "pages/mine/aidetail/aicheckout",
-    	"style" : 
-    	{
-    		"navigationBarTitleText" : ""
-    	}
+      "path": "pages/mine/aidetail/aicheckout",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/test/test",
+      "style": {
+        "navigationBarTitleText": "nvue Test"
+      }
     }
   ],
   "subpackages": [
@@ -153,6 +158,15 @@
           }
         },
         {
+          "path": "roomkit/pages/subtitleSetting/subtitleSetting",
+          "style": {
+            "navigationBarTitleText": "字幕设置",
+            "app-plus": {
+              "titleView": false
+            }
+          }
+        },
+        {
           "path": "roomkit/TUIKit/components/TUIChat/index",
           "style": {
             "navigationBarTitleText": "聊天"
@@ -169,12 +183,15 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#5a85ff",
-    "backgroundColor": "#5a85ff",
+    "navigationBarTitleText": "",
+    "navigationBarBackgroundColor": "#f5f6f7",
+    "backgroundColor": "#f5f6f7",
     "app-plus": {
-      "titleView": false
-    }
+      "titleView": false,
+      "scrollIndicator": "none", // 全局 在APP页面都不显示滚动条
+      "bounce": "none" // 去除页面回弹效果
+    },
+    "scrollIndicator": "none"
   },
   "easycom": {
     "autoscan": true,

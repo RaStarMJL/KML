@@ -34,35 +34,30 @@ export const getLatest_SdkAppId_SDKSECRETKEY = () => {
   });
 };
 
-
 // 修改用户的相关信息
 export const change_userInfo = (data: any) => {
-  return http(
-    {
-      url: 'user',
-      method: 'PUT',
-      data,
-    }
-  );
-};
-
-
-export const aicheckout = (data: any) => {
   return http({
-    url: 'aiFile/agentFileSearch',
-    method: 'POST',
+    url: "user",
+    method: "PUT",
     data,
   });
 };
 
+export const aicheckout = (data: any) => {
+  return http({
+    url: "aiFile/agentFileSearch",
+    method: "POST",
+    data,
+  });
+};
 
 export const get_localsign = (data: any) => {
   return http({
     url: `Sig?key=${data.key}&secret=${data.secret}`,
     method: "GET",
-    data
-  })
-}
+    data,
+  });
+};
 
 export const get_message = (data: any) => {
   return http({
@@ -73,9 +68,25 @@ export const get_message = (data: any) => {
 
 export const aimanage = (data: any) => {
   return http({
-    url: 'ai/execute',
-    method: 'POST',
+    url: "ai/execute",
+    method: "POST",
     data,
   });
 };
 
+// 获取轮播图数据
+export const getSwiperData = () => {
+  return http({
+    method: "GET",
+    url: "recommend/Slideshow",
+  });
+};
+
+// 用户报名会议
+export const userSignUpMeeting = (data: any) => {
+  return http({
+    method: "POST",
+    url: "user/joinmeetings",
+    data,
+  });
+};

@@ -86,24 +86,8 @@ export default {
   },
   methods: {
     onNav(url) {
-      if (url === "/src/roomkit/pages/home") {
-        router.replace({ path: url });
-        uni.showToast({
-          icon: "loading",
-        });
-      }
-      if (url === "/pages/recommend/recommend") {
-        router.replace({ path: url });
-        uni.showToast({
-          icon: "loading",
-        });
-      }
-      if (url === "/pages/mine/mine") {
-        router.replace({ path: url });
-        uni.showToast({
-          icon: "loading",
-        });
-      }
+      if (url === this.currentPath) return;
+      router.replace({ path: url });
     },
   },
 };

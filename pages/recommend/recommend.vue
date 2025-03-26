@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import { recommendListdata, swiperListdata } from "./assets/data";
 import tabbar from "/pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { getRecommendList } from "../../src/services/api";
-import subtitle from "/pages/components/SubtitleDraggable/index.vue";
+import { getSwiperData } from "../../src/services/api";
+import xiaoYiAgent from "/pages/components/xiaoYiAgent/index.vue";
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -41,12 +42,6 @@ const defaultCover = "/src/static/images/cover.jpg";
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
-const aaa = () => {
-  uni.navigateTo({
-    url: "/pages/components/SubtitleDraggable/index",
-  });
-};
-
 // 使用定义的接口类型
 const swiperList = ref(swiperListdata);
 const allrecommendList = ref();
@@ -57,12 +52,43 @@ const userInfo = ref();
 const showBackTop = ref(false);
 const scrollTop = ref(0);
 
+// 最热会议推荐轮播图
+const recommendSwiperData = ref();
+
+const handleClickAgent = (e) => {
+  uni.navigateTo({ url: "/pages/test/test" });
+};
+
 onShow(() => {
-  console.log(111);
   const userInfoStore = useUserInfoStore();
   userInfo.value = userInfoStore.userInfo;
+  // 获取用户推荐会议列表
   getRecommendListData();
+  // 获取推荐会议轮播图列表
+  getSwiperData_();
 });
+
+const getStatus = (val) => {
+  switch (val) {
+    case "Ongoing": {
+      return "会议进行中";
+    }
+    case "Waiting": {
+      return "会议待开始";
+    }
+    case "Ended": {
+      return "会议已结束";
+    }
+    default: {
+      return "未知状态";
+    }
+  }
+};
+
+const getSwiperData_ = async () => {
+  const res = await getSwiperData();
+  recommendSwiperData.value = res.data;
+};
 // scroll-view 的滚动事件处理
 const onScroll = (e: any) => {
   // event.detail.scrollTop 是滚动距离
@@ -118,6 +144,12 @@ const goTomessage = () => {
 </script>
 
 <template>
+  <kml-agent
+    :x="0"
+    :y="600"
+    :isDock="true"
+    @handleClickAgent="handleClickAgent">
+  </kml-agent>
   <view
     class="page-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
@@ -166,10 +198,13 @@ const goTomessage = () => {
         :autoplay="true"
         interval="3000"
         duration="1000">
-        <swiper-item v-for="item in swiperList" :key="item.meetingId">
+        <swiper-item
+          v-for="item in recommendSwiperData"
+          :key="item.id"
+          @tap="goTomeetingshow(item.meetingId)">
           <view class="banner-item">
-            <image :src="item.image" mode="aspectFill"></image>
-            <view class="banner-title">{{ item.title }}</view>
+            <image :src="item.meetingImageUrl" mode="aspectFill"></image>
+            <view class="banner-title">{{ item.meetingName }}</view>
           </view>
         </swiper-item>
       </swiper>
@@ -189,8 +224,14 @@ const goTomessage = () => {
           <view class="meeting-info">
             <view class="meeting-title">{{ item.meetingName }}</view>
             <view class="meeting-views">
-              <uni-icons type="fire-filled" size="12" color="#100"></uni-icons>
-              <text>{{ item.meetingHeat }}</text>
+              <view class="meeting-views-item1">
+                <uni-icons type="fire-filled" size="12" color="red"></uni-icons>
+                <text>{{ item.meetingHeat }}</text>
+              </view>
+
+              <view class="meeting-views-item2" :class="item.meetingStatus"
+                ><text>{{ getStatus(item.meetingStatus) }}</text></view
+              >
             </view>
           </view>
         </view>
@@ -198,7 +239,6 @@ const goTomessage = () => {
       <view class="loading-text">
         {{ finish ? "没有更多数据~" : "正在加载..." }}
       </view>
-      <button @tap="aaa">去翻译</button>
     </scroll-view>
 
     <!-- 底部导航栏 -->
@@ -207,10 +247,23 @@ const goTomessage = () => {
 </template>
 
 <style scoped>
+.Waiting {
+  background: rgba(43, 88, 249, 0.1);
+  color: #2b58f9;
+}
+
+.Ongoing {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.Ended {
+  background: rgba(153, 153, 153, 0.1);
+  color: #999;
+}
 .page-container {
   display: flex;
   flex-direction: column;
-  height: 92vh;
   overflow: hidden;
 }
 .header {
@@ -347,6 +400,11 @@ const goTomessage = () => {
   align-items: center;
   font-size: 24rpx;
   color: #999;
+  justify-content: space-between;
+}
+
+.meeting-views-item2 {
+  border-radius: 3px;
 }
 .meeting-views text {
   margin-left: 6rpx;

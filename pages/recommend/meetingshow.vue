@@ -134,8 +134,8 @@
 
     <!-- 底部按钮 -->
     <view class="bottom-buttons">
-      <button class="btn join-btn" @click="handleEnterMeeting()">
-        {{ this.isHost ? "开始会议" : "加入会议" }}
+      <button class="btn join-btn" @click="handleMeetingOption()">
+        {{ this.isHost ? "开始会议" : this.isSignUp ? "加入会议" : "报名会议" }}
       </button>
       <button class="btn nav-btn" @click="openNavigation">地图导航</button>
     </view>
@@ -146,7 +146,7 @@
 import { useRoomStore } from "../../src/roomkit/TUIRoom/stores/room.ts";
 import { useUserInfoStore } from "../../src/stores/modules/userInfo.ts";
 import router from "../../src/router/index.ts";
-import { getMeetingData } from "../../src/services/api.ts";
+import { getMeetingData, userSignUpMeeting } from "../../src/services/api.ts";
 export default {
   onLoad: function (option) {
     // 获取meetingId
@@ -209,10 +209,12 @@ export default {
 
       this.setTUIRoomData("createRoom", roomOption);
       const roomId = this.meetingInfo.meetingId;
+      const meetingTitle = this.meetingInfo.meetingName;
       router.replace({
         path: "/src/roomkit/pages/room",
         query: {
           roomId,
+          meetingTitle,
         },
       });
     },
@@ -227,6 +229,7 @@ export default {
         path: "/src/roomkit/pages/room",
         query: {
           roomId: roomOption.roomId,
+          meetingTitle,
         },
       });
     },
@@ -262,7 +265,7 @@ export default {
         });
       }
     },
-    handleEnterMeeting() {
+    async handleMeetingOption() {
       if (this.isHost) {
         uni.showModal({
           title: "提示",
@@ -277,51 +280,69 @@ export default {
           },
         });
       } else {
-        console.log(this.meetingInfo.meetingStatus);
-        switch (this.meetingInfo.meetingStatus) {
-          case "Waiting": {
-            // uni.showToast({
-            //   title: "会议还未开始，请耐心等待",
-            //   icon: "none",
-            // });
-            uni.showModal({
-              title: "提示",
-              content: "会议正在进行中，确定加入会议吗",
-              showCancel: true,
-              success: ({ confirm, cancel }) => {
-                if (confirm) {
-                  this.joinMeeting();
-                } else if (cancel) {
-                  return;
-                }
-              },
-            });
-            break;
+        if (this.isSignUp) {
+          // 用户已经报名会议
+          switch (this.meetingInfo.meetingStatus) {
+            case "Waiting": {
+              // uni.showToast({
+              //   title: "会议还未开始，请耐心等待",
+              //   icon: "none",
+              // });
+              uni.showModal({
+                title: "提示",
+                content: "会议正在进行中，确定加入会议吗",
+                showCancel: true,
+                success: ({ confirm, cancel }) => {
+                  if (confirm) {
+                    this.joinMeeting();
+                  } else if (cancel) {
+                    return;
+                  }
+                },
+              });
+              break;
+            }
+            case "Ongoing": {
+              uni.showModal({
+                title: "提示",
+                content: "会议正在进行中，确定加入会议吗",
+                showCancel: true,
+                success: ({ confirm, cancel }) => {
+                  if (confirm) {
+                    this.joinMeeting();
+                  } else if (cancel) {
+                    return;
+                  }
+                },
+              });
+              break;
+            }
+            case "Ended": {
+              uni.showToast({
+                title: "会议已经结束",
+                icon: "none",
+              });
+              break;
+            }
+            default:
+              return;
           }
-          case "Ongoing": {
-            uni.showModal({
-              title: "提示",
-              content: "会议正在进行中，确定加入会议吗",
-              showCancel: true,
-              success: ({ confirm, cancel }) => {
-                if (confirm) {
-                  this.joinMeeting();
-                } else if (cancel) {
-                  return;
-                }
-              },
-            });
-            break;
-          }
-          case "Ended": {
+        } else {
+          // 用户未报名会议 点击进行报名
+          const res = await userSignUpMeeting({
+            userId: this.userId,
+            meetingId: this.meetingInfo.meetingId,
+          });
+          if (res.code === 1) {
             uni.showToast({
-              title: "会议已经结束",
+              title: "报名成功",
               icon: "none",
+              duration: 2000,
             });
-            break;
+            this.meetingInfo.attendeesUid.push(this.userId);
+            this.meetingInfo.numAttendees++;
+            this.fetchMeetingInfo();
           }
-          default:
-            return;
         }
       }
     },
@@ -363,6 +384,9 @@ export default {
     },
   },
   computed: {
+    isSignUp() {
+      return this.meetingInfo.attendeesUid.includes(this.userId);
+    },
     isHost() {
       console.log(this.userId, this.meetingInfo.organizerUid);
       if (this.userId === this.meetingInfo.organizerUid) {

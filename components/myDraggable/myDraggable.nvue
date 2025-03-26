@@ -1,0 +1,190 @@
+<template>
+  <view
+    ref="ball"
+    :style="{ right: marginX + 'px', bottom: marginY + 'px' }"
+    class="ball"
+    @touchstart="start"
+    @tap="clickButton">
+    <slot />
+  </view>
+</template>
+<script>
+function getEl(el) {
+  if (typeof el === "string" || typeof el === "number") return el;
+  if (WXEnvironment) {
+    return el.ref;
+  } else {
+    return el instanceof HTMLElement ? el : el.$el;
+  }
+}
+const BindingX = uni.requireNativePlugin("bindingx");
+const dom = weex.requireModule("dom");
+/**
+ * 吸附按钮
+ */
+export default {
+  props: {
+    marginY: {
+      // 纵向边距
+      type: Number,
+      default: 40,
+    },
+    marginX: {
+      //横向边距
+      type: Number,
+      default: 20,
+    },
+  },
+  data() {
+    return {
+      ballInfo: {},
+      areaSize: {},
+      position: {
+        // 记录小球当前位置
+        x: 0,
+        y: 0,
+      },
+      isRun: false, //是否处于运动中
+      timer: false,
+      containerStyle: {},
+    };
+  },
+  mounted() {
+    const info = uni.getSystemInfoSync();
+    this.containerStyle = {
+      left: 0,
+      top: 0,
+      width: info.screenWidth + "px",
+      height: info.screenHeight - 100 + "px",
+    };
+    this.areaSize = {
+      width: info.safeArea.width,
+      height: info.safeArea.height,
+    };
+    this.$nextTick(() => {
+      this.getBallInfo();
+    });
+  },
+  methods: {
+    getBallInfo() {
+      dom.getComponentRect(this.$refs.ball, (res) => {
+        const info = res.size || {};
+        this.ballInfo = {
+          width: info.width, //小球宽度
+          height: info.height, //小球高度
+        };
+      });
+    },
+    start(e) {
+      if (this.isRun) {
+        //小球处于运动中
+        return;
+      }
+      const ball = getEl(this.$refs.ball);
+
+      let obj = BindingX.bind(
+        {
+          anchor: ball,
+          eventType: "pan",
+          props: [
+            {
+              element: ball,
+              property: "transform.translateX",
+              expression: `x+${this.position.x}`,
+            },
+            {
+              element: ball,
+              property: "transform.translateY",
+              expression: `y+${this.position.y}`, //
+            },
+          ],
+        },
+        (e) => {
+          if (e.state === "end") {
+            if (this.timer) {
+              //移动时间特别短暂 视为点击事件
+              this.$emit("clickButton"); //点击事件触发
+            }
+            BindingX.unbind({
+              token: obj.token,
+              eventType: "pan",
+            });
+            //记录小球位置
+            this.position.x += e.deltaX;
+            this.position.y += e.deltaY;
+            //进行吸附
+            this.sorption();
+          } else {
+            this.timer = setTimeout(() => {
+              this.timer = null;
+            }, 50);
+          }
+        }
+      );
+    },
+    sorption() {
+      //吸附
+      this.isRun = true;
+      const ball = getEl(this.$refs.ball);
+      const time = 230;
+      // 判断吸附方向
+      const isLeft =
+        (this.areaSize.width - this.ballInfo.width + this.marginX) / 2 <
+        -this.position.x + this.ballInfo.width; //是否向左吸附
+      let moveX = isLeft
+        ? -(this.areaSize.width + this.position.x) +
+          this.ballInfo.width +
+          this.marginX * 2
+        : 0 - this.position.x;
+      let moveY = 0;
+      if (this.position.y > 0) {
+        moveY = 0 - this.position.y;
+      } else if (
+        this.position.y <
+        0 - (this.areaSize.height - this.ballInfo.height - this.marginY * 2)
+      ) {
+        moveY =
+          -(this.position.y + (this.areaSize.height - this.ballInfo.height)) +
+          this.marginY * 2;
+      }
+      const expression_x = `easeInOutCubic(t,${this.position.x},${moveX},${time})`;
+      const expression_y = `easeInOutCubic(t,${this.position.y},${moveY},${time})`;
+      let result = BindingX.bind(
+        {
+          eventType: "timing",
+          exitExpression: `t>=${time}`, //描述什么时候结束
+          props: [
+            {
+              element: ball,
+              property: "transform.translateX", //修改的属性
+              expression: expression_x,
+            },
+            {
+              element: ball,
+              property: "transform.translateY", //修改的属性
+              expression: expression_y,
+            },
+          ],
+        },
+        (e) => {
+          if (e.state === "end" || e.state === "exit") {
+            this.isRun = false;
+            this.position.x += moveX;
+            this.position.y += moveY;
+            BindingX.unbind({
+              eventType: "timing",
+              token: result.gesToken,
+            });
+          }
+        }
+      );
+    },
+  },
+};
+</script>
+<style scoped>
+.ball {
+  position: fixed;
+  bottom: 0;
+}
+</style>

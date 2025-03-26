@@ -4,7 +4,6 @@ import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
 import tabber from "../components/tabbar/tabbar.vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
-
 interface UserInfo {
   avatarUrl: string;
   username: string;
@@ -142,26 +141,10 @@ const handleLogin = () => {};
 
 // 计算屏幕可用高度
 const calculateScreenHeight = () => {};
-
-uni.onSocketMessage((res) => {
-  console.log(res);
-  if (typeof res.data === 'string') {
-    const data = JSON.parse(res.data);
-    console.log(data);
-    if (data.receiverUids && data.receiverUids.includes(userInfoStore.userInfo?.userId)) {
-      userInfoStore.setIsUnread(true);
-      console.log(userInfoStore.isunread);
-    }
-  }
-  uni.showToast({
-    title: "收到一条新消息",
-    duration: 2000
-  });
-});
-
 </script>
 
 <template>
+  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
   <view
     class="mine-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
@@ -170,7 +153,6 @@ uni.onSocketMessage((res) => {
       <!-- 添加一个包装器来实现相对定位 -->
       <view class="header-wrapper">
         <view class="user-info">
-          
           <image
             class="user-avatar"
             :src="userInfo.avatarUrl"
@@ -185,17 +167,29 @@ uni.onSocketMessage((res) => {
 
         <!-- 只有登录后才显示这些操作按钮 -->
         <view class="header-actions" v-if="userInfoStore.isLoggedIn">
-            <view class="action-item">
-               <uni-badge v-if="isDot" :is-dot="true" absolute="rightTop" size="small" :text="value.toString()">
-                 <uni-icons type="notification" size="24" color="#fff" @click="message"></uni-icons>
-               </uni-badge>
-               <uni-icons v-else type="notification" size="24" color="#fff" @click="message"></uni-icons>
-            </view>
+          <view class="action-item">
+            <uni-badge
+              v-if="isDot"
+              :is-dot="true"
+              absolute="rightTop"
+              size="small"
+              :text="value.toString()">
+              <uni-icons
+                type="notification"
+                size="24"
+                color="#fff"
+                @click="message"></uni-icons>
+            </uni-badge>
+            <uni-icons
+              v-else
+              type="notification"
+              size="24"
+              color="#fff"
+              @click="message"></uni-icons>
+          </view>
           <view class="action-item" @click="myInfo">
             <uni-icons type="gear" size="24" color="#fff"></uni-icons>
           </view>
-
-          
         </view>
       </view>
 
@@ -253,10 +247,22 @@ uni.onSocketMessage((res) => {
           <!-- 参会提醒 -->
           <view class="feature-item" @click="To('message')">
             <view class="feature-icon-wrapper">
-              <uni-badge v-if="isDot" :is-dot="true" absolute="rightTop" size="small"  :text="value.toString()">
-                <uni-icons type="notification" size="28" color="#4075FF"></uni-icons>
+              <uni-badge
+                v-if="isDot"
+                :is-dot="true"
+                absolute="rightTop"
+                size="small"
+                :text="value.toString()">
+                <uni-icons
+                  type="notification"
+                  size="28"
+                  color="#4075FF"></uni-icons>
               </uni-badge>
-              <uni-icons v-else type="notification" size="28" color="#4075FF"></uni-icons>
+              <uni-icons
+                v-else
+                type="notification"
+                size="28"
+                color="#4075FF"></uni-icons>
             </view>
             <text class="feature-text">参会提醒</text>
           </view>

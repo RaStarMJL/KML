@@ -5,7 +5,7 @@
 
 import LibGenerateTestUserSig from "./lib-generate-test-usersig-es.min";
 
-import { getLatest_SdkAppId_SDKSECRETKEY } from "/src/services/api";
+import { getLatest_SdkAppId_SDKSECRETKEY } from "/src/services/api.ts";
 
 /**
  * Tencent Cloud SDKAppId, which should be replaced with user's SDKAppId.
@@ -18,7 +18,7 @@ import { getLatest_SdkAppId_SDKSECRETKEY } from "/src/services/api";
  * 它是腾讯云用于区分客户的唯一标识。
  */
 
-export let SDKAPPID = Number(0);
+export let SDKAPPID = 1600079083;
 
 /**
  * Encryption key for calculating signature, which can be obtained in the following steps:
@@ -43,7 +43,8 @@ export let SDKAPPID = Number(0);
  * 注意：该方案仅适用于调试Demo，正式上线前请将 UserSig 计算代码和密钥迁移到您的后台服务器上，以避免加密密钥泄露导致的流量盗用。
  * 文档：https://cloud.tencent.com/document/product/647/17275#Server
  */
-export let SDKSECRETKEY = String("");
+export let SDKSECRETKEY =
+  "8e17603e04b0dae392ca03f8c731585322043187e1ed45d825c3fdf41ced8fd9";
 
 /**
  * Signature expiration time, which should not be too short
@@ -61,41 +62,25 @@ export const EXPIRETIME = 604800;
  *
  * 设置推流端用户信息
  */
-export const userInfo = {
-  // 用户Id
-  userId: `user_${Math.ceil(Math.random() * 100000)}`,
-  // 用户昵称
-  userName: `user_${Math.ceil(Math.random() * 10)}`,
-  // 用户头像
-  avatarUrl: "",
-};
 
 // 从服务器上获取最新的SDKAPPID和SDKSECRETKEY
 const handleGetLatest_SdkAppId_SDKSECRETKEY = async () => {
   let res;
   try {
     res = await getLatest_SdkAppId_SDKSECRETKEY();
-  } catch (err) {
-    console.log("获取sdk失败");
-  }
-  console.log("aksfhjoanf:", res);
-  if (!res) {
+  } catch (e) {
+    console.log("sdk初始化失败:", e);
     uni.showToast({
       title: "sdk初始化失败,使用本地sdk",
-      duration: 1000,
+      icon: "none",
+      duration: 2000,
     });
-    res = {
-      data: {
-        sdkId: 1600077775,
-        sdkSecret:
-          "b8072812ad37a9ebcedc473007719e1f46ce4403e52ade443ab52313ac045dfb",
-      },
-    };
+    return;
   }
   SDKAPPID = Number(res.data.sdkId);
   SDKSECRETKEY = String(res.data.sdkSecret);
 };
-export const getBasicInfo = async () => {
+export const getBasicInfo = async (userId) => {
   await handleGetLatest_SdkAppId_SDKSECRETKEY();
   console.log("handleGetLatest_SdkAppId_SDKSECRETKEY:", SDKAPPID, SDKSECRETKEY);
 
@@ -108,13 +93,9 @@ export const getBasicInfo = async () => {
     SDKSECRETKEY,
     EXPIRETIME
   );
-  const userSig = generator.genTestUserSig(userInfo.userId);
-  const { userId, userName, avatarUrl } = userInfo;
+  const userSig = generator.genTestUserSig(userId);
   return {
     sdkAppId: SDKAPPID,
-    userId,
     userSig,
-    userName,
-    avatarUrl,
   };
 };

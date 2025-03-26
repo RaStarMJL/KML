@@ -26,13 +26,15 @@
           <span class="text"> 预约会议</span>
         </div>
         <!-- 会议总结 / 会议回放 -->
-        <div class="summary-room2-body common-button-body" @click="handlecreate">
-          <div class="summary-room2 common-button" >
+        <div
+          class="summary-room2-body common-button-body"
+          @click="handlecreate">
+          <div class="summary-room2 common-button">
             <svg-icon
               class="summary-icon svg-icon"
               :icon="MeetingSummaryIcon" />
           </div>
-          <span class="text" > 创建会议</span>
+          <span class="text"> 创建会议</span>
         </div>
       </div>
       <!-- 历史会议 -->
@@ -57,23 +59,10 @@
             >历史会议 ></span
           >
         </div>
+        <scroll-view scroll-y class="history-meeting-scroll">
+          <historyMeeting></historyMeeting>
+        </scroll-view>
       </div>
-      <!-- <div class="container-bottom">
-        <div class="join-room" @tap="enterRoom">
-          <svg-icon
-            style="display: flex"
-            class="enter-icon"
-            :icon="EnterRoomIcon" />
-          <span class="title">{{ t("Join Room") }}</span>
-        </div>
-        <div class="create-room" @tap="createRoom">
-          <svg-icon
-            style="display: flex"
-            class="add-icon"
-            :icon="CreateRoomIcon" />
-          <span class="title">{{ t("New Room") }}</span>
-        </div>
-      </div> -->
     </div>
     <!-- 新建房间页面 -->
     <div
@@ -148,8 +137,8 @@
               开启扬声器
               <div
                 class="slider-box"
-                :class="[isCamerOn && 'slider-open']"
-                @tap="() => toggle('isCamerOn')">
+                :class="[isSpeakerOn && 'slider-open']"
+                @tap="() => toggle('isSpeakerOn')">
                 <span class="slider-block"></span>
               </div>
             </div>
@@ -158,8 +147,8 @@
               显示AI浮窗
               <div
                 class="slider-box"
-                :class="[isCamerOn && 'slider-open']"
-                @tap="() => toggle('isCamerOn')">
+                :class="[isAiFloatingWindowOn && 'slider-open']"
+                @tap="() => toggle('isAiFloatingWindowOn')">
                 <span class="slider-block"></span>
               </div>
             </div>
@@ -168,8 +157,8 @@
               使用虚拟头像
               <div
                 class="slider-box"
-                :class="[isCamerOn && 'slider-open']"
-                @tap="() => toggle('isCamerOn')">
+                :class="[isVirtualAvatarOn && 'slider-open']"
+                @tap="() => toggle('isVirtualAvatarOn')">
                 <span class="slider-block"></span>
               </div>
             </div>
@@ -178,8 +167,8 @@
               自动显示弹幕
               <div
                 class="slider-box"
-                :class="[isCamerOn && 'slider-open']"
-                @tap="() => toggle('isCamerOn')">
+                :class="[isSubtitleOn && 'slider-open']"
+                @tap="() => toggle('isSubtitleOn')">
                 <span class="slider-block"></span>
               </div>
             </div>
@@ -188,8 +177,8 @@
               实时语音转文字
               <div
                 class="slider-box"
-                :class="[isCamerOn && 'slider-open']"
-                @tap="() => toggle('isCamerOn')">
+                :class="[isTranslateOn && 'slider-open']"
+                @tap="() => toggle('isTranslateOn')">
                 <span class="slider-block"></span>
               </div>
             </div>
@@ -263,6 +252,7 @@ import TUIMessage from "../../common/base/Message/index";
 import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import meetingSetting from "../../../../../../pages/mine/meetingSetting.vue";
+import historyMeeting from "../../../../../../pages/components/historyMeeting/historyMeeting.vue";
 const { t } = useRoomControl();
 
 // 距离手机头部的安全距离
@@ -282,11 +272,16 @@ const roomType = computed(() =>
     : t("On-stage Speaking Room")
 );
 const isMicOn = ref(true);
-const isCamerOn = ref(true);
+const isCamerOn = ref(false);
+const isSpeakerOn = ref(false);
+const isAiFloatingWindowOn = ref(false);
+const isVirtualAvatarOn = ref(false);
+const isSubtitleOn = ref(false);
+const isTranslateOn = ref(false);
 const mode = ref("FreeToSpeak");
 const roomId = ref("");
 const tuiRoomParam = {
-  isOpenCamera: true,
+  isOpenCamera: false,
   isOpenMicrophone: true,
   defaultCameraId: "",
   defaultMicrophoneId: "",
@@ -391,6 +386,21 @@ function toggle(type: string) {
       isCamerOn.value = !isCamerOn.value;
       tuiRoomParam.isOpenCamera = isCamerOn.value;
       break;
+    case "isSpeakerOn":
+      isSpeakerOn.value = !isSpeakerOn.value;
+      break;
+    case "isAiFloatingWindowOn":
+      isAiFloatingWindowOn.value = !isAiFloatingWindowOn.value;
+      break;
+    case "isVirtualAvatarOn":
+      isVirtualAvatarOn.value = !isVirtualAvatarOn.value;
+      break;
+    case "isSubtitleOn":
+      isSubtitleOn.value = !isSubtitleOn.value;
+      break;
+    case "isTranslateOn":
+      isTranslateOn.value = !isTranslateOn.value;
+      break;
     default:
       break;
   }
@@ -408,12 +418,10 @@ function handleDocumentClick(event: MouseEvent) {
   }
 }
 
-function handlecreate(){
-  uni.navigateTo(
-    {
-      url:'/pages/meetting/createMeeting'
-    }
-  )
+function handlecreate() {
+  uni.navigateTo({
+    url: "/pages/meetting/createMeeting",
+  });
 }
 
 function handleRoomOption(type: string) {
@@ -454,6 +462,13 @@ onUnmounted(() => {
 });
 </script>
 <style lang="scss" scoped>
+.history-meeting-scroll {
+  margin: 0;
+  padding: 0;
+  height: 50vh;
+  width: 100%;
+}
+
 .control-container {
   width: 100vw;
   height: 100%;

@@ -95,6 +95,8 @@
 <script>
 import { login } from "/src/services/api";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+// import { useBasicStore } from "/src/roomkit/TUIRoom/stores/basic";
+// import { useRoomStore } from "/src/roomkit/TUIRoom/stores/room";
 export default {
   data() {
     return {
