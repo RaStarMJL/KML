@@ -1,3 +1,4 @@
+import { url } from "inspector";
 import { http } from "/src/utils/http";
 
 //登录
@@ -32,3 +33,49 @@ export const getLatest_SdkAppId_SDKSECRETKEY = () => {
     url: "tencent",
   });
 };
+
+
+// 修改用户的相关信息
+export const change_userInfo = (data: any) => {
+  return http(
+    {
+      url: 'user',
+      method: 'PUT',
+      data,
+    }
+  );
+};
+
+
+export const aicheckout = (data: any) => {
+  return http({
+    url: 'aiFile/agentFileSearch',
+    method: 'POST',
+    data,
+  });
+};
+
+
+export const get_localsign = (data: any) => {
+  return http({
+    url: `Sig?key=${data.key}&secret=${data.secret}`,
+    method: "GET",
+    data
+  })
+}
+
+export const get_message = (data: any) => {
+  return http({
+    url: `PushNotification/getmessage?UserId=${data.UserId}`,
+    method: "GET",
+  });
+};
+
+export const aimanage = (data: any) => {
+  return http({
+    url: 'ai/execute',
+    method: 'POST',
+    data,
+  });
+};
+

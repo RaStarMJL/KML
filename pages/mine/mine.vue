@@ -4,7 +4,7 @@ import { TUIUserService } from "@tencentcloud/chat-uikit-engine";
 import tabber from "../components/tabbar/tabbar.vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
-import subTitle from "/pages/components/customSubtitle/index.vue";
+
 interface UserInfo {
   avatarUrl: string;
   username: string;
@@ -20,7 +20,8 @@ const { safeAreaInsets } = uni.getSystemInfoSync();
 const defaultAvatar = "/src/static/images/defaultAvatar.png";
 
 const userInfoStore = useUserInfoStore();
-
+const isDot = computed(() => userInfoStore.isunread);
+const value = ref(0);
 // 用户信息，使用计算属性来响应式获取 store 中的数据
 const userInfo = computed(() => ({
   avatarUrl: userInfoStore.userInfo?.avatarUrl || defaultAvatar,
@@ -35,7 +36,7 @@ const features = ref([
   { icon: "record", text: "录制", page: "record" },
   { icon: "note", text: "我的笔记", page: "note" },
 
-  { icon: "message", text: "参会提醒", page: "remind" },
+  { icon: "message", text: "参会提醒", page: "message" },
   { icon: "favorite", text: "收藏", page: "favorite" },
   { icon: "history", text: "历史", page: "history" },
 ]);
@@ -56,6 +57,8 @@ const getIconType = (iconName: string): string => {
 
 //消息
 const message = () => {
+  userInfoStore.setIsUnread(false);
+  console.log(userInfoStore.isunread);
   uni.navigateTo({
     url: "/pages/mine/message",
   });
@@ -139,18 +142,35 @@ const handleLogin = () => {};
 
 // 计算屏幕可用高度
 const calculateScreenHeight = () => {};
+
+uni.onSocketMessage((res) => {
+  console.log(res);
+  if (typeof res.data === 'string') {
+    const data = JSON.parse(res.data);
+    console.log(data);
+    if (data.receiverUids && data.receiverUids.includes(userInfoStore.userInfo?.userId)) {
+      userInfoStore.setIsUnread(true);
+      console.log(userInfoStore.isunread);
+    }
+  }
+  uni.showToast({
+    title: "收到一条新消息",
+    duration: 2000
+  });
+});
+
 </script>
 
 <template>
   <view
     class="mine-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
-    <subTitle :text="subtitleText" />
     <!-- 顶部用户信息 -->
     <view class="user-header">
       <!-- 添加一个包装器来实现相对定位 -->
       <view class="header-wrapper">
         <view class="user-info">
+          
           <image
             class="user-avatar"
             :src="userInfo.avatarUrl"
@@ -165,12 +185,17 @@ const calculateScreenHeight = () => {};
 
         <!-- 只有登录后才显示这些操作按钮 -->
         <view class="header-actions" v-if="userInfoStore.isLoggedIn">
-          <view class="action-item" @click="message">
-            <uni-icons type="notification" size="24" color="#fff"></uni-icons>
-          </view>
+            <view class="action-item">
+               <uni-badge v-if="isDot" :is-dot="true" absolute="rightTop" size="small" :text="value.toString()">
+                 <uni-icons type="notification" size="24" color="#fff" @click="message"></uni-icons>
+               </uni-badge>
+               <uni-icons v-else type="notification" size="24" color="#fff" @click="message"></uni-icons>
+            </view>
           <view class="action-item" @click="myInfo">
             <uni-icons type="gear" size="24" color="#fff"></uni-icons>
           </view>
+
+          
         </view>
       </view>
 
@@ -201,19 +226,55 @@ const calculateScreenHeight = () => {};
         </view>
 
         <view class="feature-grid">
-          <view
-            class="feature-item"
-            v-for="(item, index) in features"
-            :key="index"
-            @click="To(item.page)">
-            <!-- 使用uni-icons替代图片 -->
+          <!-- AI助手 -->
+          <view class="feature-item" @click="To('aihelper')">
             <view class="feature-icon-wrapper">
-              <uni-icons
-                :type="getIconType(item.icon)"
-                size="28"
-                color="#4075FF"></uni-icons>
+              <uni-icons type="help" size="28" color="#4075FF"></uni-icons>
             </view>
-            <text class="feature-text">{{ item.text }}</text>
+            <text class="feature-text">AI助手</text>
+          </view>
+
+          <!-- 录制 -->
+          <view class="feature-item" @click="To('record')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="videocam" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">录制</text>
+          </view>
+
+          <!-- 我的笔记 -->
+          <view class="feature-item" @click="To('note')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="compose" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">我的笔记</text>
+          </view>
+
+          <!-- 参会提醒 -->
+          <view class="feature-item" @click="To('message')">
+            <view class="feature-icon-wrapper">
+              <uni-badge v-if="isDot" :is-dot="true" absolute="rightTop" size="small"  :text="value.toString()">
+                <uni-icons type="notification" size="28" color="#4075FF"></uni-icons>
+              </uni-badge>
+              <uni-icons v-else type="notification" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">参会提醒</text>
+          </view>
+
+          <!-- 收藏 -->
+          <view class="feature-item" @click="To('favorite')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="star" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">收藏</text>
+          </view>
+
+          <!-- 历史 -->
+          <view class="feature-item" @click="To('history')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">历史</text>
           </view>
         </view>
       </view>

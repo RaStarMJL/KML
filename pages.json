@@ -8,13 +8,6 @@
       }
     },
     {
-      "path": "pages/components/SubtitleDraggable/index",
-      "style": {
-        // "navigationStyle": "custom",
-        "navigationBarTitleText": "翻译"
-      }
-    },
-    {
       "path": "pages/meetting/meetting",
       "style": {
         "navigationStyle": "custom", // 隐藏默认导航
@@ -123,6 +116,19 @@
       "style": {
         "navigationBarTitleText": "创建会议"
       }
+    },
+    {
+      "path": "pages/mine/aidetail/aimanage",
+      "style": {
+        "navigationBarTitleText": "功能用例"
+      }
+    },
+    {
+    	"path" : "pages/mine/aidetail/aicheckout",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : ""
+    	}
     }
   ],
   "subpackages": [
