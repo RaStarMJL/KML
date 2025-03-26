@@ -1,7 +1,7 @@
 <template>
   <div class="more-control-container">
     <icon-button
-      icon="MoreIcon"
+      icon="EmojiIcon"
       :is-active="sidebarName === 'more'"
       title="AI助手"
       @click-icon="toggleContactSidebar" />
@@ -11,10 +11,10 @@
       :title="t('Contact us')"
       @click-icon="toggleContactSidebar" />
     <icon-button
-      icon="MoreIcon"
+      icon="NextIcon"
       :is-active="sidebarName === 'more'"
       title="实时翻译"
-      @click-icon="openRealtimeTranslation" />
+      @click-icon="toggleSubtitleSetting" />
     <div v-if="isShowContactTab" class="contact-container">
       <room-contact
         ref="contactRef"
@@ -60,6 +60,12 @@ function toggleContactSidebar() {
 function handleOnCloseContact() {
   isShowContactTab.value = false;
 }
+
+const toggleSubtitleSetting = () => {
+  uni.navigateTo({
+    url: "/src/roomkit/pages/subtitleSetting/subtitleSetting",
+  });
+};
 
 const openRealtimeTranslation = () => {
   if (basicStore.isTranslate) {

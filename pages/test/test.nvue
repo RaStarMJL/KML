@@ -1,0 +1,225 @@
+<template>
+  <kmlAgentNvueNvue>
+    <image
+      src="/src/static/images/ok.png"
+      style="width: 60px; height: 60px; border-radius: 30px" />
+  </kmlAgentNvueNvue>
+  <kmlAgent>
+    <image
+      src="/src/static/images/ok.png"
+      style="width: 60px; height: 60px; border-radius: 30px" />
+  </kmlAgent>
+</template>
+<script>
+const Binding = uni.requireNativePlugin("bindingx");
+import kmlAgentNvueNvue from "../../components/kml-agent-nvue/kml-agent-nvue.nvue";
+import kmlAgent from "../../components/kml-agent/kml-agent.vue";
+export default {
+  data() {
+    return {
+      isExpanded: false,
+    };
+  },
+  components: {
+    kmlAgentNvueNvue,
+    kmlAgent,
+  },
+  methods: {
+    clickButton() {
+      console.log("点击了按钮");
+    },
+    handle(e) {
+      console.log("touchmove触发了");
+      let ct = this.getEl(this.$refs.ct);
+      let ct_binding = Binding.bind({
+        eventType: "pan",
+        anchor: ct,
+        props: [
+          {
+            element: ct,
+            property: "transform.translateY",
+            expression: "y+0",
+          },
+          {
+            element: ct,
+            property: "transform.translateX",
+            expression: "x+0",
+          },
+        ],
+      });
+    },
+    getEl: function (el) {
+      if (typeof el === "string" || typeof el === "number") return el;
+      if (WXEnvironment) {
+        return el.ref;
+      } else {
+        return el instanceof HTMLElement ? el : el.$el;
+      }
+    },
+    collapse: function () {
+      let main_btn = this.getEl(this.$refs.main_btn);
+      let main_image = this.getEl(this.$refs.main_image);
+      let b1 = this.getEl(this.$refs.b1);
+      let b2 = this.getEl(this.$refs.b2);
+      let b3 = this.getEl(this.$refs.b3);
+      let main_binding = Binding.bind(
+        {
+          eventType: "timing",
+          exitExpression: "t>800",
+          props: [
+            {
+              element: main_image,
+              property: "transform.rotateZ",
+              expression: "easeOutQuint(t,45,0-45,800)",
+            },
+            {
+              element: main_btn,
+              property: "background-color",
+              expression: "evaluateColor('#607D8B','#ff0000',min(t,800)/800)",
+            },
+          ],
+        },
+        function (res) {
+          if (res.state === "exit") {
+            Binding.unbind({
+              token: main_binding.token,
+              eventType: "timing",
+            });
+          }
+        }
+      );
+      let btn_binding = Binding.bind(
+        {
+          eventType: "timing",
+          exitExpression: "t>800",
+          props: [
+            {
+              element: b1,
+              property: "transform.translateY",
+              expression: "easeOutQuint(t,-150,150,800)",
+            },
+            {
+              element: b2,
+              property: "transform.translateY",
+              expression: "t<=100?0:easeOutQuint(t-100,-300,300,700)",
+            },
+            {
+              element: b3,
+              property: "transform.translateY",
+              expression: "t<=200?0:easeOutQuint(t-200,-450,450,600)",
+            },
+          ],
+        },
+        function (res) {
+          if (res.state === "exit") {
+            Binding.unbind({
+              token: btn_binding.token,
+              eventType: "timing",
+            });
+          }
+        }
+      );
+    },
+    expand: function () {
+      let main_btn = this.getEl(this.$refs.main_btn);
+      let main_image = this.getEl(this.$refs.main_image);
+      let b1 = this.getEl(this.$refs.b1);
+      let b2 = this.getEl(this.$refs.b2);
+      let b3 = this.getEl(this.$refs.b3);
+      let main_binding = Binding.bind(
+        {
+          eventType: "timing",
+          exitExpression: "t>100",
+          props: [
+            {
+              element: main_image,
+              property: "transform.rotateZ",
+              expression: "linear(t,0,45,100)",
+            },
+            {
+              element: main_btn,
+              property: "background-color",
+              expression: "evaluateColor('#ff0000','#607D8B',min(t,100)/100)",
+            },
+          ],
+        },
+        function (res) {
+          if (res.state === "exit") {
+            Binding.unbind({
+              token: main_binding.token,
+              eventType: "timing",
+            });
+          }
+        }
+      );
+      let btn_binding = Binding.bind(
+        {
+          eventType: "timing",
+          exitExpression: "t>800",
+          props: [
+            {
+              element: b1,
+              property: "transform.translateY",
+              expression: "easeOutBounce(t,0,0-150,800)",
+            },
+            {
+              element: b2,
+              property: "transform.translateY",
+              expression: "t<=100?0:easeOutBounce(t-100,0,0-300,700)",
+            },
+            {
+              element: b3,
+              property: "transform.translateY",
+              expression: "t<=200?0:easeOutBounce(t-200,0,0-450,600)",
+            },
+          ],
+        },
+        function (res) {
+          if (res.state === "exit") {
+            Binding.unbind({
+              token: btn_binding.token,
+              eventType: "timing",
+            });
+          }
+        }
+      );
+    },
+    clickBtn: function (e) {
+      if (this.isExpanded) {
+        this.collapse();
+      } else {
+        this.expand();
+      }
+      this.isExpanded = !this.isExpanded;
+    },
+  },
+};
+</script>
+<style>
+.container {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  left: 100px;
+  top: 100px;
+}
+.image {
+  width: 60px;
+  height: 60px;
+}
+.text {
+  color: #ffffff;
+  font-size: 30px;
+}
+.btn {
+  width: 100px;
+  height: 100px;
+  background-color: #ff0000;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  border-radius: 50px;
+  bottom: 25px;
+  right: 25px;
+}
+</style>

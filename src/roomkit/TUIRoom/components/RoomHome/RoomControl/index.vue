@@ -59,23 +59,10 @@
             >历史会议 ></span
           >
         </div>
+        <scroll-view scroll-y class="history-meeting-scroll">
+          <historyMeeting></historyMeeting>
+        </scroll-view>
       </div>
-      <!-- <div class="container-bottom">
-        <div class="join-room" @tap="enterRoom">
-          <svg-icon
-            style="display: flex"
-            class="enter-icon"
-            :icon="EnterRoomIcon" />
-          <span class="title">{{ t("Join Room") }}</span>
-        </div>
-        <div class="create-room" @tap="createRoom">
-          <svg-icon
-            style="display: flex"
-            class="add-icon"
-            :icon="CreateRoomIcon" />
-          <span class="title">{{ t("New Room") }}</span>
-        </div>
-      </div> -->
     </div>
     <!-- 新建房间页面 -->
     <div
@@ -265,6 +252,7 @@ import TUIMessage from "../../common/base/Message/index";
 import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import meetingSetting from "../../../../../../pages/mine/meetingSetting.vue";
+import historyMeeting from "../../../../../../pages/components/historyMeeting/historyMeeting.vue";
 const { t } = useRoomControl();
 
 // 距离手机头部的安全距离
@@ -474,6 +462,13 @@ onUnmounted(() => {
 });
 </script>
 <style lang="scss" scoped>
+.history-meeting-scroll {
+  margin: 0;
+  padding: 0;
+  height: 50vh;
+  width: 100%;
+}
+
 .control-container {
   width: 100vw;
   height: 100%;

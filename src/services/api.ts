@@ -32,3 +32,20 @@ export const getLatest_SdkAppId_SDKSECRETKEY = () => {
     url: "tencent",
   });
 };
+
+// 获取轮播图数据
+export const getSwiperData = () => {
+  return http({
+    method: "GET",
+    url: "recommend/Slideshow",
+  });
+};
+
+// 用户报名会议
+export const userSignUpMeeting = (data: any) => {
+  return http({
+    method: "POST",
+    url: "user/joinmeetings",
+    data,
+  });
+};

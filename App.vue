@@ -2,8 +2,4 @@
 export default {};
 </script>
 
-<style>
-/* body {
-  overscroll-behavior: none;
-} */
-</style>
+<style></style>

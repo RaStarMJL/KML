@@ -2,7 +2,7 @@
   <div v-if="isShowRoomInfoTitle" class="conference-container">
     <div class="title-container" @click="toggleShowRoomInfoStatus">
       <div class="title-text">
-        <span class="text">{{ conferenceTitle }}</span>
+        <span class="text">{{ meetingTitle || conferenceTitle }}</span>
         <span :class="['arrow-icon', { 'arrow-down-icon': arrowDirection }]">
           <svg-icon icon="ArrowUpIcon"></svg-icon>
         </span>
@@ -15,7 +15,9 @@
       @touchmove.stop.prevent="() => {}">
       <div class="roomInfo-container-main">
         <div class="roomInfo-conference-title">
-          <text class="master-header">{{ conferenceTitle }}</text>
+          <text class="master-header">{{
+            meetingTitle || conferenceTitle
+          }}</text>
           <text class="cancel" @click="handleCloseRoomInfo">{{
             t("Cancel")
           }}</text>
@@ -47,6 +49,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { inject } from "vue";
 import useRoomInfo from "./useRoomInfoHooks";
 import SvgIcon from "../../common/base/SvgIcon.vue";
 import RoomTime from "../../common/RoomTime.vue";
@@ -63,6 +66,8 @@ const {
   toggleShowRoomInfoStatus,
   onCopy,
 } = useRoomInfo();
+const meetingTitle = inject("meetingTitle");
+console.log("接收到meetingTitle:", meetingTitle);
 </script>
 
 <style lang="scss" scoped>

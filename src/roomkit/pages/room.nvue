@@ -8,15 +8,17 @@ import ConferenceMainView from "../TUIRoom/conference.vue";
 import router from "../../router/index.ts";
 import { useI18n } from "../TUIRoom/locales/index.ts";
 import { conference, RoomEvent } from "../TUIRoom/index.ts";
-import { ref } from "vue";
+import { ref, provide } from "vue";
 
 const { t } = useI18n();
-
 const roomInfo = uni.getStorageSync("tuiRoom-roomInfo");
 const userInfo = uni.getStorageSync("tuiRoom-userInfo");
 const route = uni.getStorageSync("routeInfo");
 const roomId = String(route.query.roomId as string) ? route.query.roomId : "";
-
+const meetingTitle = String(route.query.meetingTitle as string)
+  ? route.query.meetingTitle
+  : undefined;
+provide("meetingTitle", meetingTitle);
 if (!roomId) {
   router.push({ path: "home" });
 } else if (!roomInfo) {
@@ -34,11 +36,24 @@ onMounted(async () => {
     await conference.login({ sdkAppId, userId, userSig });
     await conference.setSelfInfo({ userName, avatarUrl });
     if (action === "createRoom" && !hasCreated) {
-      await conference.start(roomId, {
-        roomName: `${userName || userId}${t("Quick Conference")}`,
-        isSeatEnabled,
-        ...roomParam,
-      });
+      console.log("meeingTitle:", meetingTitle);
+      // 如果有会议标题，表示是从在议详情界面开始会议
+      if (meetingTitle) {
+        console.log("有会议标题，表示是从在议详情界面开始会议");
+        await conference.start(roomId, {
+          roomName: meetingTitle,
+          isSeatEnabled,
+          ...roomParam,
+        });
+      }
+      // 否则，创建快速会议
+      else {
+        await conference.start(roomId, {
+          roomName: `${userName || userId}${t("Quick Conference")}`,
+          isSeatEnabled,
+          ...roomParam,
+        });
+      }
       const newRoomInfo = {
         action,
         roomId,
@@ -93,4 +108,4 @@ const goToPage = (routePath: string) => {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped></style>

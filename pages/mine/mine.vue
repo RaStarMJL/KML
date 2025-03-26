@@ -141,6 +141,7 @@ const calculateScreenHeight = () => {};
 </script>
 
 <template>
+  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
   <view
     class="mine-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">

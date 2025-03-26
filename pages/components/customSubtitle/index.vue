@@ -251,7 +251,16 @@ export default {
 </script>
 
 <style scoped>
+@keyframes movedown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(50px);
+  }
+}
 .subtitle {
+  /* animation: moveDown 6s ease-in-out forwards; */
   display: flex;
   position: absolute;
   background-color: rgba(0, 0, 0, 0.7);

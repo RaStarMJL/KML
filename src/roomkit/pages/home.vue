@@ -3,13 +3,15 @@ import { TUILogin } from "@tencentcloud/tui-core";
 import PreConferenceView from "../TUIRoom/preConference.vue";
 import router from "../../router/index";
 import { reactive, ref } from "vue";
-import { onShow } from "@dcloudio/uni-app";
+import { onShow, onBackPress } from "@dcloudio/uni-app";
 import { getBasicInfo } from "../config/basic-info-config";
 import { useBasicStore } from "../TUIRoom/stores/basic";
 import { roomChatInit } from "../TUIKit";
 import { onMounted } from "vue";
 import tabbar from "../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+
+onBackPress(() => {});
 // 距离手机头部的安全距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
@@ -97,8 +99,10 @@ async function handleInit() {
 handleInit();
 </script>
 <template>
+  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
   <div class="home-container">
     <PreConferenceView
+      v-model="showRoomDetail"
       :user-info="userInfo"
       @on-create-room="handleCreateRoom"
       @on-enter-room="handleEnterRoom"></PreConferenceView>

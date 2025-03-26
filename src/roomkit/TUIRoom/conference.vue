@@ -23,14 +23,15 @@
       @touchmove.stop.prevent="() => {}" />
     <room-sidebar></room-sidebar>
     <room-setting></room-setting>
-
     <subTitle
       :totalSubtitleInfo="totalSubtitleInfo"
       v-if="showSubtitle"></subTitle>
+    <kmlAgent> </kmlAgent>
   </div>
 </template>
 
 <script setup lang="ts">
+import kmlAgent from "../../../components/kml-agent-nvue/kml-agent-nvue.nvue";
 // #region ---------------------- 导包 start ------------------
 import {
   ref,
@@ -72,7 +73,12 @@ import { useRoomStore } from "./stores/room";
 import { baseURL, socketBaseURL } from "/src/utils/http";
 import * as SpeechRealTimeTrans from "../../../uni_modules/bsf-baidu-realtime-speech-trans";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import { useTranSettingStore } from "../../stores/modules/tranSetting";
 // #endregion ------------------- 导包 end --------------------
+
+const clickButton = () => {
+  console.log("点击了按钮");
+};
 
 // #region ---------------------- 腾讯会议会议相关代码 start ------------------
 useDeviceManager({ listenForDeviceChange: true });
@@ -357,6 +363,7 @@ type totalSpeakerInfoType = {
     zimu: string;
   };
 };
+const tranSettingStore = useTranSettingStore();
 const userInfoStore = useUserInfoStore();
 const totalSpeakerInfo = ref({});
 const basicStore = useBasicStore();
@@ -372,6 +379,7 @@ const recorderManager = uni.getRecorderManager();
 let isRecording = false;
 const translatedText = ref("");
 const avatarUrl = ref("");
+
 const totalSubtitleInfo = computed(() => {
   console.log("totalSpeakerInfo.value", totalSpeakerInfo.value);
   return Object.fromEntries(
@@ -400,10 +408,10 @@ watch(
         appId: "115883236", // 百度应用的AppID
         appKey: "sqL04acqrwEWEwgGCPVIdM3e", // 百度应用的AppKey
         samplingRate: 16000, // 音频采样率
-        fromLan: "zh", // 源语言
-        toLan: "en", // 目标语言
+        fromLan: tranSettingStore.srcLangCode, // 源语言
+        toLan: tranSettingStore.desLangCode, // 目标语言
         isReturnTts: true, // 是否返回TTS语音
-        ttsSpeaker: "man", // TTS发音人
+        ttsSpeaker: "woman", // TTS发音人
 
         // 开始失败回调
         onStartFailure: (code, msg) => {
@@ -442,7 +450,7 @@ watch(
         // WebSocket断开连接回调
         onWebsocketDisconnect: (code, reason) => {
           uni.showToast({
-            title: reason,
+            title: "实时翻译断开连接",
             icon: "none",
             duration: 2500,
           });
