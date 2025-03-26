@@ -40,7 +40,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { TUIUserService } from '@tencentcloud/chat-uikit-engine';
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import { change_userInfo } from "/src/services/api";
 
 interface UserInfo {
 	username: string;
@@ -50,72 +51,268 @@ interface UserInfo {
 }
 
 const userInfo = ref<UserInfo>({
-	username: '詹宇航',
-	signature: '山风平平，湖水仄仄',
-	backgroundUrl: '/src/static/images/default-bg.jpg',
-	avatarUrl: '/src/static/images/ok.png'  // 默认头像
+	username: '',
+	signature: '',
+	backgroundUrl: '',
+	avatarUrl: ''  
 });
 
 // 修改用户名
-const changeUsername = () => {
-	uni.showModal({
-		title: '修改名称',
-		editable: true,
-		placeholderText: '请输入新的名称',
-		success: (res) => {
-			if (res.confirm && res.content) {
-				userInfo.value.username = res.content;
-			}
+const changeUsername = async () => {
+	try{
+		const userInfoStore = useUserInfoStore();
+		const uid = userInfoStore.userInfo?.userId;
+		if(!uid){
+			throw new Error('用户未登录');
 		}
-	});
+		
+		const res = await uni.showModal({
+			title: '修改名称',
+			editable: true,
+			placeholderText: '请输入新的名称',
+		});
+
+		if(res.confirm&&res.content){
+			uni.showLoading({
+				title: '修改中...'
+			});
+
+			const response = await change_userInfo({
+				uid: uid,
+				username: res.content
+			})			
+			const result = response;	
+			console.log(result);
+
+			if(result.code ===  1){
+				userInfo.value.username = res.content;
+				userInfoStore.userInfo.userName = res.content;
+				uni.showToast({
+					title: '修改成功',
+					icon: 'success'
+				});
+			}else{
+				throw new Error(result.msg || '修改失败');
+			}	
+		}
+	} catch (error) {
+		console.error('修改名称失败:', error);
+		uni.showToast({
+			title: error.message || '修改名称失败',
+			icon: 'none'
+		});
+	} finally {
+		uni.hideLoading();
+	}
 };
 
 // 修改签名
-const changeSignature = () => {
-	uni.showModal({
-		title: '修改签名',
-		editable: true,
-		placeholderText: '请输入新的签名',
-		success: (res) => {
-			if (res.confirm && res.content) {
+const changeSignature = async () => {
+	try{
+		const userInfoStore =  useUserInfoStore()
+		const uid = userInfoStore.userInfo?.userId;
+		if(!uid){
+			throw new Error('用户未登录');
+		}
+		
+		const res = await uni.showModal({
+			title: '修改签名',
+			editable: true,
+			placeholderText: '请输入新的签名',
+		});
+		
+		if(res.confirm&&res.content){
+			uni.showLoading({
+				title: '修改中...'
+			});
+
+			const response = await change_userInfo({
+				uid: uid,
+				signature: res.content
+			})
+			const result = response;
+			console.log(result);
+			
+			if(result.code === 1){
 				userInfo.value.signature = res.content;
+				userInfoStore.userInfo.signature = res.content;
+				uni.showToast({
+					title: '修改成功',
+					icon: 'success'
+				});
+			}else{
+				throw new Error(result.msg || '修改失败');
 			}
 		}
-	});
+	} catch (error) {
+		console.error('修改签名失败:', error);
+		uni.showToast({
+			title: error.message || '修改签名失败',
+			icon: 'none'
+		});
+	} finally {	
+		uni.hideLoading();
+	}
 };
 
 // 更换背景图片
-const changeBackground = () => {
-	uni.chooseImage({
-		count: 1,
-		success: (res) => {
-			userInfo.value.backgroundUrl = res.tempFilePaths[0];
+const changeBackground = async () => {
+	try {
+		// 选择图片
+		const res = await uni.chooseImage({
+			count: 1,
+			sizeType: ['compressed']
+		});
+
+		if (!res.tempFilePaths?.[0]) {
+			throw new Error('未选择图片');
 		}
-	});
+
+		// 显示加载提示
+		uni.showLoading({
+			title: '上传中...'
+		});
+
+		// 获取用户信息
+		const userInfoStore = useUserInfoStore();
+		const uid = userInfoStore.userInfo?.userId;
+
+		if (!uid) {
+			throw new Error('用户未登录');
+		}
+
+		// 创建FormData对象
+		const formData = new FormData();
+		formData.append('uid', uid);
+		formData.append('file', {
+			uri: res.tempFilePaths[0],
+			type: 'image/jpeg',
+			name: 'background.jpg'
+		});
+
+		// 发送请求
+		const response = await uni.uploadFile({
+			url: 'http://192.168.31.115:5000/user',
+			filePath: res.tempFilePaths[0],
+			name: 'file',
+			method: 'PUT'
+		});
+
+		// 解析响应
+		const result = JSON.parse(response.data);
+		if (result.code === 1) {
+			// 更新本地显示的背景图片
+			userInfo.value.backgroundUrl = result.data.backUrl || res.tempFilePaths[0];
+			uni.showToast({
+				title: '背景更新成功',
+				icon: 'success'
+			});
+		} else {
+			throw new Error(result.msg || '更新失败');
+		}
+
+	} catch (error) {
+		console.error('更换背景失败:', error);
+		uni.showToast({
+			title: error.message || '更换背景失败',
+			icon: 'none'
+		});
+	} finally {
+		uni.hideLoading();
+	}
 };
 
 // 更换头像
-const changeAvatar = () => {
-	uni.chooseImage({
-		count: 1,
-		success: (res) => {
-			userInfo.value.avatarUrl = res.tempFilePaths[0];
+const changeAvatar = async () => {
+	try {
+		// 选择图片
+		const res = await uni.chooseImage({
+			count: 1,
+			sizeType: ['compressed']
+		});
+
+		if (!res.tempFilePaths?.[0]) {
+			throw new Error('未选择图片');
 		}
-	});
+
+		// 显示加载提示
+		uni.showLoading({
+			title: '上传中...'
+		});
+
+		// 获取用户信息
+		const userInfoStore = useUserInfoStore();
+		const uid = userInfoStore.userInfo?.userId;
+
+		if (!uid) {
+			throw new Error('用户未登录');
+		}
+
+		// 发送请求
+		const response = await uni.uploadFile({
+			url: 'http://192.168.31.115:5000/user',
+			filePath: res.tempFilePaths[0],
+			name: 'file',
+			method: 'PUT'
+		});
+
+		// 解析响应
+		const result = JSON.parse(response.data);
+		if (result.code === 1) {
+			// 更新本地显示的头像
+			userInfo.value.avatarUrl = result.data.avatarUrl || res.tempFilePaths[0];
+			uni.showToast({
+				title: '头像更新成功',
+				icon: 'success'
+			});
+		} else {
+			throw new Error(result.msg || '更新失败');
+		}
+
+	} catch (error) {
+		console.error('更换头像失败:', error);
+		uni.showToast({
+			title: error.message || '更换头像失败',
+			icon: 'none'
+		});
+	} finally {
+		uni.hideLoading();
+	}
 };
 
-
 const getUserInfo = async () => {
-	const res = await TUIUserService.getUserProfile();
-	if(res?.data) {
-		userInfo.value = {
-			username: res.data.nick || res.data.id,	
-			signature: res.data.signature || '这个人很懒什么都没留下..',
-			backgroundUrl: res.data.avatar || '/static/default-bg.jpg',
-			avatarUrl: res.data.avatar || '/src/static/icons/tab/ok.png'
+	try {
+		const userInfoStore = useUserInfoStore();
+		const storeUserInfo = userInfoStore.userInfo;
+		
+		if (!storeUserInfo) {
+			throw new Error('未获取到用户信息');
 		}
+
+		console.log('store中的用户信息:', storeUserInfo); // 添加日志查看store中的数据
+
+		userInfo.value = {
+			username: storeUserInfo.userName ,
+			signature: storeUserInfo.signature || '这个人很懒，什么都没留下...',
+			backgroundUrl: storeUserInfo.backgroundUrl || '/src/static/images/default-bg.jpg', 
+			avatarUrl: storeUserInfo.avatarUrl || '/src/static/images/defaultAvatar.png'
+		};
+
+		console.log('设置后的用户信息:', userInfo.value); // 添加日志查看设置后的数据
+
+	} catch (error) {
+		console.error('获取用户信息失败:', error);
+		// 设置默认值
+		userInfo.value = {
+			username: '未设置昵称',
+			signature: '这个人很懒，什么都没留下...',
+			backgroundUrl: '/static/images/default-bg.jpg',
+			avatarUrl: '/static/images/default-avatar.png'
+		};
 	}
-}
+};
+
+// 页面加载时获取用户信息
 getUserInfo();
 </script>
 

@@ -13,7 +13,7 @@ const httpInterceptor = {
       options.url = baseURL + options.url;
     }
     // 2. 请求超时
-    options.timeout = 10000;
+    options.timeout = 200000;
     // 3. 添加小程序端请求头标识
     options.header = {
       "source-client": "android-app",
@@ -56,6 +56,7 @@ export const http = <T>(options: UniApp.RequestOptions) => {
   // 1. 返回 Promise 对象
   return new Promise<Data<T>>((resolve, reject) => {
     uni.request({
+
       ...options,
       // 响应成功
       success(res) {
