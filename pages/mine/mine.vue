@@ -19,7 +19,8 @@ const { safeAreaInsets } = uni.getSystemInfoSync();
 const defaultAvatar = "/src/static/images/defaultAvatar.png";
 
 const userInfoStore = useUserInfoStore();
-
+const isDot = computed(() => userInfoStore.isunread);
+const value = ref(0);
 // 用户信息，使用计算属性来响应式获取 store 中的数据
 const userInfo = computed(() => ({
   avatarUrl: userInfoStore.userInfo?.avatarUrl || defaultAvatar,
@@ -34,7 +35,7 @@ const features = ref([
   { icon: "record", text: "录制", page: "record" },
   { icon: "note", text: "我的笔记", page: "note" },
 
-  { icon: "message", text: "参会提醒", page: "remind" },
+  { icon: "message", text: "参会提醒", page: "message" },
   { icon: "favorite", text: "收藏", page: "favorite" },
   { icon: "history", text: "历史", page: "history" },
 ]);
@@ -55,6 +56,8 @@ const getIconType = (iconName: string): string => {
 
 //消息
 const message = () => {
+  userInfoStore.setIsUnread(false);
+  console.log(userInfoStore.isunread);
   uni.navigateTo({
     url: "/pages/mine/message",
   });
@@ -164,8 +167,25 @@ const calculateScreenHeight = () => {};
 
         <!-- 只有登录后才显示这些操作按钮 -->
         <view class="header-actions" v-if="userInfoStore.isLoggedIn">
-          <view class="action-item" @click="message">
-            <uni-icons type="notification" size="24" color="#fff"></uni-icons>
+          <view class="action-item">
+            <uni-badge
+              v-if="isDot"
+              :is-dot="true"
+              absolute="rightTop"
+              size="small"
+              :text="value.toString()">
+              <uni-icons
+                type="notification"
+                size="24"
+                color="#fff"
+                @click="message"></uni-icons>
+            </uni-badge>
+            <uni-icons
+              v-else
+              type="notification"
+              size="24"
+              color="#fff"
+              @click="message"></uni-icons>
           </view>
           <view class="action-item" @click="myInfo">
             <uni-icons type="gear" size="24" color="#fff"></uni-icons>
@@ -200,19 +220,67 @@ const calculateScreenHeight = () => {};
         </view>
 
         <view class="feature-grid">
-          <view
-            class="feature-item"
-            v-for="(item, index) in features"
-            :key="index"
-            @click="To(item.page)">
-            <!-- 使用uni-icons替代图片 -->
+          <!-- AI助手 -->
+          <view class="feature-item" @click="To('aihelper')">
             <view class="feature-icon-wrapper">
+              <uni-icons type="help" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">AI助手</text>
+          </view>
+
+          <!-- 录制 -->
+          <view class="feature-item" @click="To('record')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="videocam" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">录制</text>
+          </view>
+
+          <!-- 我的笔记 -->
+          <view class="feature-item" @click="To('note')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="compose" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">我的笔记</text>
+          </view>
+
+          <!-- 参会提醒 -->
+          <view class="feature-item" @click="To('message')">
+            <view class="feature-icon-wrapper">
+              <uni-badge
+                v-if="isDot"
+                :is-dot="true"
+                absolute="rightTop"
+                size="small"
+                :text="value.toString()">
+                <uni-icons
+                  type="notification"
+                  size="28"
+                  color="#4075FF"></uni-icons>
+              </uni-badge>
               <uni-icons
-                :type="getIconType(item.icon)"
+                v-else
+                type="notification"
                 size="28"
                 color="#4075FF"></uni-icons>
             </view>
-            <text class="feature-text">{{ item.text }}</text>
+            <text class="feature-text">参会提醒</text>
+          </view>
+
+          <!-- 收藏 -->
+          <view class="feature-item" @click="To('favorite')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="star" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">收藏</text>
+          </view>
+
+          <!-- 历史 -->
+          <view class="feature-item" @click="To('history')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">历史</text>
           </view>
         </view>
       </view>

@@ -36,6 +36,7 @@
 				v-for="(message, index) in filteredMessages" 
 				:key="index"
 				:class="{ 'unread': !message.read }"
+				@click="handleMessageClick(message)"
 			>
 				<view class="message-icon">
 					<uni-icons 
@@ -71,11 +72,11 @@
 		<!-- 底部操作栏 -->
 		<view class="action-bar">
 			<button class="action-btn" @click="markAllAsRead">
-				<uni-icons type="eye" size="16" color="#666"></uni-icons>
+				<uni-icons type="eye-filled" size="22" color="#ffffff"></uni-icons>
 				<text>全部已读</text>
 			</button>
 			<button class="action-btn" @click="clearAllMessages">
-				<uni-icons type="trash" size="16" color="#666"></uni-icons>
+				<uni-icons type="trash-filled" size="22" color="#666"></uni-icons>
 				<text>清空消息</text>
 			</button>
 		</view>
@@ -83,127 +84,166 @@
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				activeTab: 'all',
-				messages: [
-					{
-						id: 1,
-						title: "会议提醒",
-						body: "您有一场会议将在30分钟后开始，请及时参加。会议主题：产品开发讨论会，会议地点：3号会议室。",
-						time: "2024-03-01 14:00:00",
-						type: "meeting",
-						read: false
-					},
-					{
-						id: 2,
-						title: "系统通知",
-						body: "您的账户信息已更新，请查看个人资料确认更新内容。如有疑问，请联系系统管理员。",
-						time: "2024-02-28 10:30:00",
-						type: "system",
-						read: true
-					},
-					{
-						id: 3,
-						title: "会议取消通知",
-						body: "原定于今日15:00的项目进度汇报会议已取消，请知悉。",
-						time: "2024-02-27 09:15:00",
-						type: "meeting",
-						read: false
-					},
-					{
-						id: 4,
-						title: "系统维护通知",
-						body: "系统将于本周六凌晨2:00-4:00进行例行维护，期间部分功能可能暂时无法使用。",
-						time: "2024-02-26 16:45:00",
-						type: "system",
-						read: true
-					}
-				]
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import { get_message } from "/src/services/api";
+export default {
+	data() {
+		return {
+			activeTab: 'all',
+			messages: [],
+			meetingMessages: [],
+			systemMessages: [],
+			userInfoStore: useUserInfoStore()
+		}
+	},
+	computed: {
+		filteredMessages() {
+			if (this.activeTab === 'all') {
+				return this.messages;
+			} else if (this.activeTab === 'meeting') {
+				return this.meetingMessages;
+			} else {
+				return this.systemMessages;
 			}
 		},
-		computed: {
-			filteredMessages() {
-				if (this.activeTab === 'all') {
-					return this.messages;
+		unreadCount() {
+			return this.messages.filter(msg => !msg.read).length;
+		}
+	},
+	onShow() {
+		this.getMessages();
+	},
+	methods: {
+		async getMessages() {
+			try {
+				const userId = this.userInfoStore.userInfo?.userId;
+				if (!userId) {
+					throw new Error('用户未登录');
+				}
+
+				uni.showLoading({
+					title: '加载中...'
+				});
+
+				const res = await get_message({ 
+					UserId: userId 
+				});
+
+				console.log(res);
+				if (res.code === 1) {
+					// 清空现有消息数组
+					this.messages = [];
+					this.meetingMessages = [];
+					this.systemMessages = [];
+					
+					// 处理消息数据，根据类型分类存储
+					res.data.forEach(msg => {
+						const processedMsg = {
+							...msg,
+							read: false,
+							title: msg.messageType,
+							body: msg.messageContent,
+							time: msg.messageTime,
+							type: msg.messageType === '会议提醒' ? 'meeting' : 'system'
+						};
+						
+						// 添加到总消息列表
+						this.messages.push(processedMsg);
+						
+						// 根据类型添加到对应的分类数组
+						if (msg.messageType === '会议提醒') {
+							this.meetingMessages.push(processedMsg);
+						} else {
+							this.systemMessages.push(processedMsg);
+						}
+					});
 				} else {
-					return this.messages.filter(msg => msg.type === this.activeTab);
+					throw new Error(res.data.msg || '获取消息失败');
 				}
-			},
-			unreadCount() {
-				return this.messages.filter(msg => !msg.read).length;
+			} catch (error) {
+				console.error('获取消息失败:', error);
+				uni.showToast({
+					title: error.message || '获取消息失败',
+					icon: 'none'
+				});
+			} finally {
+				uni.hideLoading();
 			}
 		},
-		methods: {
-			formatDate(dateStr) {
-				const date = new Date(dateStr);
-				const now = new Date();
-				const diff = now - date;
-				
-				// 如果是今天的消息，只显示时间
-				if (diff < 24 * 60 * 60 * 1000 && 
-					date.getDate() === now.getDate() &&
-					date.getMonth() === now.getMonth() &&
-					date.getFullYear() === now.getFullYear()) {
-					return `今天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-				}
-				
-				// 如果是昨天的消息
-				const yesterday = new Date(now);
-				yesterday.setDate(yesterday.getDate() - 1);
-				if (date.getDate() === yesterday.getDate() &&
-					date.getMonth() === yesterday.getMonth() &&
-					date.getFullYear() === yesterday.getFullYear()) {
-					return `昨天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-				}
-				
-				// 其他情况显示完整日期
-				return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-			},
-			switchTab(tab) {
-				this.activeTab = tab;
-			},
-			showActions(message, index) {
-				uni.showActionSheet({
-					itemList: ['标记为已读', '删除'],
-					success: (res) => {
-						if (res.tapIndex === 0) {
-							// 标记为已读
-							this.messages[index].read = true;
-						} else if (res.tapIndex === 1) {
-							// 删除消息
-							this.messages.splice(index, 1);
-						}
-					}
-				});
-			},
-			markAllAsRead() {
-				this.messages.forEach(msg => {
-					msg.read = true;
-				});
-				uni.showToast({
-					title: '已全部标记为已读',
-					icon: 'success'
-				});
-			},
-			clearAllMessages() {
-				uni.showModal({
-					title: '确认清空',
-					content: '确定要清空所有消息吗？',
-					success: (res) => {
-						if (res.confirm) {
-							this.messages = [];
-							uni.showToast({
-								title: '已清空所有消息',
-								icon: 'success'
-							});
-						}
-					}
-				});
+
+		//点击消息已读
+		handleMessageClick(message) {
+			console.log(message);
+			message.read = true;
+		},
+		formatDate(dateStr) {
+			const date = new Date(dateStr);
+			const now = new Date();
+			const diff = now - date;
+			
+			// 如果是今天的消息，只显示时间
+			if (diff < 24 * 60 * 60 * 1000 && 
+				date.getDate() === now.getDate() &&
+				date.getMonth() === now.getMonth() &&
+				date.getFullYear() === now.getFullYear()) {
+				return `今天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 			}
+			
+			// 如果是昨天的消息
+			const yesterday = new Date(now);
+			yesterday.setDate(yesterday.getDate() - 1);
+			if (date.getDate() === yesterday.getDate() &&
+				date.getMonth() === yesterday.getMonth() &&
+				date.getFullYear() === yesterday.getFullYear()) {
+				return `昨天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+			}
+			
+			// 其他情况显示完整日期
+			return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+		},
+		switchTab(tab) {
+			this.activeTab = tab;
+		},
+		showActions(message, index) {
+			uni.showActionSheet({
+				itemList: ['标记为已读', '删除'],
+				success: (res) => {
+					if (res.tapIndex === 0) {
+						// 标记为已读
+						this.messages[index].read = true;
+					} else if (res.tapIndex === 1) {
+						// 删除消息
+						this.messages.splice(index, 1);
+					}
+				}
+			});
+		},
+		markAllAsRead() {
+			this.messages.forEach(msg => {
+				msg.read = true;
+			});
+			uni.showToast({
+				title: '已全部标记为已读',
+				icon: 'success'
+			});
+		},
+		clearAllMessages() {
+			uni.showModal({
+				title: '确认清空',
+				content: '确定要清空所有消息吗？',
+				success: (res) => {
+					if (res.confirm) {
+						this.messages = [];
+						uni.showToast({
+							title: '已清空所有消息',
+							icon: 'success'
+						});
+					}
+				}
+			});
 		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
@@ -266,6 +306,7 @@
 	.message-list {
 		flex: 1;
 		padding: 0 20rpx;
+		padding-bottom: 120rpx;
 		height: calc(100vh - 240rpx);
 	}
 
@@ -356,9 +397,15 @@
 	
 	.action-bar {
 		display: flex;
-		padding: 20rpx;
+		padding: 20rpx 30rpx;
 		background: #fff;
 		border-top: 1rpx solid #eee;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
 	}
 	
 	.action-btn {
@@ -366,16 +413,48 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #f5f6f7;
-		border: none;
-		border-radius: 8rpx;
-		padding: 15rpx 0;
+		background: linear-gradient(135deg, #f8f9fa, #ffffff);
+		border: 1rpx solid #e9ecef;
+		border-radius: 16rpx;
+		padding: 24rpx 0;
 		margin: 0 10rpx;
-		font-size: 26rpx;
-		color: #666;
+		font-size: 28rpx;
+		color: #495057;
+		transition: all 0.3s ease;
+		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+		
+		&:active {
+			transform: scale(0.98);
+			background: linear-gradient(135deg, #f0f1f2, #f8f9fa);
+			box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.05);
+		}
 		
 		uni-icons {
-			margin-right: 10rpx;
+			margin-right: 12rpx;
+			font-size: 36rpx;
+			opacity: 1;
+		}
+		
+		text {
+			font-weight: 500;
+			letter-spacing: 1rpx;
+		}
+
+		&:first-child {
+			background: linear-gradient(135deg, #2B58F9, #1a3d8f);
+			color: #ffffff;
+			border: none;
+			box-shadow: 0 4rpx 12rpx rgba(43, 88, 249, 0.2);
+
+			&:active {
+				background: linear-gradient(135deg, #1a3d8f, #0f2a6a);
+				box-shadow: 0 2rpx 6rpx rgba(43, 88, 249, 0.2);
+			}
+
+			uni-icons {
+				color: #ffffff;
+				opacity: 1;
+			}
 		}
 	}
 </style>

@@ -246,6 +246,7 @@ export default {
             userId: res.data.uid,
             avatarUrl: res.data.avatarUrl,
             signature: res.data.signature,
+            backgroundUrl: res.data.backUrl,
           });
         }
 

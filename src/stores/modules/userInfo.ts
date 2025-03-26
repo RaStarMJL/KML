@@ -7,6 +7,7 @@ interface UserInfoState {
   userId: string;
   avatarUrl: string;
   signature: string;
+  backgroundUrl: string;
 }
 
 // 定义 Store
@@ -15,6 +16,7 @@ export const useUserInfoStore = defineStore(
   () => {
     // 用户信息
     const userInfo = ref<UserInfoState | null>(null);
+    const isunread = ref(false)
 
     // 保存用户信息，登录时使用
     const setProfile = (val: UserInfoState) => {
@@ -31,12 +33,18 @@ export const useUserInfoStore = defineStore(
       return !!userInfo.value?.userId;
     });
 
+    const setIsUnread = (status) => {
+      isunread.value = status
+    }
+
     // 记得 return
     return {
+      isunread,
       userInfo,
       setProfile,
       clearProfile,
       isLoggedIn, // 导出计算属性
+      setIsUnread,
     };
   },
   // TODO: 持久化

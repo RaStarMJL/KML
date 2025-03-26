@@ -264,7 +264,6 @@ const goTomessage = () => {
 .page-container {
   display: flex;
   flex-direction: column;
-  height: 92vh;
   overflow: hidden;
 }
 .header {

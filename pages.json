@@ -118,6 +118,18 @@
       }
     },
     {
+      "path": "pages/mine/aidetail/aimanage",
+      "style": {
+        "navigationBarTitleText": "功能用例"
+      }
+    },
+    {
+      "path": "pages/mine/aidetail/aicheckout",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
       "path": "pages/test/test",
       "style": {
         "navigationBarTitleText": "nvue Test"

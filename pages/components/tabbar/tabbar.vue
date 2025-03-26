@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view style="height: 180rpx">
     <view class="content" :style="{ zIndex }">
       <view class="tabber_box">
         <view
@@ -86,16 +86,8 @@ export default {
   },
   methods: {
     onNav(url) {
-      if (this.currentPath === url) return;
-      if (url === "/src/roomkit/pages/home") {
-        router.replace({ path: url });
-      }
-      if (url === "/pages/recommend/recommend") {
-        router.replace({ path: url });
-      }
-      if (url === "/pages/mine/mine") {
-        router.replace({ path: url });
-      }
+      if (url === this.currentPath) return;
+      router.replace({ path: url });
     },
   },
 };
