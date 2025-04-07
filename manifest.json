@@ -1,146 +1,160 @@
 {
-  "name": "智能会议助手",
-  "appid": "__UNI__4C10ED2",
-  "description": "",
-  "versionName": "1.0.1",
-  "versionCode": 200,
-  "transformPx": false,
-  /* 5+App特有相关 */
-  "app-plus": {
-    "usingComponents": true,
-    "nvueCompiler": "uni-app",
-    "nvueStyleCompiler": "uni-app",
-    "compilerVersion": 3,
-    "splashscreen": {
-      "alwaysShowBeforeRender": true,
-      "waiting": true,
-      "autoclose": true,
-      "delay": 0
-    },
-    /* 模块配置 */
-    "modules": {
-      "Camera": {},
-      "Record": {},
-      "VideoPlayer": {},
-      "Geolocation": {},
-      "Maps": {}
-    },
-    /* 应用发布信息 */
-    "distribute": {
-      /* android打包配置 */
-      "android": {
-        "permissions": [
-          "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
-          "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
-          "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
-          "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
-          "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
-          "<uses-permission android:name=\"android.permission.CAMERA\"/>",
-          "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
-          "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
-          "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
-          "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
-          "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
-          "<uses-feature android:name=\"android.hardware.camera\"/>",
-          "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
-        ]
-      },
-      /* ios打包配置 */
-      "ios": {
-        "dSYMs": false
-      },
-      /* SDK配置 */
-      "sdkConfigs": {
-        "ad": {},
-        "geolocation": {
-          "amap": {
-            "name": "amapnMFx5Ifa",
-            "__platform__": ["android"],
-            "appkey_ios": "17763d8f8be5c3b554750922ccc07427",
-            "appkey_android": "17763d8f8be5c3b554750922ccc07427"
-          }
+    "name" : "智能会议助手",
+    "appid" : "__UNI__4C10ED2",
+    "description" : "",
+    "versionName" : "1.0.1",
+    "versionCode" : 200,
+    "transformPx" : false,
+    /* 5+App特有相关 */
+    "app-plus" : {
+        "usingComponents" : true,
+        "nvueCompiler" : "uni-app",
+        "nvueStyleCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : true,
+            "waiting" : true,
+            "autoclose" : true,
+            "delay" : 0
         },
-        "maps": {
-          "amap": {
-            "name": "amapnMFx5Ifa",
-            "appkey_ios": "17763d8f8be5c3b554750922ccc07427",
-            "appkey_android": "17763d8f8be5c3b554750922ccc07427"
-          }
-        }
-      },
-      "icons": {
-        "android": {
-          "hdpi": "unpackage/res/icons/72x72.png",
-          "xhdpi": "unpackage/res/icons/96x96.png",
-          "xxhdpi": "unpackage/res/icons/144x144.png",
-          "xxxhdpi": "unpackage/res/icons/192x192.png"
+        /* 模块配置 */
+        "modules" : {
+            "Camera" : {},
+            "Record" : {},
+            "VideoPlayer" : {},
+            "Geolocation" : {},
+            "Maps" : {}
         },
-        "ios": {
-          "appstore": "unpackage/res/icons/1024x1024.png",
-          "ipad": {
-            "app": "unpackage/res/icons/76x76.png",
-            "app@2x": "unpackage/res/icons/152x152.png",
-            "notification": "unpackage/res/icons/20x20.png",
-            "notification@2x": "unpackage/res/icons/40x40.png",
-            "proapp@2x": "unpackage/res/icons/167x167.png",
-            "settings": "unpackage/res/icons/29x29.png",
-            "settings@2x": "unpackage/res/icons/58x58.png",
-            "spotlight": "unpackage/res/icons/40x40.png",
-            "spotlight@2x": "unpackage/res/icons/80x80.png"
-          },
-          "iphone": {
-            "app@2x": "unpackage/res/icons/120x120.png",
-            "app@3x": "unpackage/res/icons/180x180.png",
-            "notification@2x": "unpackage/res/icons/40x40.png",
-            "notification@3x": "unpackage/res/icons/60x60.png",
-            "settings@2x": "unpackage/res/icons/58x58.png",
-            "settings@3x": "unpackage/res/icons/87x87.png",
-            "spotlight@2x": "unpackage/res/icons/80x80.png",
-            "spotlight@3x": "unpackage/res/icons/120x120.png"
-          }
+        /* 应用发布信息 */
+        "distribute" : {
+            /* android打包配置 */
+            "android" : {
+                "permissions" : [
+                    "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACESS_COARSE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
+                ]
+            },
+            /* ios打包配置 */
+            "ios" : {
+                "dSYMs" : false
+            },
+            /* SDK配置 */
+            "sdkConfigs" : {
+                "ad" : {},
+                "geolocation" : {
+                    "amap" : {
+                        "name" : "amapzg9dZBRX",
+                        "__platform__" : [ "android" ],
+                        "appkey_ios" : "29473b3f65be4f9adbed148fab057bb0",
+                        "appkey_android" : "29473b3f65be4f9adbed148fab057bb0"
+                    }
+                },
+                "maps" : {
+                    "amap" : {
+                        "name" : "amap_2gVTthRkSS",
+                        "appkey_ios" : "29473b3f65be4f9adbed148fab057bb0",
+                        "appkey_android" : "29473b3f65be4f9adbed148fab057bb0"
+                    }
+                }
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+                },
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            }
+        },
+        "nativePlugins" : {
+            "TencentCloud-TUIRoomEngine" : {
+                "__plugin_info__" : {
+                    "name" : "【官方】腾讯云多人会议插件 TencentCloud-TUIRoomEngine",
+                    "description" : "TencentCloud-TUIRoomEngine 是腾讯云官方推出的多人会议插件。提供房间管理、音视频控制、屏幕共享、成员管理、麦位管理等能力。",
+                    "platforms" : "Android,iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=18466",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "18466",
+                    "parameters" : {}
+                }
+            }
         }
-      }
     },
-    "nativePlugins": {
-      "TencentCloud-TUIRoomEngine": {
-        "__plugin_info__": {
-          "name": "【官方】腾讯云多人会议插件 TencentCloud-TUIRoomEngine",
-          "description": "TencentCloud-TUIRoomEngine 是腾讯云官方推出的多人会议插件。提供房间管理、音视频控制、屏幕共享、成员管理、麦位管理等能力。",
-          "platforms": "Android,iOS",
-          "url": "https://ext.dcloud.net.cn/plugin?id=18466",
-          "android_package_name": "",
-          "ios_bundle_id": "",
-          "isCloud": true,
-          "bought": 1,
-          "pid": "18466",
-          "parameters": {}
+    /* 快应用特有相关 */
+    "quickapp" : {},
+    /* 小程序特有相关 */
+    "mp-weixin" : {
+        "appid" : "",
+        "setting" : {
+            "urlCheck" : false
+        },
+        "usingComponents" : true
+    },
+    "mp-alipay" : {
+        "usingComponents" : true
+    },
+    "mp-baidu" : {
+        "usingComponents" : true
+    },
+    "mp-toutiao" : {
+        "usingComponents" : true
+    },
+    "uniStatistics" : {
+        "enable" : false
+    },
+    "vueVersion" : "3",
+    "fallbackLocale" : "zh-Hans",
+    "h5" : {
+        "sdkConfigs" : {
+            "maps" : {
+                "amap" : {
+                    "key" : "dec74b30db7492be841940af6369098d",
+                    "securityJsCode" : "e40da3ff64da2921f582b7c015f2b32f",
+                    "serviceHost" : ""
+                }
+            }
         }
-      }
     }
-  },
-  /* 快应用特有相关 */
-  "quickapp": {},
-  /* 小程序特有相关 */
-  "mp-weixin": {
-    "appid": "",
-    "setting": {
-      "urlCheck": false
-    },
-    "usingComponents": true
-  },
-  "mp-alipay": {
-    "usingComponents": true
-  },
-  "mp-baidu": {
-    "usingComponents": true
-  },
-  "mp-toutiao": {
-    "usingComponents": true
-  },
-  "uniStatistics": {
-    "enable": false
-  },
-  "vueVersion": "3"
 }

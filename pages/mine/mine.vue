@@ -11,6 +11,10 @@ interface UserInfo {
   signature: string;
 }
 
+// #region ---------------------- 路径规划agent start ------------------
+
+// #endregion ------------------- 路径规划agent end --------------------
+
 //
 const subtitleText = ref("hhhhh");
 
@@ -144,7 +148,7 @@ const calculateScreenHeight = () => {};
 </script>
 
 <template>
-  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
+  <kml-agent :isDock="true"> </kml-agent>
   <view
     class="mine-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
@@ -281,6 +285,12 @@ const calculateScreenHeight = () => {};
               <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
             </view>
             <text class="feature-text">历史</text>
+          </view>
+          <view class="feature-item" @click="To('map')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">地图</text>
           </view>
         </view>
       </view>

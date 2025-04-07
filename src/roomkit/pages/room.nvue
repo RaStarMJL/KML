@@ -19,6 +19,7 @@ const meetingTitle = String(route.query.meetingTitle as string)
   ? route.query.meetingTitle
   : undefined;
 provide("meetingTitle", meetingTitle);
+provide("meetingId", roomId);
 if (!roomId) {
   router.push({ path: "home" });
 } else if (!roomInfo) {

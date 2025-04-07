@@ -171,9 +171,13 @@
 
 <script>
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import ccInputView from "../../uni_modules/cc-inputSelView/components/cc-inputSelView/cc-inputSelView.vue";
+
 export default {
+  components: { ccInputView },
   data() {
     return {
+      mapSelData: {},
       meeting: {
         meetingId: "",
         meetingName: "",
@@ -560,6 +564,9 @@ export default {
   color: #4a5568;
   margin-bottom: 8px;
   opacity: 0.8;
+}
+
+.choose-des {
 }
 
 .input {

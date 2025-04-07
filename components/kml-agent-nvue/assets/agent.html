@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地网页</title>
+    <link rel="stylesheet" href="./index.scss" />
+    <style type="text/css">
+      .btn {
+        display: block;
+        margin: 20px auto;
+        padding: 5px;
+        background-color: #007aff;
+        border: 0;
+        color: #ffffff;
+        height: 40px;
+        width: 200px;
+      }
+
+      .btn-red {
+        background-color: #dd524d;
+      }
+
+      .desc {
+        padding: 10px;
+        color: #999999;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="btn-red">nvue传过来的值：{{name}}</div>
+    </div>
+
+    <p class="desc">
+      网页向应用发送消息。注意：小程序端应用会在此页面后退时接收到消息。
+    </p>
+    <div class="btn-list">
+      <button class="btn btn-red" type="button" id="postMessage">
+        postMessage
+      </button>
+    </div>
+    <!-- uni 的 SDK -->
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/@dcloudio/uni-webview-js@0.0.1/index.js"></script>
+    <!--引入vue -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.13/vue.js"></script>
+    <script type="text/javascript">
+      var app = new Vue({
+        el: "#app",
+        data: {
+          name: "",
+        },
+        mounted() {},
+        onLoad() {},
+        onShow() {},
+        methods: {},
+      });
+
+      function uniEvent(data) {
+        console.log(JSON.stringify(data), "HTML 接受APP发送过来的消息 (APP端)");
+        app.name = data.name; // 赋值
+      }
+
+      document.addEventListener("UniAppJSBridgeReady", function () {
+        document
+          .querySelector("#postMessage")
+          .addEventListener("click", function () {
+            console.log("点击了------");
+            uni.postMessage({
+              data: {
+                action: "message",
+              },
+            });
+          });
+      });
+    </script>
+  </body>
+</html>
