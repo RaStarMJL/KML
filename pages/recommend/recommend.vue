@@ -7,6 +7,8 @@ import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { getRecommendList } from "../../src/services/api";
 import { getSwiperData } from "../../src/services/api";
 import xiaoYiAgent from "/pages/components/xiaoYiAgent/index.vue";
+import { incrementClickCount } from "../../src/services/api";
+
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -47,7 +49,9 @@ const swiperList = ref(swiperListdata);
 const allrecommendList = ref();
 const recommendList = ref();
 const userInfo = ref();
-
+const userInfoStore = useUserInfoStore();
+const isDot = computed(() => userInfoStore.isunread);
+const value = ref(0);
 // 控制返回顶部按钮的显示/隐藏
 const showBackTop = ref(false);
 const scrollTop = ref(0);
@@ -133,10 +137,26 @@ const goTomeetingshow = (meetingid: string) => {
   console.log("跳转到-'会议信息'");
   uni.navigateTo({
     url: "/pages/recommend/meetingshow?meetingId=" + meetingid,
+    success: () => {
+      addMeetingHeat(meetingid);
+    },
   });
 };
 
+const addMeetingHeat = async (meetingid: string) => {
+  incrementClickCount(meetingid);
+};
+
 const goTomessage = () => {
+  uni.navigateTo({
+    url: "/pages/mine/message",
+  });
+};
+
+
+const message = () => {
+  userInfoStore.setIsUnread(false);
+  console.log(userInfoStore.isunread);
   uni.navigateTo({
     url: "/pages/mine/message",
   });
@@ -166,12 +186,25 @@ const goTomessage = () => {
           <input type="text" placeholder="搜索会议" />
         </view>
         <!-- <uni-icons type="videocam" size="24" color="#666"></uni-icons> -->
-        <uni-icons
-          type="email"
-          size="24"
-          color="#666"
-          @click="goTomessage"></uni-icons>
-      </view>
+       <uni-badge
+              v-if="isDot"
+              :is-dot="true"
+              absolute="rightTop"
+              size="small"
+              :text="value.toString()">
+              <uni-icons
+                type="email"
+                size="24"
+                color="#39baf4"
+                @click="message"></uni-icons>
+            </uni-badge>
+            <uni-icons
+              v-else
+              type="email"
+              size="24"
+              color="#39baf4"
+              @click="message"></uni-icons>
+            </view>
 
       <!-- 导航栏 -->
       <view class="nav-bar">
@@ -215,7 +248,7 @@ const goTomessage = () => {
           class="meeting-item"
           v-for="item in recommendList"
           :key="item.meetingId">
-          <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
+          <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)" >
             <image
               :src="item.meetingImageUrl || defaultCover"
               mode="aspectFill"></image>

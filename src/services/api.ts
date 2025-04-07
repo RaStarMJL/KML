@@ -43,6 +43,7 @@ export const change_userInfo = (data: any) => {
   });
 };
 
+// 文档创作
 export const aicheckout = (data: any) => {
   return http({
     url: "aiFile/agentFileSearch",
@@ -51,6 +52,7 @@ export const aicheckout = (data: any) => {
   });
 };
 
+// 获取本地签名
 export const get_localsign = (data: any) => {
   return http({
     url: `Sig?key=${data.key}&secret=${data.secret}`,
@@ -87,6 +89,99 @@ export const userSignUpMeeting = (data: any) => {
   return http({
     method: "POST",
     url: "user/joinmeetings",
+    data,
+  });
+};
+
+
+export const getSearchResult = (data: any) => {
+  return http({
+    method: "POST",
+    url: "usersearch",
+    data,
+  });
+};
+
+
+export const getHistoryList = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "usersearch?UserId=" + userId,
+  });
+};
+
+export const getSuggestList = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "usersearch?UserId=" + userId,
+  });
+};
+
+export const getHotList = () => {
+  return http({
+    method: "GET",
+    url: "recommend/getHot",
+  });
+};
+
+export const deleteHistory = (userId: string) => {
+  return http({
+    method: "DELETE",
+    url: "usersearch/deleteUserSearchHistory?UserId=" + userId,
+  });
+};
+
+
+// 增加会议点击量-热度
+export const incrementClickCount = (meetingId: string) => {
+  return http({
+    method: "PUT",
+    url: "meetingoperation/incrementClickCount?meetingId=" + meetingId,
+  });
+};
+
+// 增加会议报名量-热度
+export const incrementJoinCount = (meetingId: string) => {
+  return http({
+    method: "PUT",
+    url: "meetingoperation/incrementJoinCount?meetingId=" + meetingId,
+  });
+};
+
+
+export const get_avatar = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "user/getAvatar?userId=" + userId,
+  });
+};
+
+export const api_getNoteList = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "meetingnote?UserId=" + userId,
+  });
+};
+
+export const api_deleteNote = (noteId: string) => {
+  return http({
+    method: "DELETE",
+    url: "meetingnote/deletenote?noteId=" + noteId,
+  });
+};
+
+export const api_getNoteDetail = (noteId: string) => {
+  return http({
+    method: "GET",
+    url: "meetingnote/getnote?noteId=" + noteId,
+  });
+};
+
+
+export const api_uploadDocument = async (data: any) => {
+  return await http({
+    method: "POST",
+    url: "aiFile/infoFile",
     data,
   });
 };

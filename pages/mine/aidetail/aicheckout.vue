@@ -4,7 +4,7 @@
 		<!-- 子标题区域 -->
 		<view class="subtitle-bar">
 			<view class="subtitle-content">
-				<text class="subtitle-text">功能用例_云产线</text>
+				<text class="subtitle-text">文档管理AI助手</text>
 				<view class="more-options">
 					<uni-icons type="more-filled" size="20" color="#333333"></uni-icons>
 				</view>
@@ -113,7 +113,7 @@ import { get_localsign } from '@/src/services/api'
 				messages: [
 					{
 						type: 'ai',
-						content: '您好！我是功能用例智能助手，可以协助您规划和设计产品功能用例。请问您需要针对哪个产品或功能进行规划？',
+						content: '您好!我是文档管理AI助手,可以协助您管理文档。请问您需要针对哪个会议文档进行咨询？',
 						liked: false,
 						disliked: false,
 						time: new Date()
@@ -320,7 +320,6 @@ import { get_localsign } from '@/src/services/api'
 							// 调用文档创作接口
 							const res2 = await uni.request({
 								url: 'http://192.168.31.115:5000/aiFile/creation',
-								timeout: 60000, // 设置60秒超时
 								method: 'POST',
 								// header: {
 								// 	'Content-Type': 'application/json',

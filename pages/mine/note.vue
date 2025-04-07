@@ -53,38 +53,38 @@
         class="note-item"
         v-for="(note, index) in filteredNotes"
         :key="index"
-        @click="viewNoteDetail(note)">
-        <view class="note-tag" :class="{ ai: note.aiGenerated }"></view>
-        <view class="note-content">
-          <view class="note-header">
-            <text class="note-title">{{ note.title }}</text>
-            <text class="note-date">{{ formatDate(note.date) }}</text>
-          </view>
-          <text class="note-body">{{ note.body }}</text>
-          <view class="note-footer">
-            <view class="note-meta">
-              <view class="meta-item ai-badge" v-if="note.aiGenerated">
-                <uni-icons type="robot" size="14" color="#2B58F9"></uni-icons>
-                <text>AI总结</text>
-              </view>
-              <view class="meta-item">
-                <uni-icons type="calendar" size="14" color="#666"></uni-icons>
-                <text>{{ note.duration || "30分钟" }}</text>
-              </view>
-              <view class="meta-item" v-if="note.participants">
-                <uni-icons type="personadd" size="14" color="#666"></uni-icons>
-                <text>{{ note.participants }}人参与</text>
-              </view>
+        @touchstart="touchStart($event, index)"
+        @touchmove="touchMove($event, index)"
+        @touchend="touchEnd($event, index)">
+        <view class="note-content-wrapper" :style="{ transform: `translateX(${note.offset || 0}px)` }">
+          <view class="note-tag" :class="{ ai: note.noteType === 'ai' , manual: note.noteType === 'manual'}"></view>
+          <view class="note-content" @click="viewNoteDetail(note)">
+            <view class="note-header">
+              <text class="note-title">{{ note.meetingName }}</text>
+              <text class="note-date">{{ formatDate(note.createTime) }}</text>
             </view>
-            <view class="note-actions">
-              <uni-icons
-                type="more-filled"
-                size="18"
-                color="#999"
-                @click.stop="showActions(note, index)"></uni-icons>
+            <text class="note-body">{{ note.content }}</text>
+            <view class="note-footer">
+              <view class="note-meta">
+                <view class="meta-item ai-badge" v-if="note.noteType === 'ai'">
+                  <text>AI总结</text>
+                </view>
+                <view class="meta-item manual-badge" v-if="note.noteType === 'manual'">
+                  <text>手动记录</text>
+                </view>
+                <view class="meta-item">
+                  <uni-icons type="calendar" size="14" color="#666"></uni-icons>
+                  <text>{{ note.time }}分钟</text>
+                </view>
+                <view class="meta-item">
+                  <uni-icons type="personadd" size="14" color="#666"></uni-icons>
+                  <text>{{ note.numAttendees }}人参与</text>
+                </view>
+              </view>
             </view>
           </view>
         </view>
+        <view class="delete-btn" @click="deleteNote(note, index)">删除</view>
       </view>
 
       <!-- 空状态 -->
@@ -98,174 +98,277 @@
       </view>
     </scroll-view>
 
-    <!-- 悬浮按钮 -->
-    <view class="floating-btn" @click="createNewNote">
+    <!-- 悬浮按钮  //人工创建笔记此功能已经废弃 -->
+    <!-- <view class="floating-btn" @click="createNewNote">
       <uni-icons type="plusempty" size="24" color="#fff"></uni-icons>
-    </view>
+    </view> -->
   </view>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showSearch: false,
-      searchText: "",
-      activeCategory: "all",
-      notes: [
-        {
-          id: 1,
-          title: "产品开发讨论会",
-          body: "会议要点：\n1. 产品UI设计将于下周开始\n2. 两周内完成原型设计\n3. 下个月初开始开发\n4. 测试团队需提前准备测试用例",
-          date: "2024-03-01",
-          aiGenerated: true,
-          duration: "45分钟",
-          participants: 8,
-          keyPoints: ["UI设计", "原型设计", "开发计划", "测试准备"],
-        },
-        {
-          id: 2,
-          title: "市场营销策略会议",
-          body: "讨论了Q2季度的营销策略。决定：\n1. 增加社交媒体投放预算\n2. 与三家KOL合作推广新产品\n3. 4月举办线上产品发布会",
-          date: "2024-02-28",
-          aiGenerated: true,
-          duration: "60分钟",
-          participants: 6,
-          keyPoints: ["预算调整", "KOL合作", "产品发布会"],
-        },
-        {
-          id: 3,
-          title: "团队周会",
-          body: "回顾了上周工作进度，讨论了本周工作计划。重点项目已完成70%，预计下周可以完成测试。各部门汇报了工作进展和遇到的问题。",
-          date: "2024-02-25",
-          aiGenerated: true,
-          duration: "60分钟",
-          participants: 12,
-          keyPoints: ["工作进度", "问题解决", "下周计划"],
-        },
-        {
-          id: 4,
-          title: "客户需求沟通会",
-          body: "与客户讨论了项目需求变更。客户希望增加数据分析功能，并提前交付用户管理模块。我们同意了这些变更，但需要调整项目时间线。",
-          date: "2024-02-20",
-          aiGenerated: false,
-          duration: "45分钟",
-          participants: 5,
-        },
-      ],
-    };
-  },
-  computed: {
-    filteredNotes() {
-      let result = this.notes;
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import { api_getNoteList, api_deleteNote } from "@/src/services/api";
 
-      // 按分类筛选
-      if (this.activeCategory === "ai") {
-        result = result.filter((note) => note.aiGenerated);
-      } else if (this.activeCategory === "manual") {
-        result = result.filter((note) => !note.aiGenerated);
-      }
+interface Note {
+  meetingId: string;
+  noteId: string;
+  userId: string;
+  subtitleContent: string;
+  noteType: string;
+  content: string;
+  attachmentUrl: string | null;
+  createTime: string;
+  numAttendees: number;
+  time: number;
+  meetingName: string;
+  offset?: number;
+}
 
-      // 按搜索文本筛选
-      if (this.searchText) {
-        const searchLower = this.searchText.toLowerCase();
-        result = result.filter(
-          (note) =>
-            note.title.toLowerCase().includes(searchLower) ||
-            note.body.toLowerCase().includes(searchLower)
-        );
-      }
+const userInfoStore = useUserInfoStore();
+const userId = userInfoStore.userInfo?.userId;
 
-      // 按日期排序（最新的在前面）
-      return result.sort((a, b) => new Date(b.date) - new Date(a.date));
-    },
-  },
-  methods: {
-    formatDate(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
+const showSearch = ref(false);
+const searchText = ref('');
+const activeCategory = ref('all');
+const notes = ref<Note[]>([]);
 
-      // 计算天数差异
-      const diffTime = Math.abs(now - date);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 1) {
-        return "昨天";
-      } else if (diffDays <= 7) {
-        return `${diffDays}天前`;
-      } else {
-        return `${date.getFullYear()}-${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-      }
-    },
-    filterByCategory(category) {
-      this.activeCategory = category;
-    },
-    searchNotes() {
-      // 搜索功能已通过计算属性实现
-      console.log("搜索:", this.searchText);
-    },
-    clearSearch() {
-      this.searchText = "";
-    },
-    viewNoteDetail(note) {
-      // 查看笔记详情
-      uni.navigateTo({
-        url: `/pages/mine/note-detail?id=${note.id}`,
+// 添加触摸相关的变量
+const startX = ref(0);
+const currentIndex = ref(-1);
+const isTouching = ref(false);
+// 获取笔记列表
+const getNotes = async () => {
+  try {
+    
+    const response = await api_getNoteList(userId);
+    console.log(response);
+    if (response.code === 1) {
+      notes.value = response.data;
+      showSearch.value = true;
+    } else {
+      uni.showToast({
+        title: '获取笔记失败',
+        icon: 'none'
       });
-    },
-    showActions(note, index) {
-      uni.showActionSheet({
-        itemList: ["分享", "导出", "删除"],
-        success: (res) => {
-          if (res.tapIndex === 0) {
-            // 分享笔记
-            uni.showToast({
-              title: "分享功能开发中",
-              icon: "none",
-            });
-          } else if (res.tapIndex === 1) {
-            // 导出笔记
-            uni.showToast({
-              title: "导出功能开发中",
-              icon: "none",
-            });
-          } else if (res.tapIndex === 2) {
-            // 删除笔记
-            this.deleteNote(index);
-          }
-        },
-      });
-    },
-    deleteNote(index) {
-      uni.showModal({
-        title: "确认删除",
-        content: "确定要删除这条会议笔记吗？",
-        success: (res) => {
-          if (res.confirm) {
-            this.notes.splice(index, 1);
-            uni.showToast({
-              title: "删除成功",
-              icon: "success",
-            });
-          }
-        },
-      });
-    },
-    createNewNote() {
-      uni.navigateTo({
-        url: "/pages/mine/create-note",
-      });
-    },
-  },
+    }
+  } catch (error) {
+    console.error('获取笔记失败:', error);
+    uni.showToast({
+      title: '获取笔记失败',
+      icon: 'none'
+    });
+  }
 };
+
+// 过滤笔记
+const filteredNotes = computed(() => {
+  let result = notes.value;
+
+  // 按分类筛选
+  if (activeCategory.value === 'ai') {
+    result = result.filter(note => note.noteType === 'ai');
+  } else if (activeCategory.value === 'manual') {
+    result = result.filter(note => note.noteType !== 'ai');
+  }
+
+  // 按搜索文本筛选
+  if (searchText.value) {
+    const searchLower = searchText.value.toLowerCase();
+    result = result.filter(note =>
+      note.content.toLowerCase().includes(searchLower) ||
+      note.meetingName.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // 按日期排序（最新的在前面）
+  return result.sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime());
+});
+
+// 格式化日期
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+};
+
+// 筛选分类
+const filterByCategory = (category: string) => {
+  activeCategory.value = category;
+};
+
+// 搜索笔记
+const searchNotes = () => {
+  console.log("搜索:", searchText.value);
+};
+
+// 清除搜索
+const clearSearch = () => {
+  searchText.value = "";
+};
+
+// 查看笔记详情
+const viewNoteDetail = (note: Note) => {
+  uni.navigateTo({
+    url: `/pages/mine/notedetail/notedetail?noteId=${note.noteId}`,
+  });
+};
+
+
+
+/////滑动删除代码
+// 触摸开始
+const touchStart = (event: TouchEvent, index: number) => {
+  console.log("触摸开始", currentIndex.value, index);
+  if (currentIndex.value !== -1 && currentIndex.value !== index) {
+    notes.value[currentIndex.value].offset = 0;
+    currentIndex.value = -1;
+  }
+  startX.value = event.touches[0].clientX;
+  isTouching.value = true;
+  currentIndex.value = index;
+};
+
+// 触摸移动
+const touchMove = (event: TouchEvent, index: number) => {
+  if (!isTouching.value) return;
+  
+  const moveX = event.touches[0].clientX;
+  const deltaX = moveX - startX.value;
+  
+  // 限制只能向左滑动，最大滑动距离为删除按钮宽度
+  const offset = Math.min(Math.max(deltaX, -80), 0);
+  // 找到原始数组中对应的笔记
+  const originalIndex = notes.value.findIndex(note => note.noteId === filteredNotes.value[index].noteId);
+  if (originalIndex !== -1) {
+    notes.value[originalIndex].offset = offset;
+  }
+};
+
+// 触摸结束
+const touchEnd = (event: TouchEvent, index: number) => {
+  if (!isTouching.value) return;
+  
+  // 找到原始数组中对应的笔记
+  const originalIndex = notes.value.findIndex(note => note.noteId === filteredNotes.value[index].noteId);
+  if (originalIndex !== -1) {
+    const note = notes.value[originalIndex];
+    const offset = note.offset || 0;
+    isTouching.value = false;
+    // 如果滑动距离超过40px，则完全展开删除按钮
+    if (offset < -40) {
+      note.offset = -80;
+    } else {
+      note.offset = 0;
+      currentIndex.value = -1;
+    }
+  }
+};
+
+// 删除笔记
+const deleteNote = async (note: Note, index: number) => {
+  try {
+    uni.showModal({
+      title: '确认删除',
+      content: '确定要删除这条笔记吗？',
+      success: async (res) => {
+        if (res.confirm) {
+            const response = await api_deleteNote(note.noteId);
+
+          if (response.code === 1) {
+            // 找到原始数组中对应的笔记并删除
+            const originalIndex = notes.value.findIndex(n => n.noteId === note.noteId);
+            if (originalIndex !== -1) {
+              notes.value.splice(originalIndex, 1);
+            }
+            uni.showToast({
+              title: '删除成功',
+              icon: 'success'
+            });
+          } else {
+            throw new Error(response.msg || '删除失败');
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('删除笔记失败:', error);
+    uni.showToast({
+      title: error.message || '删除失败',
+      icon: 'none'
+    });
+  }
+};
+/////滑动删除代码结束
+
+
+// 创建新笔记  此功能已经废弃
+const createNewNote = async () => {
+  try {
+    if (!userId) {
+      uni.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 弹出输入框获取笔记内容  需要再写一个弹窗组件
+    const res = await uni.showModal({
+      title: '创建笔记',
+      editable: true,
+      placeholderText: '请输入笔记内容'
+    });
+
+    if (res.confirm && res.content) {
+      const noteData = {
+        meetingId: Date.now().toString(), // 使用时间戳作为临时会议ID
+        userId: userId,
+        subtitleContent: 's', // 手动创建的笔记没有字幕内容
+        noteType: 'manual', // 设置为手动类型
+        content: res.content
+      };
+ 
+      console.log(noteData);
+
+      const response = await uni.request({
+        url: 'http://192.168.31.115:5000/meetingnote/info',
+        method: 'POST',
+        data: noteData
+      });
+
+      console.log(response);
+
+      if (response.data.code === 1) {
+        uni.showToast({
+          title: '创建成功',
+          icon: 'success'
+        });
+        // 刷新笔记列表
+        getNotes();
+      } else {
+        throw new Error(response.data.msg || '创建失败');
+      }
+    }
+  } catch (error) {
+    console.error('创建笔记失败:', error);
+    uni.showToast({
+      title: error.message || '创建失败',
+      icon: 'none'
+    });
+  }
+};
+
+
+
+
+// 页面加载时获取笔记列表
+getNotes();
 </script>
 
 <style lang="scss" scoped>
 .note-container {
   min-height: 100vh;
-  background: #f5f6f7;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -292,27 +395,43 @@ export default {
 }
 
 .search-box {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.95);
   margin: 20rpx;
-  border-radius: 8rpx;
-  padding: 15rpx 20rpx;
+  border-radius: 16rpx;
+  padding: 20rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8rpx 24rpx rgba(41, 196, 235, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1rpx solid rgba(43, 108, 248, 0.8);
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    transform: translateY(-2rpx);
+    box-shadow: 0 12rpx 28rpx rgba(0, 0, 0, 0.12);
+  }
 
   input {
     flex: 1;
     height: 60rpx;
     font-size: 28rpx;
-    margin: 0 15rpx;
+    margin: 0 20rpx;
+    color: #333;
+    
+    &::placeholder {
+      color: #999;
+    }
   }
 }
 
 .note-categories {
   display: flex;
-  background: #fff;
-  padding: 0 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  padding: 10rpx 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 1;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
 .category-item {
@@ -325,6 +444,8 @@ export default {
   &.active {
     color: #2b58f9;
     font-weight: 500;
+    background: linear-gradient(180deg, rgba(43, 88, 249, 0.1), transparent);
+    border-radius: 30rpx;
 
     &::after {
       content: "";
@@ -333,9 +454,13 @@ export default {
       left: 20%;
       right: 20%;
       height: 4rpx;
-      background: #2b58f9;
+      background: linear-gradient(90deg, #2b58f9, #1a3d8f);
       border-radius: 2rpx;
     }
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -346,17 +471,19 @@ export default {
 }
 
 .note-item {
+  position: relative;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.note-content-wrapper {
+  display: flex;
   background: #fff;
   border-radius: 12rpx;
-  margin-bottom: 20rpx;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  transition: transform 0.3s ease;
   position: relative;
-  transition: transform 0.3s;
-
-  &:active {
-    transform: scale(0.98);
-  }
+  z-index: 1;
 }
 
 .note-tag {
@@ -369,6 +496,10 @@ export default {
 
   &.ai {
     background: #2b58f9;
+  }
+
+  &.manual {
+    background: #058867;
   }
 }
 
@@ -436,6 +567,34 @@ export default {
     padding: 4rpx 10rpx;
     border-radius: 20rpx;
   }
+
+  &.manual-badge {
+    background: rgba(43, 88, 249, 0.1);
+    color: #058867;
+    padding: 4rpx 10rpx;
+    border-radius: 20rpx;
+  }
+}
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 160rpx;
+  height: 100%;
+  background: #ff4757;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  z-index: 0;
 }
 
 .empty-state {
