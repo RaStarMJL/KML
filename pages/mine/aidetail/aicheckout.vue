@@ -4,7 +4,7 @@
     <!-- 子标题区域 -->
     <!-- <view class="subtitle-bar">
 			<view class="subtitle-content">
-				<text class="subtitle-text">功能用例_云产线</text>
+				<text class="subtitle-text">文档管理AI助手</text>
 				<view class="more-options">
 					<uni-icons type="more-filled" size="20" color="#333333"></uni-icons>
 				</view>
@@ -20,8 +20,7 @@
       :scroll-with-animation="true"
       :show-scrollbar="false"
       ref="messagesScroll"
-      id="chat-scroll"
-    >
+      id="chat-scroll">
       <view class="chat-list" id="chat-list">
         <!-- 遍历所有消息，不再通过v-if区分类型 -->
         <view
@@ -30,23 +29,20 @@
           :class="[
             'message',
             message.type === 'ai' ? 'ai-message' : 'user-message',
-          ]"
-        >
+          ]">
           <!-- AI消息的头像 -->
           <image
             v-if="message.type === 'ai'"
             class="avatar"
             :src="aiAvatar"
-            mode="aspectFill"
-          ></image>
+            mode="aspectFill"></image>
 
           <view class="message-content">
             <view class="message-bubble">
               <zero-markdown-view
                 class="markdown-content"
                 v-if="message.type === 'ai'"
-                :markdown="message.content"
-              ></zero-markdown-view>
+                :markdown="message.content"></zero-markdown-view>
               <text v-else>{{ message.content }}</text>
             </view>
 
@@ -59,15 +55,13 @@
                 <uni-icons
                   type="hand-up"
                   size="16"
-                  :color="message.liked ? '#4080FF' : '#8a8a8a'"
-                ></uni-icons>
+                  :color="message.liked ? '#4080FF' : '#8a8a8a'"></uni-icons>
               </view>
               <view class="action-btn" @click="dislikeMessage(index)">
                 <uni-icons
                   type="hand-down"
                   size="16"
-                  :color="message.disliked ? '#ff6666' : '#8a8a8a'"
-                ></uni-icons>
+                  :color="message.disliked ? '#ff6666' : '#8a8a8a'"></uni-icons>
               </view>
             </view>
           </view>
@@ -85,18 +79,15 @@
           placeholder="请输入您的问题..."
           placeholder-style="color: #999;"
           confirm-type="send"
-          @confirm="sendMessage"
-        />
+          @confirm="sendMessage" />
         <view
           class="send-btn"
           :class="{ active: inputMessage.trim() }"
-          @click="sendMessage"
-        >
+          @click="sendMessage">
           <uni-icons
             type="paperplane-filled"
             size="20"
-            color="#fff"
-          ></uni-icons>
+            color="#fff"></uni-icons>
         </view>
       </view>
 

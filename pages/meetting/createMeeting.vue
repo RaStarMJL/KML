@@ -285,7 +285,8 @@ export default {
           sizeType: ["compressed"],
           sourceType: ["album", "camera"],
         });
-
+        
+        console.log('选择图片的res:',res);
         this.imagePreview = res.tempFilePaths[0];
         this.imageFile = res.tempFiles[0];
         this.onInputChange();

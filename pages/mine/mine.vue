@@ -74,13 +74,6 @@ const myInfo = () => {
   });
 };
 
-//参会提醒
-const remind = () => {
-  uni.navigateTo({
-    url: "/pages/mine/remind",
-  });
-};
-
 //小功能页面跳转
 const To = (page) => {
   uni.navigateTo({
@@ -107,6 +100,7 @@ const meetingSetting = () => {
 const accountSecurity = () => {
   uni.navigateTo({
     url: "/pages/mine/accountSecurity",
+    // url: "/pages/uploadfile/uploadfile?meetingId=M1741876012965&meetingName=南华大学",
   });
 };
 

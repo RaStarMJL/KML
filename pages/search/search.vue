@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
-const localuserid = "U1001";//uni.getStorageSync("userId");
-const localusername = "zyh";//uni.getStorageSync("username");
+import { getHotList, getSuggestList, getHistoryList, deleteHistory } from "@/src/services/api";
+import { useUserInfoStore } from "@/src/stores/modules/userInfo";
+
+const userInfoStore = useUserInfoStore();
+const userid = userInfoStore.userInfo?.userId;
 
 const searchText = ref("");
 // 历史搜索记录
-const historyList = ref([
-]);
+const historyList = ref<string[]>([]);
 // 猜你想搜
-const suggestList = ref([
-]);
+const suggestList = ref<string[]>([]);
 // 热点推荐
 const hotList = ref([
   { id: 1, title: "", views: "" },
@@ -29,100 +30,127 @@ const clearHistory = () => {
     content: "确定要清除全部历史记录吗？",
     success: (res) => {
       if (res.confirm) {
+        const res = DeleteHistory(userid);
+        console.log(res);
         historyList.value = [];
       }
     },
   });
 };
 
-// 返回上一页
+// 搜索处理
 const handleSearch = () => {
-  historyList.value.push(searchText.value);
-  console.log("搜索", searchText.value);
-  searchText.value = "";
+  if (searchText.value.trim()) {
+    historyList.value = [...historyList.value, searchText.value];
+    clickSearch(searchText.value);
+    searchText.value = "";
+  }
 };
 
 //获取热点
-const getHotList = () => {
-  uni.request({
-    url: "http://192.168.31.115:5000/usersearch?UserId=" + localuserid,
-    method: "GET",
-    success: (res) => {
-      console.log("成功获取到热点");
-      console.log(res);
-      res.data.data.forEach((item: any,index:number) => {
-       if(hotList.value[index]){
-        hotList.value[index].title = item.searchQuery;
-        hotList.value[index].views = item.id;
-       }
-      });
-    },
-    fail: (err) => {
-      console.log("获取热点失败");
+const getHotListData = async () => {
+  try {
+    if (!userid) {
+      throw new Error('用户未登录');
     }
-  });
+    
+    const res = await getHotList();
+    
+    if (res.code === 1 && res.data) {
+      res.data.forEach((item: any, index: number) => {
+        if (hotList.value[index]) {
+          hotList.value[index].title = item.meetingName;
+          hotList.value[index].views = item.meetingHeat;
+        }
+      });
+    }
+  } catch (error) {
+    console.error("获取热点失败:", error);
+    uni.showToast({
+      title: '获取热点失败',
+      icon: 'none'
+    });
+  }
 };
 
 //获取猜你想搜
-const getSuggestList = () => {
-  uni.request({
-    url: "http://192.168.31.115:5000/usersearch?UserId=" + localuserid,
-    method: "GET",
-    success:(res:any)=>{
-      console.log("成功获取到猜你想搜");
-      console.log(res);
-      res.data.data.forEach((item: any) => {
-        suggestList.value.push(item.searchQuery);
-      });
-    },
-    fail: (err) => {
-      console.log("获取猜你想搜失败");
+const getSuggestListData = async () => {
+  try {
+    if (!userid) {
+      throw new Error('用户未登录');
     }
-  });
+    
+   const res = await getSuggestList(userid);
+    
+    if (res.code === 1 && res.data) {
+      suggestList.value = res.data.map((item: any) => item.searchQuery);
+    }
+  } catch (error) {
+    console.error("获取推荐搜索失败:", error);
+    uni.showToast({
+      title: '获取推荐搜索失败',
+      icon: 'none'
+    });
+  }
 };
 
 //获取历史记录
-const getHistoryList = () => {
-  uni.request({
-    url: "http://192.168.31.115:5000/usersearch?UserId=" + localuserid,
-    method: "GET",
-    success: (res: any) => {
-    console.log("成功获取历史搜索记录");
-    console.log(res);
-    res.data.data.forEach((item: any) => {
-      historyList.value.push(item.searchQuery);
-    });
-    },
-    fail: (err) => {
-      console.log("获取历史搜索记录失败");
+const getHistoryListData = async () => {
+  try {
+    if (!userid) {
+      throw new Error('用户未登录');
     }
-  });
+    
+   const res = await getHistoryList(userid);
+    
+    
+    if (res.code === 1 && res.data) {
+      historyList.value = res.data.map((item: any) => item.searchQuery);
+    }
+  } catch (error) {
+    console.error("获取历史记录失败:", error);
+    uni.showToast({
+      title: '获取历史记录失败',
+      icon: 'none'
+    });
+  }
 };
 
 
 
+const  DeleteHistory = async (userid:string) => {
+  const res = await deleteHistory(userid);
+  console.log(res);
+}
+
 //点击历史记录-->搜索历史记录
-const clickHistory = (item) => {
+const clickHistory = (item: string) => {
+  searchText.value = item;
   clickSearch(item);
 };
 
 //点击猜你想搜-->搜索猜你想搜
-const clickSuggest = (item) => {
+const clickSuggest = (item: string) => {
+  searchText.value = item;
   clickSearch(item);
 };
 
 //点击热点推荐-->搜索热点推荐
-const clickHot = (item) => {
+const clickHot = (item: { title: string }) => {
+  searchText.value = item.title;
   clickSearch(item.title);
 };
 
-const clickSearch = (item) => {
-  console.log(item);
+const clickSearch = (item: string) => {
+  uni.navigateTo({
+    url: '/pages/search/searchresult?searchText=' + item
+  });
 };
 
-getHistoryList()
-getSuggestList()
-getHotList()
+// 初始化数据
+getHistoryListData();
+getSuggestListData();
+getHotListData();
 </script>
 
 <template>
@@ -131,7 +159,7 @@ getHotList()
     <view class="search-header">
       <view class="search-bar">
         <uni-icons type="search" size="20" color="#666"></uni-icons>
-        <input type="text" placeholder="搜索会议" focus v-model="searchText" />
+        <input type="text" placeholder="搜索会议" focus v-model="searchText" @confirm="handleSearch"/>
       </view>
       <text class="cancel-btn" @tap="handleSearch">搜索</text>
     </view>

@@ -29,7 +29,8 @@ const convertDateString = (dateStr) => {
 
 const goToMeetingShow = (meetingId) => {
   uni.navigateTo({
-    url: `/pages/recommend/meetingshow?meetingId=${meetingId}`,
+    // url: `/pages/recommend/meetingshow?meetingId=${meetingId}`,
+    url: "/pages/uploadfile/uploadfile?meetingId=M1741876012965&meetingName=南华大学",
   });
 };
 const meetings = ref([

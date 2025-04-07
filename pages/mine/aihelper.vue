@@ -21,36 +21,29 @@
 				<view class="card-header">
 					<image class="card-avatar" src="/src/static/images/function-ai.png" mode="aspectFill"></image>
 					<view class="header-content">
-						<text class="card-title">普通AI助手</text>
-						<text class="card-date">2025-03-19 20:37:15</text>
+						<text class="card-title">通用型AI助手</text>
+						<text class="card-date"></text>
 					</view>
-					<text class="card-star">☆</text>
 				</view>
 				
 				<view class="card-desc">
-					<text>你是一个功能用例生成器</text>
+					<text>可以快速创建、加入会议</text>
 				</view>
 				
 				<view class="card-footer">
 					<view class="left-tags">
-						<text class="tag blue">智能体应用</text>
-						<text class="tag gray">低代码</text>
+						<text class="tag blue">创建会议</text>
+						<text class="tag green">加入会议</text>
 					</view>
 					<view class="right-info">
 						<view class="info-item">
-							<text class="info-text">👨‍🏫 教师</text>
+							<img src="/src/static/images/aiicon2.png" class="info-text">
 						</view>
 						<view class="info-divider"></view>
-						<view class="info-item">
-							<text class="info-text">👁 44</text>
-						</view>
 					</view>
 				</view>
 				
-				<view class="detail-link">
-					<text>详情</text>
-					<uni-icons type="right" size="14" color="#4080FF"></uni-icons>
-				</view>
+				
 			</view>
 
 			<!-- 北京定制化版本库 -->
@@ -58,36 +51,29 @@
 				<view class="card-header">
 					<image class="card-avatar" src="/src/static/images/aicheckout.png" mode="aspectFill"></image>
 					<view class="header-content">
-						<text class="card-title">文档管理型AI</text>
-						<text class="card-date">2025-03-19 20:24:50</text>
+						<text class="card-title">文档管理型AI助手</text>
+						<text class="card-date"></text>
 					</view>
-					<text class="card-star">☆</text>
 				</view>
 				
 				<view class="card-desc">
-					<text>版本号管理，可以查询北京定制项目的版本号</text>
+					<text>通过文档管理型AI,可以快速获取总结性文档内容</text>
 				</view>
 				
 				<view class="card-footer">
 					<view class="left-tags">
-						<text class="tag blue">智能体应用</text>
-						<text class="tag green">零代码</text>
+						<text class="tag blue">文档管理</text>
+						<text class="tag green">总结性文档</text>
 					</view>
 					<view class="right-info">
 						<view class="info-item">
-							<text class="info-text">👨‍💼 运营</text>
+							<img src="/src/static/images/aiicon.png" class="info-text">
 						</view>
 						<view class="info-divider"></view>
-						<view class="info-item">
-							<text class="info-text">👁 0</text>
-						</view>
 					</view>
 				</view>
 				
-				<view class="detail-link">
-					<text>详情</text>
-					<uni-icons type="right" size="14" color="#4080FF"></uni-icons>
-				</view>
+				
 			</view>
 
 			<!-- 排班智能体 -->
@@ -95,36 +81,29 @@
 				<view class="card-header">
 					<image class="card-avatar" src="/static/images/ai/schedule-ai.png" mode="aspectFill"></image>
 					<view class="header-content">
-						<text class="card-title">排班智能体</text>
-						<text class="card-date">2025-03-19 18:07:06</text>
+						<text class="card-title">智能体1</text>
+						<text class="card-date"></text>
 					</view>
-					<text class="card-star">☆</text>
 				</view>
 				
 				<view class="card-desc">
-					<text>该智能体支持通过输入网络空间人员清单文件和用户价值需求，经过深刻的分析和规划，输出高质量的价值表。每次...</text>
+					<text>暂未开发</text>
 				</view>
 				
 				<view class="card-footer">
 					<view class="left-tags">
-						<text class="tag blue">智能体应用</text>
-						<text class="tag gray">低代码</text>
+						<text class="tag blue">智能体1</text>
+						<text class="tag gray">智能体1</text>
 					</view>
 					<view class="right-info">
 						<view class="info-item">
-							<text class="info-text">👨‍💻 流量管理员</text>
+							
 						</view>
 						<view class="info-divider"></view>
-						<view class="info-item">
-							<text class="info-text">👁 0</text>
-						</view>
 					</view>
 				</view>
 				
-				<view class="detail-link">
-					<text>详情</text>
-					<uni-icons type="right" size="14" color="#4080FF"></uni-icons>
-				</view>
+				
 			</view>
 
 			<!-- Debug子生成模块代码 -->
@@ -132,35 +111,26 @@
 				<view class="card-header">
 					<image class="card-avatar" src="/static/images/ai/debug-ai.png" mode="aspectFill"></image>
 					<view class="header-content">
-						<text class="card-title">debug子生成模块代码</text>
-						<text class="card-date">2025-03-19 17:30:32</text>
+						<text class="card-title">智能体2</text>
+						<text class="card-date"></text>
 					</view>
-					<text class="card-star">☆</text>
 				</view>
 				
 				<view class="card-desc">
-					<text>根据系统模块名生成完整代码</text>
+					<text>暂未开发</text>
 				</view>
 				
 				<view class="card-footer">
 					<view class="left-tags">
-						<text class="tag blue">智能体应用</text>
-						<text class="tag gray">低代码</text>
+						<text class="tag blue">智能体2</text>
+						<text class="tag gray">智能体2</text>
 					</view>
 					<view class="right-info">
 						<view class="info-item">
-							<text class="info-text">👨‍💻 架构师</text>
+						
 						</view>
 						<view class="info-divider"></view>
-						<view class="info-item">
-							<text class="info-text">👁 0</text>
-						</view>
 					</view>
-				</view>
-				
-				<view class="detail-link">
-					<text>详情</text>
-					<uni-icons type="right" size="14" color="#4080FF"></uni-icons>
 				</view>
 			</view>
 		</view>
@@ -254,40 +224,45 @@
 	padding: 20rpx;
 	display: flex;
 	flex-direction: column;
-	gap: 30rpx;
+	gap: 50rpx;
 }
 
 .ai-card {
 	background: #FFFFFF;
 	border-radius: 16rpx;
 	padding: 30rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+	box-shadow: 0 4rpx 20rpx rgba(136, 182, 243, 0.692);
 	position: relative;
 }
 
 .card-header {
 	display: flex;
 	align-items: center;
-	margin-bottom: 24rpx;
+	margin-bottom: 30rpx;
+	padding: 6rpx 0;
 }
 
 .card-avatar {
-	width: 100rpx;
-	height: 100rpx;
-	border-radius: 50%;
-	margin-right: 20rpx;
+	width: 120rpx;
+	height: 120rpx;
+	border-radius: 16rpx;
+	margin-right: 30rpx;
+	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.01);
+	transition: transform 0.3s ease;
 }
 
 .header-content {
 	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8rpx;
 }
 
 .card-title {
-	font-size: 36rpx;
+	font-size: 32rpx;
 	color: #333;
-	font-weight: 500;
-	margin-bottom: 8rpx;
-	display: block;
+	font-weight: 600;
 }
 
 .card-date {
@@ -361,6 +336,8 @@
 }
 
 .info-text {
+	width: 40rpx;
+	height: 40rpx;
 	font-size: 26rpx;
 	color: #999;
 }
