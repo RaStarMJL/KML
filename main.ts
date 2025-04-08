@@ -27,7 +27,6 @@ export function createApp() {
     console.log("WebSocket连接已关闭");
   });
   uni.onSocketMessage((res) => {
-    console.log(res);
     if (typeof res.data === "string") {
       const data = JSON.parse(res.data);
       const userInfoStore = useUserInfoStore();

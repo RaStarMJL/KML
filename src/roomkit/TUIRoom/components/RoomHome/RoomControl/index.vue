@@ -38,7 +38,7 @@
         </div>
       </div>
       <!-- 历史会议 -->
-      <div class="history-meeting" style="width: 100vw; height: 300px">
+      <div class="history-meeting" style="width: 90vw; height: 300px">
         <div
           class="history-header"
           style="width: 100%; height: 50px; position: relative">
@@ -46,9 +46,9 @@
             class="history-title"
             style="
               position: absolute;
-              right: 20px;
               height: 30px;
-              width: 80px;
+              padding: 0 5px;
+              /* width: 80px; */
               font-size: 14px;
               line-height: 30px;
               margin-top: 10px;
@@ -56,11 +56,12 @@
               text-align: center;
               border-radius: 5px;
             "
-            >历史会议 ></span
+            >我举办的会议 ></span
           >
         </div>
         <scroll-view scroll-y class="history-meeting-scroll">
-          <historyMeeting></historyMeeting>
+          <historyMeeting
+            :hostedMeetingInfo="hostedMeetingInfo"></historyMeeting>
         </scroll-view>
       </div>
     </div>
@@ -253,7 +254,22 @@ import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import meetingSetting from "../../../../../../pages/mine/meetingSetting.vue";
 import historyMeeting from "../../../../../../pages/components/historyMeeting/historyMeeting.vue";
+import { api_getUserHostedMeetings } from "../../../../../services/api";
 const { t } = useRoomControl();
+
+// #region ---------------------- 历史举办会议 start ------------------
+const hostedMeetingInfo = ref([]);
+const getUserHostedMeetings = async () => {
+  try {
+    const userId = userInfoStore.userInfo.userId;
+    const res = await api_getUserHostedMeetings(userId);
+    hostedMeetingInfo.value = res.data;
+    console.log("获取用户信息：", res.data);
+  } catch (error) {
+    console.error("Error fetching meetings:", error);
+  }
+};
+// #endregion ------------------- 历史举办会议 end --------------------
 
 // 距离手机头部的安全距离
 const { safeAreaInsets } = uni.getSystemInfoSync();
@@ -455,6 +471,7 @@ function handleRoomOption(type: string) {
 
 onMounted(() => {
   document?.addEventListener("click", handleDocumentClick, true);
+  getUserHostedMeetings();
 });
 
 onUnmounted(() => {
@@ -462,6 +479,8 @@ onUnmounted(() => {
 });
 </script>
 <style lang="scss" scoped>
+.history-meeting {
+}
 .history-meeting-scroll {
   margin: 0;
   padding: 0;
@@ -683,7 +702,7 @@ onUnmounted(() => {
 
 .room-type-container {
   position: fixed;
-  bottom: 0;
+  bottom: 8vh;
   left: 0;
   background: #ffffff;
   width: 100vw;

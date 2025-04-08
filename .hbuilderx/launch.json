@@ -9,6 +9,13 @@
             "app-plus" : {
                 "launchtype" : "local"
             },
+            "default" : {
+                "launchtype" : "local"
+            },
+            "h5" : {
+                "launchtype" : "local"
+            },
+            "provider" : "aliyun",
             "type" : "uniCloud"
         },
         {

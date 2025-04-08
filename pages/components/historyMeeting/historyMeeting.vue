@@ -1,5 +1,38 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useUserInfoStore } from "../../../src/stores/modules/userInfo";
+import { api_getUserHostedMeetings } from "../../../src/services/api";
+const props = defineProps({
+  hostedMeetingInfo: {
+    type: [Array],
+    required: true,
+  },
+});
+
+const convertDateString = (dateStr) => {
+  const weekDays = [
+    "星期日",
+    "星期一",
+    "星期二",
+    "星期三",
+    "星期四",
+    "星期五",
+    "星期六",
+  ];
+  const date = new Date(dateStr);
+  const month = date.getMonth() + 1; // 月份是从0开始的
+  const day = date.getDate();
+  const weekDay = weekDays[date.getDay()];
+
+  return `${month}月${day}号 ${weekDay}`;
+};
+
+const goToMeetingShow = (meetingId) => {
+  uni.navigateTo({
+    // url: `/pages/recommend/meetingshow?meetingId=${meetingId}`,
+    url: "/pages/uploadfile/uploadfile?meetingId=M1741876012965&meetingName=南华大学",
+  });
+};
 const meetings = ref([
   {
     date: "2月20日 周四",
@@ -38,20 +71,21 @@ const meetings = ref([
   <!-- 会议列表 -->
   <view class="meeting-list">
     <view
-      v-for="(meeting, index) in meetings"
+      v-for="(meeting, index) in hostedMeetingInfo"
       :key="index"
+      @tap="goToMeetingShow(meeting.meetingId)"
       class="meeting-item">
-      <view class="date">{{ meeting.date }}</view>
+      <view class="date">{{ convertDateString(meeting.startTime) }}</view>
       <view class="meeting-details">
-        <view class="meeting-title">{{ meeting.title }}</view>
+        <view class="meeting-title">{{ meeting.meetingName }}</view>
         <view class="meeting-info">
           <view class="info-item">
             <uni-icons type="calendar" size="14" color="#666" />
-            <text>时间：{{ meeting.time }}</text>
+            <text>时间：{{ meeting.startTime.slice(11, 16) }}</text>
           </view>
           <view class="info-item">
             <uni-icons type="person" size="14" color="#666" />
-            <text>发起人：{{ meeting.initiator }}</text>
+            <text>发起人：{{ meeting.organizerUid }}</text>
           </view>
         </view>
       </view>
@@ -71,7 +105,7 @@ const meetings = ref([
   align-items: center;
   padding: 16px;
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: #f7f8fa;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s;

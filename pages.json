@@ -126,7 +126,26 @@
     {
       "path": "pages/mine/aidetail/aicheckout",
       "style": {
-        "navigationBarTitleText": ""
+        "navigationBarTitleText": "文档管理型智能体"
+      }
+    },
+    {
+      "path": "pages/recommend/navigation/navigation",
+      "style": {
+        "navigationBarTitleText": "地图导航",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/mine/history",
+      "style": {
+        "navigationBarTitleText": "历史会议"
+      }
+    },
+    {
+      "path": "pages/mine/map",
+      "style": {
+        "navigationBarTitleText": "地图导航"
       }
     },
     {
@@ -191,6 +210,15 @@
           "path": "roomkit/pages/subtitleSetting/subtitleSetting",
           "style": {
             "navigationBarTitleText": "字幕设置",
+            "app-plus": {
+              "titleView": false
+            }
+          }
+        },
+        {
+          "path": "roomkit/pages/sign/sign",
+          "style": {
+            "navigationBarTitleText": "开始签到",
             "app-plus": {
               "titleView": false
             }

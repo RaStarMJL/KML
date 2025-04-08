@@ -1,23 +1,27 @@
-import { ref, Ref, computed, onUnmounted } from 'vue';
-import { useBasicStore } from '../../../stores/basic';
-import { useRoomStore } from '../../../stores/room';
-import { useChatStore } from '../../../stores/chat';
-import { storeToRefs } from 'pinia';
-import { useI18n } from '../../../locales';
-import useGetRoomEngine from '../../../hooks/useRoomEngine';
-import { TUIRoomEngine, TUIRole, TUIRoomEvents } from '@tencentcloud/tuiroom-engine-uniapp-app';
-import logger from '../../../utils/common/logger';
-import TUIMessage from '../../common/base/Message/index';
+import { ref, Ref, computed, onUnmounted } from "vue";
+import { useBasicStore } from "../../../stores/basic";
+import { useRoomStore } from "../../../stores/room";
+import { useChatStore } from "../../../stores/chat";
+import { storeToRefs } from "pinia";
+import { useI18n } from "../../../locales";
+import useGetRoomEngine from "../../../hooks/useRoomEngine";
+import {
+  TUIRoomEngine,
+  TUIRole,
+  TUIRoomEvents,
+} from "@tencentcloud/tuiroom-engine-uniapp-app";
+import logger from "../../../utils/common/logger";
+import TUIMessage from "../../common/base/Message/index";
 
 export default function useEndControl() {
   const { t } = useI18n();
   enum DialogType {
     BasicDialog,
-    TransferDialog
+    TransferDialog,
   }
   const currentDialogType = ref(DialogType.BasicDialog);
 
-  const logPrefix = '[EndControl]';
+  const logPrefix = "[EndControl]";
   const roomEngine = useGetRoomEngine();
   const visible: Ref<boolean> = ref(false);
   const basicStore = useBasicStore();
@@ -26,37 +30,66 @@ export default function useEndControl() {
 
   const roomStore = useRoomStore();
   const { localUser, remoteUserList } = storeToRefs(roomStore);
-  const title = computed(() => (currentDialogType.value === DialogType.BasicDialog ? t('Leave room?') : t('Select a new host')));
-  const isShowLeaveRoomDialog = computed(() => (
-    roomStore.isMaster && remoteUserList.value.length > 0)
-    || !roomStore.isMaster);
+  const title = computed(() =>
+    currentDialogType.value === DialogType.BasicDialog
+      ? t("Leave room?")
+      : t("Select a new host")
+  );
+  const isShowLeaveRoomDialog = computed(
+    () =>
+      (roomStore.isMaster && remoteUserList.value.length > 0) ||
+      !roomStore.isMaster
+  );
   const { isSidebarOpen, sidebarName } = storeToRefs(basicStore);
-  const showSideBar = computed(() => isSidebarOpen.value && sidebarName.value === 'transfer-leave');
-  const selectedUser: Ref<string> = ref('');
+  const showSideBar = computed(
+    () => isSidebarOpen.value && sidebarName.value === "transfer-leave"
+  );
+  const selectedUser: Ref<string> = ref("");
   const showTransfer = ref(false);
-  const searchName = ref('');
-  const filteredList = computed(() => remoteUserList.value.filter(searchUser => (
-    searchUser.userId.includes(searchName.value)) || (searchUser.userName?.includes(searchName.value))));
-  const hasNoData = computed(() => filteredList.value.length === 0);
-  const isMasterWithOneRemoteUser = computed(() => remoteUserList.value.length === 1);
-  const isMasterWithRemoteUser = computed(() => remoteUserList.value.length > 0);
-  const isMasterWithoutRemoteUser = computed(() => roomStore.isMaster && remoteUserList.value.length === 0);
-  const showEndButtonContent = computed(() => (roomStore.isMaster ? t('EndPC') : t('Leave')));
-  const showEndDialogContent = computed(() => (
-    roomStore.isMaster ? (isMasterWithoutRemoteUser.value
-      ? t('You are currently the host of the room, please choose the corresponding operation. If you choose "End Room", the current room will be disbanded and all members will be removed.')
-      : t('You are currently the host of the room, please choose the corresponding operation. If you choose "End Room", the current room will be disbanded and all members will be removed. If you choose "Leave Room", the current room will not be disbanded, and your hosting privileges will be transferred to other members.')
+  const searchName = ref("");
+  const filteredList = computed(() =>
+    remoteUserList.value.filter(
+      (searchUser) =>
+        searchUser.userId.includes(searchName.value) ||
+        searchUser.userName?.includes(searchName.value)
     )
-      : t('Are you sure you want to leave this room?')));
+  );
+  const hasNoData = computed(() => filteredList.value.length === 0);
+  const isMasterWithOneRemoteUser = computed(
+    () => remoteUserList.value.length === 1
+  );
+  const isMasterWithRemoteUser = computed(
+    () => remoteUserList.value.length > 0
+  );
+  const isMasterWithoutRemoteUser = computed(
+    () => roomStore.isMaster && remoteUserList.value.length === 0
+  );
+  const showEndButtonContent = computed(() =>
+    roomStore.isMaster ? t("EndPC") : t("Leave")
+  );
+  const showEndDialogContent = computed(() =>
+    roomStore.isMaster
+      ? isMasterWithoutRemoteUser.value
+        ? t(
+            'You are currently the host of the room, please choose the corresponding operation. If you choose "End Room", the current room will be disbanded and all members will be removed.'
+          )
+        : t(
+            'You are currently the host of the room, please choose the corresponding operation. If you choose "End Room", the current room will be disbanded and all members will be removed. If you choose "Leave Room", the current room will not be disbanded, and your hosting privileges will be transferred to other members.'
+          )
+      : t("Are you sure you want to leave this room?")
+  );
   function toggleMangeMemberSidebar() {
-    if (basicStore.setSidebarOpenStatus && sidebarName.value === 'transfer-leave') {
+    if (
+      basicStore.setSidebarOpenStatus &&
+      sidebarName.value === "transfer-leave"
+    ) {
       basicStore.setSidebarOpenStatus(false);
-      basicStore.setSidebarName('');
+      basicStore.setSidebarName("");
       return;
     }
 
     basicStore.setSidebarOpenStatus(true);
-    basicStore.setSidebarName('transfer-leave');
+    basicStore.setSidebarName("transfer-leave");
   }
 
   function handleShowMemberControl(userId: string) {
@@ -75,6 +108,7 @@ export default function useEndControl() {
   }
 
   function cancel() {
+    console.log("cancel");
     resetState();
   }
 
@@ -99,20 +133,32 @@ export default function useEndControl() {
     switch (userRole) {
       case TUIRole.kGeneralUser:
         if (isLocal) {
-          if (roomStore?.isMicrophoneDisableForAllUser && !roomStore.localStream.hasAudioStream) {
+          if (
+            roomStore?.isMicrophoneDisableForAllUser &&
+            !roomStore.localStream.hasAudioStream
+          ) {
             roomStore.setCanControlSelfAudio(false);
           }
-          if (roomStore?.isCameraDisableForAllUser && !roomStore.localStream.hasVideoStream) {
+          if (
+            roomStore?.isCameraDisableForAllUser &&
+            !roomStore.localStream.hasVideoStream
+          ) {
             roomStore.setCanControlSelfVideo(false);
           }
           if (oldUserRole === TUIRole.kAdministrator) {
-            TUIMessage({ type: 'warning', message: t('Your administrator status has been revoked') });
+            TUIMessage({
+              type: "warning",
+              message: t("Your administrator status has been revoked"),
+            });
           }
         }
         break;
       case TUIRole.kAdministrator:
         if (isLocal) {
-          TUIMessage({ type: 'success', message: t('You have become a administrator') });
+          TUIMessage({
+            type: "success",
+            message: t("You have become a administrator"),
+          });
           roomStore.setCanControlSelfAudio(true);
           roomStore.setCanControlSelfVideo(true);
         }
@@ -120,16 +166,27 @@ export default function useEndControl() {
       case TUIRole.kRoomOwner: {
         roomStore.setMasterUserId(userId);
         if (isLocal) {
-          TUIMessage({ type: 'success', message: `${t('You are now a room owner')}` });
+          TUIMessage({
+            type: "success",
+            message: `${t("You are now a room owner")}`,
+          });
           if (roomStore.isSpeakAfterTakingSeatMode) {
             if (!roomStore.isAnchor) {
-              await roomEngine.instance?.takeSeat({ seatIndex: -1, timeout: 0 });
+              await roomEngine.instance?.takeSeat({
+                seatIndex: -1,
+                timeout: 0,
+              });
             }
-            const applicationList = await roomEngine.instance?.getSeatApplicationList();
+            const applicationList =
+              await roomEngine.instance?.getSeatApplicationList();
             if (applicationList) {
               for (const applicationInfo of applicationList) {
                 const { userId, requestId, timestamp } = applicationInfo;
-                roomStore.addApplyToAnchorUser({ userId, requestId, timestamp });
+                roomStore.addApplyToAnchorUser({
+                  userId,
+                  requestId,
+                  timestamp,
+                });
               }
             }
           }
@@ -145,12 +202,15 @@ export default function useEndControl() {
     }
   };
 
-  TUIRoomEngine.once('ready', () => {
+  TUIRoomEngine.once("ready", () => {
     roomEngine.instance?.on(TUIRoomEvents.onUserInfoChanged, onUserInfoChanged);
   });
 
   onUnmounted(() => {
-    roomEngine.instance?.off(TUIRoomEvents.onUserInfoChanged, onUserInfoChanged);
+    roomEngine.instance?.off(
+      TUIRoomEvents.onUserInfoChanged,
+      onUserInfoChanged
+    );
   });
   return {
     t,

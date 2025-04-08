@@ -1,4 +1,3 @@
-import { url } from "inspector";
 import { http } from "/src/utils/http";
 
 //登录
@@ -43,6 +42,7 @@ export const change_userInfo = (data: any) => {
   });
 };
 
+// 文档创作
 export const aicheckout = (data: any) => {
   return http({
     url: "aiFile/agentFileSearch",
@@ -51,6 +51,7 @@ export const aicheckout = (data: any) => {
   });
 };
 
+// 获取本地签名
 export const get_localsign = (data: any) => {
   return http({
     url: `Sig?key=${data.key}&secret=${data.secret}`,
@@ -88,5 +89,217 @@ export const userSignUpMeeting = (data: any) => {
     method: "POST",
     url: "user/joinmeetings",
     data,
+  });
+};
+
+export const getSearchResult = (data: any) => {
+  return http({
+    method: "POST",
+    url: "usersearch",
+    data,
+  });
+};
+
+export const getHistoryList = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "usersearch?UserId=" + userId,
+  });
+};
+
+export const getSuggestList = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "usersearch?UserId=" + userId,
+  });
+};
+
+export const getHotList = () => {
+  return http({
+    method: "GET",
+    url: "recommend/getHot",
+  });
+};
+
+export const deleteHistory = (userId: string) => {
+  return http({
+    method: "DELETE",
+    url: "usersearch/deleteUserSearchHistory?UserId=" + userId,
+  });
+};
+
+// 增加会议点击量-热度
+export const incrementClickCount = (meetingId: string) => {
+  return http({
+    method: "PUT",
+    url: "meetingoperation/incrementClickCount?meetingId=" + meetingId,
+  });
+};
+
+// 增加会议报名量-热度
+export const incrementJoinCount = (meetingId: string) => {
+  return http({
+    method: "PUT",
+    url: "meetingoperation/incrementJoinCount?meetingId=" + meetingId,
+  });
+};
+
+export const get_avatar = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "user/getAvatar?userId=" + userId,
+  });
+};
+
+export const api_getNoteList = (userId: string) => {
+  return http({
+    method: "GET",
+    url: "meetingnote?UserId=" + userId,
+  });
+};
+
+export const api_deleteNote = (noteId: string) => {
+  return http({
+    method: "DELETE",
+    url: "meetingnote/deletenote?noteId=" + noteId,
+  });
+};
+
+export const api_getNoteDetail = (noteId: string) => {
+  return http({
+    method: "GET",
+    url: "meetingnote/getnote?noteId=" + noteId,
+  });
+};
+
+export const api_uploadDocument = async (data: any) => {
+  return await http({
+    method: "POST",
+    url: "aiFile/infoFile",
+    data,
+  });
+};
+
+export const getPathPlanning = (obj) => {
+  const { from, to } = obj;
+  const query = `请你帮我规划从${from}到${to}怎么走`;
+  const data = {
+    app_id: "a892b528-55a4-4f51-b0a4-e8a01ea3066e",
+
+    query,
+
+    conversation_id: "44a385c0-687f-4a31-9e08-1081654b3dad",
+
+    stream: false,
+  };
+  return uni.request({
+    method: "POST",
+    url: "https://qianfan.baidubce.com/v2/app/conversation/runs",
+    header: {
+      "Content-Type": "application/json",
+      Authorization:
+        "Bearer bce-v3/ALTAK-ZWM3Ql8RXmnKtMGtGeGeP/e87b462d49f5525513d80af3fd55d3d33135a661",
+    },
+    data,
+  });
+};
+
+// 修改会议状态
+export const updateMeetingStatus = (obj) => {
+  const { status, meetingId } = obj;
+  return http({
+    method: "GET",
+    url: `user/updateMeetingStatus?status=${status}&meetingId=${meetingId}`,
+  });
+};
+
+// 主持人获取会议签到状态
+export const getSignStatus = (meetingId) => {
+  return http({
+    method: "GET",
+    url: `meetingSign?meetingId=${meetingId}`,
+  });
+};
+
+// 提交请假说明
+export const submitLeaveReason = (obj) => {
+  const { meetingId, participantUid, absenceReason } = obj;
+  return http({
+    url: "meetingSign/updateAbsence",
+    method: "POST",
+    data: {
+      meetingId,
+      participantUid,
+      absenceReason,
+    },
+  });
+};
+
+// 主持人发起签到
+export const hostStartSign = (data) => {
+  const { meetingId, hostId, signInStartTime, signInEndTime } = data;
+  return http({
+    url: "meetCheck/insertMeetingCheckIn",
+    method: "POST",
+    data: {
+      meetingId,
+      hostId,
+      signInStartTime,
+      signInEndTime,
+    },
+  });
+};
+
+// 获取签到剩余时间
+export const getRemainingTime = (meetingId) => {
+  return http({
+    url: `meetCheck/getCheckTime?meetingId=${meetingId}`,
+    method: "GET",
+  });
+};
+
+// 用户加入会议时调用日志接口
+export const logUserJoinMeeting = (data) => {
+  const { operatorUid, operationType, meetingUid } = data;
+  return http({
+    url: "user/infoUserRec",
+    method: "POST",
+    data: {
+      operatorUid,
+      operationType,
+      meetingUid,
+    },
+  });
+};
+
+// 保存会议笔记
+export const api_saveMeetingNotes = (data) => {
+  /**
+   * @param {string} data.meetingId 会议ID
+   * @param {string} data.userId 用户ID
+   * @param {string} data.subtitleContent 字幕内容
+   * @param {string} data.content 笔记内容
+   * @param {string} data.noteType 笔记类型
+   */
+  return http({
+    url: "meetingnote/info",
+    method: "POST",
+    data,
+  });
+};
+
+// 获取历史参加会议
+export const api_getHistoryMeetings = (userId) => {
+  return http({
+    url: `user/meets?UserId=${userId}`,
+    method: "GET",
+  });
+};
+
+// 获取用户举办的会议
+export const api_getUserHostedMeetings = (userId) => {
+  return http({
+    url: `user/hostmeets?UserId=${userId}`,
+    method: "GET",
   });
 };

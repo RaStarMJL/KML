@@ -7,6 +7,8 @@ import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { getRecommendList } from "../../src/services/api";
 import { getSwiperData } from "../../src/services/api";
 import xiaoYiAgent from "/pages/components/xiaoYiAgent/index.vue";
+import { incrementClickCount } from "../../src/services/api";
+
 // 定义轮播图数据接口
 interface SwiperItem {
   meetingId: string;
@@ -47,17 +49,15 @@ const swiperList = ref(swiperListdata);
 const allrecommendList = ref();
 const recommendList = ref();
 const userInfo = ref();
-
+const userInfoStore = useUserInfoStore();
+const isDot = computed(() => userInfoStore.isunread);
+const value = ref(0);
 // 控制返回顶部按钮的显示/隐藏
 const showBackTop = ref(false);
 const scrollTop = ref(0);
 
 // 最热会议推荐轮播图
 const recommendSwiperData = ref();
-
-const handleClickAgent = (e) => {
-  uni.navigateTo({ url: "/pages/test/test" });
-};
 
 onShow(() => {
   const userInfoStore = useUserInfoStore();
@@ -133,7 +133,14 @@ const goTomeetingshow = (meetingid: string) => {
   console.log("跳转到-'会议信息'");
   uni.navigateTo({
     url: "/pages/recommend/meetingshow?meetingId=" + meetingid,
+    success: () => {
+      addMeetingHeat(meetingid);
+    },
   });
+};
+
+const addMeetingHeat = async (meetingid: string) => {
+  incrementClickCount(meetingid);
 };
 
 const goTomessage = () => {
@@ -141,15 +148,18 @@ const goTomessage = () => {
     url: "/pages/mine/message",
   });
 };
+
+const message = () => {
+  userInfoStore.setIsUnread(false);
+  console.log(userInfoStore.isunread);
+  uni.navigateTo({
+    url: "/pages/mine/message",
+  });
+};
 </script>
 
 <template>
-  <kml-agent
-    :x="0"
-    :y="600"
-    :isDock="true"
-    @handleClickAgent="handleClickAgent">
-  </kml-agent>
+  <kml-agent :isDock="true"> </kml-agent>
   <view
     class="page-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
@@ -166,11 +176,24 @@ const goTomessage = () => {
           <input type="text" placeholder="搜索会议" />
         </view>
         <!-- <uni-icons type="videocam" size="24" color="#666"></uni-icons> -->
+        <uni-badge
+          v-if="isDot"
+          :is-dot="true"
+          absolute="rightTop"
+          size="small"
+          :text="value.toString()">
+          <uni-icons
+            type="email"
+            size="24"
+            color="#39baf4"
+            @click="message"></uni-icons>
+        </uni-badge>
         <uni-icons
+          v-else
           type="email"
           size="24"
-          color="#666"
-          @click="goTomessage"></uni-icons>
+          color="#39baf4"
+          @click="message"></uni-icons>
       </view>
 
       <!-- 导航栏 -->
@@ -184,62 +207,67 @@ const goTomessage = () => {
     </view>
 
     <!-- 滚动内容区域 -->
-    <scroll-view
-      style="margin-bottom: 1vh"
-      scroll-y
-      class="content-scroll"
-      @scroll="onScroll"
-      scroll-with-animation>
-      <!-- 轮播图 -->
-      <swiper
-        class="banner-swiper"
-        circular
-        :indicator-dots="true"
-        :autoplay="true"
-        interval="3000"
-        duration="1000">
-        <swiper-item
-          v-for="item in recommendSwiperData"
-          :key="item.id"
-          @tap="goTomeetingshow(item.meetingId)">
-          <view class="banner-item">
-            <image :src="item.meetingImageUrl" mode="aspectFill"></image>
-            <view class="banner-title">{{ item.meetingName }}</view>
-          </view>
-        </swiper-item>
-      </swiper>
+    <view class="main-content">
+      <scroll-view
+        scroll-y
+        class="content-scroll"
+        @scroll="onScroll"
+        scroll-with-animation>
+        <!-- 轮播图 -->
+        <swiper
+          class="banner-swiper"
+          circular
+          :indicator-dots="true"
+          :autoplay="true"
+          interval="3000"
+          duration="1000">
+          <swiper-item
+            v-for="item in recommendSwiperData"
+            :key="item.id"
+            @tap="goTomeetingshow(item.meetingId)">
+            <view class="banner-item">
+              <image :src="item.meetingImageUrl" mode="aspectFill"></image>
+              <view class="banner-title">{{ item.meetingName }}</view>
+            </view>
+          </swiper-item>
+        </swiper>
+        <!-- 会议推荐网格 -->
+        <view class="meeting-grid">
+          <view
+            class="meeting-item"
+            v-for="item in recommendList"
+            :key="item.meetingId">
+            <view
+              class="meeting-cover"
+              @click="goTomeetingshow(item.meetingId)">
+              <image
+                :src="item.meetingImageUrl || defaultCover"
+                mode="aspectFill"></image>
+              <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
+            </view>
+            <view class="meeting-info">
+              <view class="meeting-title">{{ item.meetingName }}</view>
+              <view class="meeting-views">
+                <view class="meeting-views-item1">
+                  <uni-icons
+                    type="fire-filled"
+                    size="12"
+                    color="red"></uni-icons>
+                  <text>{{ item.meetingHeat }}</text>
+                </view>
 
-      <!-- 会议推荐网格 -->
-      <view class="meeting-grid">
-        <view
-          class="meeting-item"
-          v-for="item in recommendList"
-          :key="item.meetingId">
-          <view class="meeting-cover" @click="goTomeetingshow(item.meetingId)">
-            <image
-              :src="item.meetingImageUrl || defaultCover"
-              mode="aspectFill"></image>
-            <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
-          </view>
-          <view class="meeting-info">
-            <view class="meeting-title">{{ item.meetingName }}</view>
-            <view class="meeting-views">
-              <view class="meeting-views-item1">
-                <uni-icons type="fire-filled" size="12" color="red"></uni-icons>
-                <text>{{ item.meetingHeat }}</text>
+                <view class="meeting-views-item2" :class="item.meetingStatus"
+                  ><text>{{ getStatus(item.meetingStatus) }}</text></view
+                >
               </view>
-
-              <view class="meeting-views-item2" :class="item.meetingStatus"
-                ><text>{{ getStatus(item.meetingStatus) }}</text></view
-              >
             </view>
           </view>
         </view>
-      </view>
-      <view class="loading-text">
-        {{ finish ? "没有更多数据~" : "正在加载..." }}
-      </view>
-    </scroll-view>
+        <view class="loading-text">
+          {{ finish ? "没有更多数据~" : "正在加载..." }}
+        </view>
+      </scroll-view>
+    </view>
 
     <!-- 底部导航栏 -->
     <tabbar currentPath="/pages/recommend/recommend"></tabbar>
@@ -262,8 +290,6 @@ const goTomessage = () => {
   color: #999;
 }
 .page-container {
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
 }
 .header {
@@ -323,10 +349,14 @@ const goTomessage = () => {
   background-color: #0052d9;
   border-radius: 2rpx;
 }
-.content-scroll {
+.main-content {
   flex: 1;
+  height: 80vh;
   background-color: #f5f6f7;
   overflow: hidden; /* 确保没有其他样式影响滚动 */
+}
+.content-scroll {
+  height: 100%;
 }
 .banner-swiper {
   height: 300rpx;
