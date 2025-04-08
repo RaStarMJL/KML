@@ -134,6 +134,36 @@
       "style": {
         "navigationBarTitleText": "nvue Test"
       }
+    },
+    {
+      "path": "pages/search/searchresult",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/mine/notedetail/notedetail",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/mine/recorddetail/recorddetail",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/uploadfile/uploadfile",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/uploadfile/test",
+      "style": {
+        "navigationBarTitleText": ""
+      }
     }
   ],
   "subpackages": [

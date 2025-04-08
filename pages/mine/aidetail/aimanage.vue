@@ -4,7 +4,7 @@
 		<!-- 子标题区域 -->
 		<view class="subtitle-bar">
 			<view class="subtitle-content">
-				<text class="subtitle-text">通用智能助手</text>
+				<text class="subtitle-text">通用AI助手</text>
 				<view class="more-options">
 					<uni-icons type="more-filled" size="20" color="#333333"></uni-icons>
 				</view>

@@ -91,19 +91,19 @@
       <view class="attendees-list">
         <view
           class="attendee-item"
-          v-for="(uid, index) in meetingInfo.attendeesUid"
+          v-for="(uid, index) in meetingInfo.attendeesUid.slice(0, 4)"
           :key="index">
           <image
             class="attendee-avatar"
-            :src="'/static/avatars/' + uid + '.jpg'"
+            :src="attendeesAvatar[index]"
             mode="aspectFill" />
           <text class="attendee-name">用户{{ uid }}</text>
         </view>
         <view
           class="attendee-item add-more"
-          v-if="meetingInfo.numAttendees > 6">
+          v-if="meetingInfo.attendeesUid.length > 4">
           <view class="more-circle">
-            <text>+{{ meetingInfo.numAttendees - 6 }}</text>
+            <text>+{{ meetingInfo.attendeesUid.length - 4 }}</text>
           </view>
           <text class="attendee-name">更多</text>
         </view>
@@ -132,6 +132,14 @@
       </view>
     </view>
 
+    <!-- 会议附件 -->
+    <view class="section">
+      <view class="section-title">
+        <uni-icons type="file" color="" size="24" class="title-icon" />
+        会议附件
+      </view>
+    </view>
+
     <!-- 底部按钮 -->
     <view class="bottom-buttons">
       <button class="btn join-btn" @click="handleMeetingOption()">
@@ -140,6 +148,7 @@
       <button class="btn nav-btn" @click="openNavigation">地图导航</button>
     </view>
   </view>
+
 </template>
 
 <script>
@@ -147,6 +156,8 @@ import { useRoomStore } from "../../src/roomkit/TUIRoom/stores/room.ts";
 import { useUserInfoStore } from "../../src/stores/modules/userInfo.ts";
 import router from "../../src/router/index.ts";
 import { getMeetingData, userSignUpMeeting } from "../../src/services/api.ts";
+import { incrementJoinCount } from "../../src/services/api.ts";
+import { get_avatar } from "../../src/services/api.ts";
 export default {
   onLoad: function (option) {
     // 获取meetingId
@@ -194,6 +205,7 @@ export default {
       mode: "SpeakAfterTakingSeat",
       roomStore: null,
       userId: "",
+      attendeesAvatar: [],
     };
   },
   methods: {
@@ -257,6 +269,10 @@ export default {
         const res = await getMeetingData(this.meetingInfo.meetingId);
         if (res.code === 1) {
           this.meetingInfo = res.data;
+          for (let i = 0; i < 4; i++) {
+            const avatar = await get_avatar(res.data.attendeesUid[i]);
+            this.attendeesAvatar.push(avatar.data);
+          }
         }
       } catch (error) {
         uni.showToast({
@@ -294,6 +310,7 @@ export default {
                 showCancel: true,
                 success: ({ confirm, cancel }) => {
                   if (confirm) {
+                    incrementJoinCount(this.meetingInfo.meetingId);
                     this.joinMeeting();
                   } else if (cancel) {
                     return;
