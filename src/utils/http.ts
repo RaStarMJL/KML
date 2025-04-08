@@ -1,8 +1,9 @@
 import { useUserInfoStore } from "../stores/modules/userInfo";
 
 // 请求基地址
-export const baseURL = "http://192.168.31.115:5000/";
-export const socketBaseURL = "ws://192.168.31.115:5000/socket";
+// export const baseURL = "http://43.136.59.8:5000/";
+export const baseURL = "http://43.136.59.8:5000/";
+export const socketBaseURL = "ws://43.136.59.8:5000/socket";
 
 // 拦截器配置
 const httpInterceptor = {
