@@ -1,0 +1,18 @@
+{
+    "id": "fx-openMap",
+    "name": "h5、微信小程序、APP页面唤起地图APP导航",
+    "version": "v1.18",
+    "description": "适合用于H5、微信小程序、APP需要唤起地图APP进行导航",
+    "keywords": [
+        "map",
+        "地图",
+        "导航",
+        "地图APP"
+    ],
+    "dcloudext": {
+        "category": [
+            "JS SDK",
+            "通用 SDK"
+        ]
+    }
+}

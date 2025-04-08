@@ -11,6 +11,10 @@ interface UserInfo {
   signature: string;
 }
 
+// #region ---------------------- 路径规划agent start ------------------
+
+// #endregion ------------------- 路径规划agent end --------------------
+
 //
 const subtitleText = ref("hhhhh");
 
@@ -70,7 +74,6 @@ const myInfo = () => {
   });
 };
 
-
 //小功能页面跳转
 const To = (page) => {
   uni.navigateTo({
@@ -96,8 +99,8 @@ const meetingSetting = () => {
 //账号与安全
 const accountSecurity = () => {
   uni.navigateTo({
-	  //url:'/pages/uploadfile/test'
-    url: "/pages/uploadfile/uploadfile?meetingId=M1741876012965&meetingName=南华大学",
+    url: "/pages/mine/accountSecurity",
+    // url: "/pages/uploadfile/uploadfile?meetingId=M1741876012965&meetingName=南华大学",
   });
 };
 
@@ -139,7 +142,7 @@ const calculateScreenHeight = () => {};
 </script>
 
 <template>
-  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
+  <kml-agent :isDock="true"> </kml-agent>
   <view
     class="mine-container"
     :style="{ paddingTop: safeAreaInsets.top + 'px' }">
@@ -276,6 +279,12 @@ const calculateScreenHeight = () => {};
               <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
             </view>
             <text class="feature-text">历史</text>
+          </view>
+          <view class="feature-item" @click="To('map')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">地图</text>
           </view>
         </view>
       </view>

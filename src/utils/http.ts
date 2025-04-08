@@ -56,7 +56,6 @@ export const http = <T>(options: UniApp.RequestOptions) => {
   // 1. 返回 Promise 对象
   return new Promise<Data<T>>((resolve, reject) => {
     uni.request({
-
       ...options,
       // 响应成功
       success(res) {

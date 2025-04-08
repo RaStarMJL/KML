@@ -24,14 +24,17 @@
     <room-sidebar></room-sidebar>
     <room-setting></room-setting>
     <subTitle
+      :class="{ movedown: !showRoomTool, moveup: showRoomTool }"
       :totalSubtitleInfo="totalSubtitleInfo"
       v-if="showSubtitle"></subTitle>
-    <kmlAgent> </kmlAgent>
+    <kmlAgent :outContent="outContent"> </kmlAgent>
+    <!-- <kmlAgent2></kmlAgent2> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import kmlAgent from "../../../components/kml-agent-nvue/kml-agent-nvue.nvue";
+import kmlAgent2 from "../../../components/kml-agent/kml-agent.vue";
 // #region ---------------------- 导包 start ------------------
 import {
   ref,
@@ -42,6 +45,7 @@ import {
   provide,
   defineComponent,
   computed,
+  inject,
 } from "vue";
 import subTitle from "/pages/components/customSubtitle/index.vue";
 import RoomHeader from "./components/RoomHeader/index/index.vue";
@@ -74,11 +78,83 @@ import { baseURL, socketBaseURL } from "/src/utils/http";
 import * as SpeechRealTimeTrans from "../../../uni_modules/bsf-baidu-realtime-speech-trans";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { useTranSettingStore } from "../../stores/modules/tranSetting";
+import { aimanage, getMeetingData } from "/src/services/api.ts";
 // #endregion ------------------- 导包 end --------------------
 
 const clickButton = () => {
   console.log("点击了按钮");
 };
+const attendees = ref([]);
+const hostId = ref("");
+const meetingId = inject("meetingId");
+const handleGetMeetingData = async () => {
+  try {
+    const res = await getMeetingData(meetingId);
+    attendees.value = res.data.attendeesUid;
+    hostId.value = res.data.organizerUid;
+  } catch (error) {
+    console.error("获取会议数据失败:", error);
+  }
+};
+// #region ---------------------- 智能体 start ------------------
+const outContent = ref("");
+const generateSummary = () => {
+  console.log("生成总结");
+  if (!totalSpeakerInfo.value[hostId.value]) {
+    uni.showToast({
+      title: "主持人还没有开始讲话哦~,请稍后再试试吧~",
+      icon: "none",
+    });
+    return;
+  }
+  outContent.value = "小智正在努力为您生成会议总结，请稍等...";
+};
+const generateNote = async () => {
+  const userId = roomStore.localUser.userId;
+  const meetingId = basicStore.roomId;
+  if (!totalSpeakerInfo.value[hostId.value]) {
+    uni.showToast({
+      title: "主持人还没有开始讲话哦~,请稍后再试试吧~",
+      icon: "none",
+    });
+    return;
+  }
+  outContent.value = "小智正在努力为您生成会议笔记，请稍等...";
+  const hostTotalSentence = totalSpeakerInfo.value[hostId.value].totalSentence;
+  console.log(
+    "生成笔记:userId:" +
+      userId +
+      "meetingId:" +
+      meetingId +
+      "hostTotalSentence:" +
+      hostTotalSentence
+  );
+  const prompt =
+    "用户uid:" +
+    userId +
+    "会议id:" +
+    meetingId +
+    "+字幕内容:" +
+    hostTotalSentence +
+    "请你根据以上内容生成会议笔记，用中文回答";
+  const res = await aimanage({
+    sid: "550e8400-e29b-41d4-a716-446655440000",
+    id: "ec6ed326-ab26-4aa2-87ac-fac05e622409",
+    input: prompt,
+  });
+  console.log("生成笔记成功:", res);
+  outContent.value = res.data.answer;
+};
+// 接受来自AI总结和AI笔记的事件提交
+const handleAI = (event) => {
+  if (event === "summary") {
+    generateSummary();
+  } else if (event === "note") {
+    generateNote();
+  }
+};
+provide("handleAI", handleAI);
+// #endregion ------------------- 智能体 end --------------------
 
 // #region ---------------------- 腾讯会议会议相关代码 start ------------------
 useDeviceManager({ listenForDeviceChange: true });
@@ -171,6 +247,8 @@ onMounted(() => {
 
   // 请求录音权限
   SpeechRealTimeTrans.requestRecordingPermission();
+  // 获取参会者数据（用于socket转发字幕）和主持人ID（用于总结主持人说的话）
+  handleGetMeetingData();
 });
 onUnmounted(() => {
   roomService.off(EventType.ROOM_NOTICE_MESSAGE, showMessage);
@@ -435,15 +513,24 @@ watch(
             avatarUrl.value = res_.avatarUrl;
             // 获取发言人字幕
             translatedText.value = res_.zimu;
-            const SpeakerInfo = {
-              userName: res_.userName,
-              avatarUrl: res_.avatarUrl,
-              zimu: res_.zimu,
-            };
+
             // 获取发言人ID
             const SpeakerId = res_.userId;
-            totalSpeakerInfo.value[SpeakerId] = SpeakerInfo;
-            console.log(res_);
+            // 判断是否有新的发言人
+            if (!totalSpeakerInfo.value[res_.userId]) {
+              const SpeakerInfo = {
+                userName: res_.userName,
+                avatarUrl: res_.avatarUrl,
+                zimu: res_.zimu,
+                totalSentence: res_.zimu,
+              };
+              totalSpeakerInfo.value[SpeakerId] = SpeakerInfo;
+              console.log("新的发言人加入", totalSpeakerInfo.value);
+            } else {
+              totalSpeakerInfo.value[SpeakerId].zimu = res_.zimu;
+              totalSpeakerInfo.value[SpeakerId].totalSentence += res_.zimu;
+              console.log("更新已有发言人信息", totalSpeakerInfo.value);
+            }
           });
         },
 
@@ -473,7 +560,7 @@ watch(
             avatarUrl: userInfoStore.userInfo.avatarUrl,
             zimu: sentence,
             timestamp: Date.now(),
-            meetingId: "123211",
+            meetingId: basicStore.roomId,
             attendeesUid: '["U88888"]',
           });
           socketTask.send({ data: payload });

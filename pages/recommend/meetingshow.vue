@@ -1,4 +1,5 @@
 <template>
+  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
   <view class="meeting-detail">
     <!-- 会议状态卡片 -->
     <view class="status-card">
@@ -143,19 +144,23 @@
     <!-- 底部按钮 -->
     <view class="bottom-buttons">
       <button class="btn join-btn" @click="handleMeetingOption()">
-        {{ this.isHost ? "开始会议" : this.isSignUp ? "加入会议" : "报名会议" }}
+        {{ isHost ? "开始会议" : isSignUp ? "加入会议" : "报名会议" }}
       </button>
       <button class="btn nav-btn" @click="openNavigation">地图导航</button>
     </view>
   </view>
-
 </template>
 
 <script>
 import { useRoomStore } from "../../src/roomkit/TUIRoom/stores/room.ts";
 import { useUserInfoStore } from "../../src/stores/modules/userInfo.ts";
 import router from "../../src/router/index.ts";
-import { getMeetingData, userSignUpMeeting } from "../../src/services/api.ts";
+import {
+  getMeetingData,
+  userSignUpMeeting,
+  getPathPlanning,
+} from "../../src/services/api.ts";
+import { updateMeetingStatus } from "../../src/services/api.ts";
 import { incrementJoinCount } from "../../src/services/api.ts";
 import { get_avatar } from "../../src/services/api.ts";
 export default {
@@ -170,6 +175,28 @@ export default {
     // 获取用户信息
     const userInfoStore = useUserInfoStore();
     this.userId = userInfoStore.userInfo.userId;
+    // 自动加入会议
+    if (option.autoJoin) {
+      uni.showToast({
+        title: "正在加入会议",
+        icon: "loading",
+        duration: 1000,
+      });
+      setTimeout(() => {
+        this.joinMeeting();
+      }, 1000);
+    }
+    // 自动开始会议
+    if (option.autoStart) {
+      uni.showToast({
+        title: "正在开始会议",
+        icon: "loading",
+        duration: 1000,
+      });
+      setTimeout(() => {
+        this.startMeeting();
+      }, 1000);
+    }
   },
 
   data() {
@@ -209,6 +236,15 @@ export default {
     };
   },
   methods: {
+    async handleUpdateMeetingStatus(status) {
+      const meetingId = this.meetingInfo.meetingId;
+      // 调用接口更新会议状态
+      const res = await updateMeetingStatus({
+        meetingId,
+        status,
+      });
+      console.log("修改成功:", res);
+    },
     startMeeting() {
       const roomMode = this.mode;
       const isSeatEnabled = Boolean(roomMode === "SpeakAfterTakingSeat");
@@ -237,6 +273,7 @@ export default {
         roomParam,
       };
       this.setTUIRoomData("enterRoom", roomOption);
+      const meetingTitle = this.meetingInfo.meetingName;
       router.replace({
         path: "/src/roomkit/pages/room",
         query: {
@@ -290,6 +327,8 @@ export default {
           success: ({ confirm, cancel }) => {
             if (confirm) {
               this.startMeeting();
+              // 修改会议状态
+              this.handleUpdateMeetingStatus("Ongoing");
             } else if (cancel) {
               return;
             }
@@ -300,11 +339,11 @@ export default {
           // 用户已经报名会议
           switch (this.meetingInfo.meetingStatus) {
             case "Waiting": {
-              // uni.showToast({
-              //   title: "会议还未开始，请耐心等待",
-              //   icon: "none",
-              // });
-              uni.showModal({
+              uni.showToast({
+                title: "会议还未开始，请耐心等待",
+                icon: "none",
+              });
+              /*  uni.showModal({
                 title: "提示",
                 content: "会议正在进行中，确定加入会议吗",
                 showCancel: true,
@@ -316,7 +355,7 @@ export default {
                     return;
                   }
                 },
-              });
+              }); */
               break;
             }
             case "Ongoing": {
@@ -327,6 +366,12 @@ export default {
                 success: ({ confirm, cancel }) => {
                   if (confirm) {
                     this.joinMeeting();
+                    // 记录用户加入会议
+                    logUserJoinMeeting({
+                      operatorUid: this.userId,
+                      operationType: "加入会议",
+                      meetingUid: this.meetingInfo.meetingId,
+                    });
                   } else if (cancel) {
                     return;
                   }
@@ -374,12 +419,31 @@ export default {
       });
     },
     openNavigation() {
+      // 选择会议地点
+      /* uni.chooseLocation({
+        fail: function (res) {
+          console.log("选择位置失败：" + res.errMsg);
+        },
+        success: function (res) {
+          console.log("选择位置成功：");
+        },
+      }); */
       // 调用地图API进行导航
-      uni.openLocation({
-        latitude: Number(this.meetingInfo.latitude),
-        longitude: Number(this.meetingInfo.longitude),
-        name: this.meetingInfo.meetingLocation,
-        address: this.meetingInfo.meetingLocation,
+      // uni.openLocation({
+      //   // latitude: Number(this.meetingInfo.latitude),
+      //   // longitude: Number(this.meetingInfo.longitude),
+      //   // name: this.meetingInfo.meetingLocation,
+      //   // address: this.meetingInfo.meetingLocation,
+      //   latitude: 39.9085,
+      //   longitude: 116.39747,
+      //   name: "天安门",
+      //   address: "北京市东城区东长安街",
+      //   success: (success) => {
+      //     console.log("导航成功", success);
+      //   },
+      // });
+      uni.navigateTo({
+        url: "/pages/recommend/navigation/navigation",
       });
     },
     formatDate(dateStr) {

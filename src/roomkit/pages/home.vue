@@ -99,7 +99,7 @@ async function handleInit() {
 handleInit();
 </script>
 <template>
-  <kml-agent :x="0" :y="600" :isDock="true"> </kml-agent>
+  <kml-agent :isDock="true"> </kml-agent>
   <div class="home-container">
     <PreConferenceView
       v-model="showRoomDetail"
