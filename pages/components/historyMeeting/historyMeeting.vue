@@ -29,42 +29,17 @@ const convertDateString = (dateStr) => {
 
 const goToMeetingShow = (meetingId) => {
   uni.navigateTo({
-    // url: `/pages/recommend/meetingshow?meetingId=${meetingId}`,
-    url: "/pages/uploadfile/uploadfile?meetingId=M1741876012965&meetingName=南华大学",
+    url: `/pages/recommend/meetingshow?meetingId=${meetingId}`,
   });
 };
-const meetings = ref([
-  {
-    date: "2月20日 周四",
-    title: "梦见离的快速会议",
-    time: "15:22",
-    initiator: "梦见离",
-  },
-  {
-    date: "2月19日 周三",
-    title: "梦见离的快速会议",
-    time: "23:10",
-    initiator: "梦见离",
-  },
-  {
-    date: "2月17日 周一",
-    title: "梦见离的快速会议",
-    time: "19:58",
-    initiator: "梦见离",
-  },
-  {
-    date: "1月2日 周四",
-    title: "梦见离预定的会议",
-    time: "19:51",
-    initiator: "梦见离",
-  },
-  {
-    date: "11月20日 周三",
-    title: "梦见离的快速会议",
-    time: "20:55",
-    initiator: "梦见离",
-  },
-]);
+const uploadFile = (meetingId, meetingName) => {
+  console.log(111);
+  console.log("上传文件：", meetingId, meetingName);
+  uni.navigateTo({
+    url: `/pages/uploadfile/uploadfile?meetingId=${meetingId}&meetingName=${meetingName}`,
+  });
+};
+const meetings = ref([]);
 </script>
 
 <template>
@@ -73,10 +48,9 @@ const meetings = ref([
     <view
       v-for="(meeting, index) in hostedMeetingInfo"
       :key="index"
-      @tap="goToMeetingShow(meeting.meetingId)"
       class="meeting-item">
       <view class="date">{{ convertDateString(meeting.startTime) }}</view>
-      <view class="meeting-details">
+      <view class="meeting-details" @tap="goToMeetingShow(meeting.meetingId)">
         <view class="meeting-title">{{ meeting.meetingName }}</view>
         <view class="meeting-info">
           <view class="info-item">
@@ -89,12 +63,17 @@ const meetings = ref([
           </view>
         </view>
       </view>
-      <uni-icons type="more" size="18" color="#999" class="more-icon" />
+      <view
+        @tap="uploadFile(meeting.meetingId, meeting.meetingName)"
+        class="upload">
+        <uni-icons type="folder-add" size="24" color="#999" class="more-icon" />
+        <text class="upload-text">上传附件</text>
+      </view>
     </view>
   </view>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 /* 会议列表 */
 .meeting-list {
   margin-top: 16px;
@@ -109,6 +88,18 @@ const meetings = ref([
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s;
+  .upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    margin-left: 16px;
+    .upload-text {
+      // text-align: center;
+      font-size: 20rpx;
+    }
+  }
 }
 
 .meeting-item:hover {
@@ -152,7 +143,6 @@ const meetings = ref([
 }
 
 .more-icon {
-  margin-left: 16px;
   cursor: pointer;
   transition: color 0.2s;
 }

@@ -23,10 +23,12 @@
           <text class="card-date">{{ currentDate }}</text>
         </view>
       </view>
-
-      <view class="card-desc">
+      <zero-markdown-view
+        class="card-desc"
+        :markdown="travelAdvice"></zero-markdown-view>
+      <!-- <view class="card-desc">
         <text>{{ travelAdvice }}</text>
-      </view>
+      </view> -->
 
       <view class="card-footer">
         <view class="left-tags">

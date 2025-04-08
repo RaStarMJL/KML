@@ -37,7 +37,7 @@
     </div>
     <room-control
       ref="roomControlRef"
-      :user-name="props.userInfo.userName"
+      :user-name="props.userInfo? props.userInfo.userName : ''"
       @create-room="handleCreateRoom"
       @enter-room="handleEnterRoom">
     </room-control>

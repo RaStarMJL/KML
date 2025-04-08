@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import { onLoad, onShow } from "@dcloudio/uni-app";
-import { recommendListdata, swiperListdata } from "./assets/data";
 import tabbar from "/pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { getRecommendList } from "../../src/services/api";
 import { getSwiperData } from "../../src/services/api";
-import xiaoYiAgent from "/pages/components/xiaoYiAgent/index.vue";
 import { incrementClickCount } from "../../src/services/api";
 
 // 定义轮播图数据接口
@@ -45,9 +43,9 @@ const defaultCover = "/src/static/images/cover.jpg";
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
 // 使用定义的接口类型
-const swiperList = ref(swiperListdata);
+const swiperList = ref([]);
 const allrecommendList = ref();
-const recommendList = ref();
+const recommendList = ref([]);
 const userInfo = ref();
 const userInfoStore = useUserInfoStore();
 const isDot = computed(() => userInfoStore.isunread);
@@ -62,8 +60,17 @@ const recommendSwiperData = ref();
 onShow(() => {
   const userInfoStore = useUserInfoStore();
   userInfo.value = userInfoStore.userInfo;
-  // 获取用户推荐会议列表
-  getRecommendListData();
+  if (userInfo.value) {
+    // 获取用户推荐会议列表;
+    getRecommendListData(0);
+  } else {
+    // getRecommendListData(1);
+    uni.showToast({
+      title: "请先登录账号，以获取最佳推荐会议",
+      icon: "none",
+      duration: 3000,
+    });
+  }
   // 获取推荐会议轮播图列表
   getSwiperData_();
 });
@@ -108,9 +115,13 @@ const backToTop = () => {
 
 // 已结束标记
 const finish = ref(true);
-const getRecommendListData = async () => {
-  const res = await getRecommendList(userInfo.value.userId);
-  console.log(res);
+const getRecommendListData = async (t) => {
+  let res;
+  if (t) {
+    res = await getRecommendList("99623");
+  } else {
+    res = await getRecommendList(userInfo.value.userId);
+  }
   recommendList.value = res.data;
 };
 const onRefresh = () => {};

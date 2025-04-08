@@ -123,7 +123,7 @@
 <script>
 import { aicheckout } from "@/src/services/api";
 import { get_localsign } from "@/src/services/api";
-import axios from "axios";
+import { baseURL } from "/src/utils/http";
 export default {
   data() {
     return {
@@ -239,10 +239,10 @@ export default {
             const sid = this.generateUUID();
             console.log("sid:", sid);
 
+            // #region ---------------------- 非流式请求 start ------------------
             // 调用文档检索接口
-            /*             const res2 = await uni.request({
+            const res2 = await uni.request({
               url: "https://www.das-ai.com/open/api/v2/document/chat",
-              timeout: 600000,
               method: "POST",
               header: {
                 "Content-Type": "application/json",
@@ -260,8 +260,40 @@ export default {
                 query: userInput,
                 stream: false,
               },
-            }); */
-            const response = await fetch(
+            });
+            // 隐藏加载状态
+            uni.hideLoading();
+
+            console.log("文档检索响应:", res2);
+
+            // 检查响应格式并提取内容
+            if (res2.data && res2.data.data && res2.data.data.content) {
+              const content = res2.data.data.content;
+              console.log("文档检索结果内容:", content);
+
+              // 创建AI回复消息对象
+              const aiMessage = {
+                type: "ai",
+                content: content,
+                liked: false,
+                disliked: false,
+                time: new Date(),
+              };
+
+              // 添加AI回复到列表
+              this.messages = [...this.messages, aiMessage];
+
+              // 再次滚动到底部
+              this.$nextTick(() => {
+                this.scrollToBottom();
+              });
+            } else {
+              throw new Error("文档检索结果格式不正确");
+            }
+            // #endregion ------------------- 非流式请求 end --------------------
+
+            // #region ---------------------- 流式请求 start ------------------
+            /* const response = await fetch(
               "https://www.das-ai.com/open/api/v2/document/chat",
               {
                 method: "POST",
@@ -283,7 +315,7 @@ export default {
             // 创建AI回复消息对象
             const aiMessage = {
               type: "ai",
-              content: "",
+              content: '',
               liked: false,
               disliked: false,
               time: new Date(),
@@ -318,7 +350,8 @@ export default {
             // 最后检查 buffer 是否还有未解析的数据
             if (buffer.trim()) {
               console.warn("未解析的剩余数据:", buffer);
-            }
+            } */
+            // #endregion -------------------流式请求代码 end --------------------
           } catch (error) {
             // 处理文档检索过程中的错误
             console.error("文档检索过程错误:", error);
@@ -368,7 +401,7 @@ export default {
 
             // 调用文档创作接口
             const res2 = await uni.request({
-              url: "http://192.168.31.115:5000/aiFile/creation",
+              url: baseURL + "aiFile/creation",
               timeout: 60000, // 设置60秒超时
               method: "POST",
               // header: {

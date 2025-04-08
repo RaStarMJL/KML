@@ -56,8 +56,15 @@
         @touchstart="touchStart($event, index)"
         @touchmove="touchMove($event, index)"
         @touchend="touchEnd($event, index)">
-        <view class="note-content-wrapper" :style="{ transform: `translateX(${note.offset || 0}px)` }">
-          <view class="note-tag" :class="{ ai: note.noteType === 'ai' , manual: note.noteType === 'manual'}"></view>
+        <view
+          class="note-content-wrapper"
+          :style="{ transform: `translateX(${note.offset || 0}px)` }">
+          <view
+            class="note-tag"
+            :class="{
+              ai: note.noteType === 'ai',
+              manual: note.noteType === 'manual',
+            }"></view>
           <view class="note-content" @click="viewNoteDetail(note)">
             <view class="note-header">
               <text class="note-title">{{ note.meetingName }}</text>
@@ -69,7 +76,9 @@
                 <view class="meta-item ai-badge" v-if="note.noteType === 'ai'">
                   <text>AI总结</text>
                 </view>
-                <view class="meta-item manual-badge" v-if="note.noteType === 'manual'">
+                <view
+                  class="meta-item manual-badge"
+                  v-if="note.noteType === 'manual'">
                   <text>手动记录</text>
                 </view>
                 <view class="meta-item">
@@ -77,7 +86,10 @@
                   <text>{{ note.time }}分钟</text>
                 </view>
                 <view class="meta-item">
-                  <uni-icons type="personadd" size="14" color="#666"></uni-icons>
+                  <uni-icons
+                    type="personadd"
+                    size="14"
+                    color="#666"></uni-icons>
                   <text>{{ note.numAttendees }}人参与</text>
                 </view>
               </view>
@@ -106,9 +118,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { api_getNoteList, api_deleteNote } from "@/src/services/api";
+import { baseURL } from "/src/utils/http";
 
 interface Note {
   meetingId: string;
@@ -129,8 +142,8 @@ const userInfoStore = useUserInfoStore();
 const userId = userInfoStore.userInfo?.userId;
 
 const showSearch = ref(false);
-const searchText = ref('');
-const activeCategory = ref('all');
+const searchText = ref("");
+const activeCategory = ref("all");
 const notes = ref<Note[]>([]);
 
 // 添加触摸相关的变量
@@ -140,7 +153,6 @@ const isTouching = ref(false);
 // 获取笔记列表
 const getNotes = async () => {
   try {
-    
     const response = await api_getNoteList(userId);
     console.log(response);
     if (response.code === 1) {
@@ -148,15 +160,15 @@ const getNotes = async () => {
       showSearch.value = true;
     } else {
       uni.showToast({
-        title: '获取笔记失败',
-        icon: 'none'
+        title: "获取笔记失败",
+        icon: "none",
       });
     }
   } catch (error) {
-    console.error('获取笔记失败:', error);
+    console.error("获取笔记失败:", error);
     uni.showToast({
-      title: '获取笔记失败',
-      icon: 'none'
+      title: "获取笔记失败",
+      icon: "none",
     });
   }
 };
@@ -166,29 +178,36 @@ const filteredNotes = computed(() => {
   let result = notes.value;
 
   // 按分类筛选
-  if (activeCategory.value === 'ai') {
-    result = result.filter(note => note.noteType === 'ai');
-  } else if (activeCategory.value === 'manual') {
-    result = result.filter(note => note.noteType !== 'ai');
+  if (activeCategory.value === "ai") {
+    result = result.filter((note) => note.noteType === "ai");
+  } else if (activeCategory.value === "manual") {
+    result = result.filter((note) => note.noteType !== "ai");
   }
 
   // 按搜索文本筛选
   if (searchText.value) {
     const searchLower = searchText.value.toLowerCase();
-    result = result.filter(note =>
-      note.content.toLowerCase().includes(searchLower) ||
-      note.meetingName.toLowerCase().includes(searchLower)
+    result = result.filter(
+      (note) =>
+        note.content.toLowerCase().includes(searchLower) ||
+        note.meetingName.toLowerCase().includes(searchLower)
     );
   }
 
   // 按日期排序（最新的在前面）
-  return result.sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime());
+  return result.sort(
+    (a, b) =>
+      new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
+  );
 });
 
 // 格式化日期
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
-  return `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+  return `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date
+    .getDate()
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 // 筛选分类
@@ -213,8 +232,6 @@ const viewNoteDetail = (note: Note) => {
   });
 };
 
-
-
 /////滑动删除代码
 // 触摸开始
 const touchStart = (event: TouchEvent, index: number) => {
@@ -231,14 +248,16 @@ const touchStart = (event: TouchEvent, index: number) => {
 // 触摸移动
 const touchMove = (event: TouchEvent, index: number) => {
   if (!isTouching.value) return;
-  
+
   const moveX = event.touches[0].clientX;
   const deltaX = moveX - startX.value;
-  
+
   // 限制只能向左滑动，最大滑动距离为删除按钮宽度
   const offset = Math.min(Math.max(deltaX, -80), 0);
   // 找到原始数组中对应的笔记
-  const originalIndex = notes.value.findIndex(note => note.noteId === filteredNotes.value[index].noteId);
+  const originalIndex = notes.value.findIndex(
+    (note) => note.noteId === filteredNotes.value[index].noteId
+  );
   if (originalIndex !== -1) {
     notes.value[originalIndex].offset = offset;
   }
@@ -247,9 +266,11 @@ const touchMove = (event: TouchEvent, index: number) => {
 // 触摸结束
 const touchEnd = (event: TouchEvent, index: number) => {
   if (!isTouching.value) return;
-  
+
   // 找到原始数组中对应的笔记
-  const originalIndex = notes.value.findIndex(note => note.noteId === filteredNotes.value[index].noteId);
+  const originalIndex = notes.value.findIndex(
+    (note) => note.noteId === filteredNotes.value[index].noteId
+  );
   if (originalIndex !== -1) {
     const note = notes.value[originalIndex];
     const offset = note.offset || 0;
@@ -268,98 +289,96 @@ const touchEnd = (event: TouchEvent, index: number) => {
 const deleteNote = async (note: Note, index: number) => {
   try {
     uni.showModal({
-      title: '确认删除',
-      content: '确定要删除这条笔记吗？',
+      title: "确认删除",
+      content: "确定要删除这条笔记吗？",
       success: async (res) => {
         if (res.confirm) {
-            const response = await api_deleteNote(note.noteId);
+          const response = await api_deleteNote(note.noteId);
 
           if (response.code === 1) {
             // 找到原始数组中对应的笔记并删除
-            const originalIndex = notes.value.findIndex(n => n.noteId === note.noteId);
+            const originalIndex = notes.value.findIndex(
+              (n) => n.noteId === note.noteId
+            );
             if (originalIndex !== -1) {
               notes.value.splice(originalIndex, 1);
             }
             uni.showToast({
-              title: '删除成功',
-              icon: 'success'
+              title: "删除成功",
+              icon: "success",
             });
           } else {
-            throw new Error(response.msg || '删除失败');
+            throw new Error(response.msg || "删除失败");
           }
         }
-      }
+      },
     });
   } catch (error) {
-    console.error('删除笔记失败:', error);
+    console.error("删除笔记失败:", error);
     uni.showToast({
-      title: error.message || '删除失败',
-      icon: 'none'
+      title: error.message || "删除失败",
+      icon: "none",
     });
   }
 };
 /////滑动删除代码结束
-
 
 // 创建新笔记  此功能已经废弃
 const createNewNote = async () => {
   try {
     if (!userId) {
       uni.showToast({
-        title: '请先登录',
-        icon: 'none'
+        title: "请先登录",
+        icon: "none",
       });
       return;
     }
 
     // 弹出输入框获取笔记内容  需要再写一个弹窗组件
     const res = await uni.showModal({
-      title: '创建笔记',
+      title: "创建笔记",
       editable: true,
-      placeholderText: '请输入笔记内容'
+      placeholderText: "请输入笔记内容",
     });
 
     if (res.confirm && res.content) {
       const noteData = {
         meetingId: Date.now().toString(), // 使用时间戳作为临时会议ID
         userId: userId,
-        subtitleContent: 's', // 手动创建的笔记没有字幕内容
-        noteType: 'manual', // 设置为手动类型
-        content: res.content
+        subtitleContent: "s", // 手动创建的笔记没有字幕内容
+        noteType: "manual", // 设置为手动类型
+        content: res.content,
       };
- 
+
       console.log(noteData);
 
       const response = await uni.request({
-        url: 'http://192.168.31.115:5000/meetingnote/info',
-        method: 'POST',
-        data: noteData
+        url: baseURL + "meetingnote/info",
+        method: "POST",
+        data: noteData,
       });
 
       console.log(response);
 
       if (response.data.code === 1) {
         uni.showToast({
-          title: '创建成功',
-          icon: 'success'
+          title: "创建成功",
+          icon: "success",
         });
         // 刷新笔记列表
         getNotes();
       } else {
-        throw new Error(response.data.msg || '创建失败');
+        throw new Error(response.data.msg || "创建失败");
       }
     }
   } catch (error) {
-    console.error('创建笔记失败:', error);
+    console.error("创建笔记失败:", error);
     uni.showToast({
-      title: error.message || '创建失败',
-      icon: 'none'
+      title: error.message || "创建失败",
+      icon: "none",
     });
   }
 };
-
-
-
 
 // 页面加载时获取笔记列表
 getNotes();
@@ -417,7 +436,7 @@ getNotes();
     font-size: 28rpx;
     margin: 0 20rpx;
     color: #333;
-    
+
     &::placeholder {
       color: #999;
     }
