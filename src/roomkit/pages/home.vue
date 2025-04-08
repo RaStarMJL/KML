@@ -16,11 +16,7 @@ onBackPress(() => {});
 const { safeAreaInsets } = uni.getSystemInfoSync();
 
 const userInfoStore = useUserInfoStore();
-const userInfo = ref({
-  userId: userInfoStore.userInfo.userId,
-  userName: userInfoStore.userInfo.userName,
-  avatarUrl: userInfoStore.userInfo.avatarUrl,
-});
+const userInfo = ref(userInfoStore.userInfo);
 
 const basicStore = useBasicStore();
 

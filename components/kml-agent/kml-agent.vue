@@ -1,6 +1,6 @@
 <template>
   <view
-    v-if="isShow"
+    v-if="isShow && userInfoStore.isLoggedIn"
     id="drag_view"
     class="drag"
     :style="'left: ' + left + 'px; top:' + top + 'px;'"

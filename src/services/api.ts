@@ -9,6 +9,15 @@ export const login = (data: any) => {
   });
 };
 
+// 注册接口
+export const register = (data: any) => {
+  return http({
+    url: "login",
+    method: "POST",
+    data,
+  });
+};
+
 // 根据会议号获取会议数据
 export const getMeetingData = (meetingId: string) => {
   return http({
@@ -300,6 +309,69 @@ export const api_getHistoryMeetings = (userId) => {
 export const api_getUserHostedMeetings = (userId) => {
   return http({
     url: `user/hostmeets?UserId=${userId}`,
+    method: "GET",
+  });
+};
+
+// 处理签到
+export const api_handleSignIn = (data) => {
+  /**
+   * @param {string} data.meetingId 会议ID
+   * @param {string} data.userId 用户ID
+   * @param {string} data.signInTime 签到时间
+   *
+   **/
+  return http({
+    url: "meetingSign/updateSign",
+    method: "POST",
+    data,
+  });
+};
+
+// 获取签到状态
+export const api_getSignStatus = (meetingId) => {
+  return http({
+    url: `meetingSign?meetingId=${meetingId.value}`,
+    method: "GET",
+  });
+};
+
+// 提交请假说明
+export const api_submitAbsence = (data) => {
+  /**
+   * @param {string} data.meetingId 会议ID
+   * @param {string} data.participantUid 用户ID
+   * @param {string} data.absenceReason 请假原因
+   *
+   **/
+  return http({
+    url: "meetingSign/updateAbsence",
+    method: "POST",
+    data,
+  });
+};
+
+// 删除消息
+export const api_deleteMessage = (id) => {
+  return http({
+    url: "PushNotification/deleteUserMessageReceive?id=" + id,
+    method: "DELETE",
+  });
+};
+
+// 创建笔记
+export const api_createNote = (data) => {
+  return http({
+    url: "meetingnote/info",
+    method: "POST",
+    data,
+  });
+};
+
+// 获取云端会议回放列表
+export const api_getCloudVideoList = (meetingId) => {
+  return http({
+    url: "api/trtc/getreplaylist",
     method: "GET",
   });
 };

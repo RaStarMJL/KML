@@ -127,6 +127,7 @@ import {
   hostStartSign,
   getRemainingTime,
 } from "../../../services/api";
+import { baseURL } from "/src/utils/http";
 
 interface SignRecord {
   meetingId: string;
@@ -261,7 +262,7 @@ const startSign = async () => {
 const handleSign = async () => {
   try {
     const response = await uni.request({
-      url: "http://192.168.31.115:5000/meetingSign/updateSign",
+      url: baseURL + "meetingSign/updateSign",
       method: "POST",
       data: {
         meetingId: meetingId.value,

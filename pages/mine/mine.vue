@@ -280,12 +280,6 @@ const calculateScreenHeight = () => {};
             </view>
             <text class="feature-text">历史</text>
           </view>
-          <view class="feature-item" @click="To('map')">
-            <view class="feature-icon-wrapper">
-              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
-            </view>
-            <text class="feature-text">地图</text>
-          </view>
         </view>
       </view>
 
