@@ -139,6 +139,17 @@
         <uni-icons type="file" color="" size="24" class="title-icon" />
         会议附件
       </view>
+      <view v-if="attachments.length < 1">
+        <text>暂无附件</text>
+      </view>
+      <view v-else class="attachments-list">
+        <view v-for="(file, index) in attachments" :key="index" class="attachment-item">
+          <view class="file-icon" :class="getFileClass(file.attachmentType)">
+            <image :src="getFileIconSrc(file.attachmentType)" mode="aspectFit" class="icon-image"></image>
+          </view>
+          <text class="file-name">{{ file.attachmentName || getFileName(file.fileId) }}</text>
+        </view>
+      </view>
     </view>
 
     <!-- 底部按钮 -->
@@ -164,6 +175,7 @@ import {
 import { updateMeetingStatus } from "../../src/services/api.ts";
 import { incrementJoinCount } from "../../src/services/api.ts";
 import { get_avatar } from "../../src/services/api.ts";
+import { api_getMeetingDetail } from "../../src/services/api.ts";
 export default {
   onLoad: function (option) {
     // 获取meetingId
@@ -171,6 +183,8 @@ export default {
     console.log("meetingId:", this.meetingInfo.meetingId);
     // 获取会议数据
     this.fetchMeetingInfo();
+    // 获取会议附件
+    this.getMeetingAttachments();
     // 获取房间信息
     this.roomStore = useRoomStore();
     // 获取用户信息
@@ -234,6 +248,7 @@ export default {
       roomStore: null,
       userId: "",
       attendeesAvatar: [],
+      attachments: [],
     };
   },
   methods: {
@@ -463,6 +478,62 @@ export default {
       const end = new Date(this.meetingInfo.endTime);
       const hours = Math.round((end - start) / (1000 * 60 * 60));
       return `${hours}小时`;
+    },
+
+
+    //获取会议附件
+    async getMeetingAttachments() {
+      try {
+        const res = await api_getMeetingDetail(this.meetingInfo.meetingId);
+        if (res.code === 1) {
+          this.attachments = res.data;
+        }
+      } catch (error) {
+        console.error('获取会议附件失败:', error);
+        uni.showToast({
+          title: '获取附件失败',
+          icon: 'none'
+        });
+      }
+    },
+
+    // 获取文件图标路径
+    getFileIconSrc(type) {
+      switch(type?.toLowerCase()) {
+        case 'pdf':
+          return '/src/static/images/pdf.png';
+        case 'doc':
+        case 'docx':
+          return '/src/static/images/word.png';
+        case 'ppt':
+        case 'pptx':
+          return '/src/static/images/ppt.png';
+        default:
+          return '/src/static/images/file.png';
+      }
+    },
+
+    // 获取文件样式类
+    getFileClass(type) {
+      switch(type?.toLowerCase()) {
+        case 'pdf':
+          return 'pdf-file';
+        case 'doc':
+        case 'docx':
+          return 'word-file';
+        case 'ppt':
+        case 'pptx':
+          return 'ppt-file';
+        default:
+          return 'default-file';
+      }
+    },
+
+    // 从fileId中提取文件名
+    getFileName(fileId) {
+      if (!fileId) return '未知文件';
+      const match = fileId.match(/file:(.*?)</);
+      return match ? match[1] : '未知文件';
     },
   },
   computed: {
@@ -781,5 +852,64 @@ export default {
     color: #2b58f9;
     border: 2rpx solid #2b58f9;
   }
+}
+
+.attachments-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  padding: 10rpx;
+}
+
+.attachment-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140rpx;
+  margin-bottom: 20rpx;
+}
+
+.file-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+  transition: transform 0.3s ease;
+  
+  &.pdf-file {
+    background: linear-gradient(135deg, #FF5252, #FF1744);
+  }
+  
+  &.word-file {
+    background: linear-gradient(135deg, #2B579A, #4285F4);
+  }
+  
+  &.ppt-file {
+    background: linear-gradient(135deg, #C43E1C, #FF8F00);
+  }
+  
+  &.default-file {
+    background: linear-gradient(135deg, #757575, #9E9E9E);
+  }
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.file-name {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
 }
 </style>

@@ -120,7 +120,7 @@
     {
       "path": "pages/mine/aidetail/aimanage",
       "style": {
-        "navigationBarTitleText": "功能用例"
+        "navigationBarTitleText": "通用型智能体"
       }
     },
     {

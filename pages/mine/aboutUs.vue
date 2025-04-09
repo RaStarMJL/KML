@@ -58,19 +58,19 @@
 						avatar: '/src/static/images/mc.jpg',
 						name: '马超',
 						role: '后端开发',
-						description: '负责服务器端开发和数据库设计，确保系统的稳定性和安全性。精通后端架构设计和API开发。'
+						description: '主要负责服务器后端开发、AI Agent设计、算法设计，确保Agent的高可用性与能力拓展，具有丰富的后端开发以及prompt模板设计经验。'
 					},
 					{
 						avatar: '/src/static/images/lzx.jpg',
 						name: '刘子璇',
-						role: '',
-						description: ''
+						role: '管理端前端',
+						description: '前端开发 协助项目的前端开发，擅长使用Echarts和DataV等实现数据可视化，主要负责管理端的编写。'
 					},
 					{
 						avatar: '/src/static/images/zzy.jpg',
 						name: '周政月',
-						role: '',
-						description: ''	
+						role: '管理端后端',
+						description: '协助项目的后端开发，擅长NLP语义处理，PyTorch等，主要负责数据处理和模型的训练与调参。'	
 					}
 				]
 			}

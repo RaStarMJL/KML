@@ -375,3 +375,12 @@ export const api_getCloudVideoList = (meetingId) => {
     method: "GET",
   });
 };
+
+
+export const api_getMeetingDetail = (meetingId) => {
+  return http({
+    url: `aiFile/getFile?meetingId=${meetingId}`,
+    method: "GET",
+  });
+};
+
