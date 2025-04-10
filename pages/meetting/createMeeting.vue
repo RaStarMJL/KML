@@ -171,6 +171,7 @@
 
 <script>
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
+import{ baseURL } from "/src/utils/http";
 
 export default {
   data() {
@@ -413,7 +414,7 @@ export default {
         // 发送请求
         const response = await new Promise((resolve, reject) => {
           uni.uploadFile({
-            url: "http://192.168.31.115:5000/user/hostmeetings",
+            url: baseURL + "user/hostmeetings",
             filePath: this.imagePreview,
             name: "meetingImage", // 与后端 MultipartFile meetingImage 字段对应
             formData: {

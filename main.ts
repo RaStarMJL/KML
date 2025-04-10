@@ -3,12 +3,13 @@ import App from "./App.vue";
 import * as Pinia from "pinia";
 import pinia from "./src/stores";
 import { useUserInfoStore } from "./src/stores";
+import { socketBaseURL } from "./src/utils/http";
 export function createApp() {
   const app = createSSRApp(App);
   app.use(pinia);
   // 初始化 WebSocket 连接
   uni.connectSocket({
-    url: "ws://192.168.31.115:5000/socket",
+    url: socketBaseURL,
     success() {
       console.log("WebSocket连接已建立");
     },

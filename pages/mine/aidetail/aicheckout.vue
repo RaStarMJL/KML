@@ -233,7 +233,7 @@ export default {
             }
 
             const localsign = signRes.data;
-            console.log("成功获取到签名.....");
+            console.log("成功获取到签名.....",localsign);
 
             // 使用UUID格式生成sid
             const sid = this.generateUUID();
@@ -393,7 +393,7 @@ export default {
             }
 
             const localsign = signRes.data;
-            console.log("成功获取到签名.....");
+            console.log("成功获取到签名.....", localsign);
 
             // 使用UUID格式生成sid
             const sid = this.generateUUID();

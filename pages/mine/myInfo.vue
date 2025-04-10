@@ -42,7 +42,7 @@
 import { ref } from 'vue';
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { change_userInfo } from "/src/services/api";
-
+import { baseURL } from "/src/utils/http";
 interface UserInfo {
 	username: string;
 	signature: string;
@@ -192,7 +192,7 @@ const changeBackground = async () => {
 
 		// 发送请求
 		const response = await uni.uploadFile({
-			url: 'http://192.168.31.115:5000/user',
+			url: baseURL + 'user',
 			filePath: res.tempFilePaths[0],
 			name: 'file',
 			method: 'PUT'
@@ -250,7 +250,7 @@ const changeAvatar = async () => {
 
 		// 发送请求
 		const response = await uni.uploadFile({
-			url: 'http://192.168.31.115:5000/user',
+			url: baseURL + 'user',
 			filePath: res.tempFilePaths[0],
 			name: 'file',
 			method: 'PUT'

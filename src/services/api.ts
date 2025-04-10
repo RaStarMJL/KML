@@ -69,6 +69,8 @@ export const get_localsign = (data: any) => {
   });
 };
 
+
+
 export const get_message = (data: any) => {
   return http({
     url: `PushNotification/getmessage?UserId=${data.UserId}`,
@@ -381,6 +383,24 @@ export const api_getMeetingDetail = (meetingId) => {
   return http({
     url: `aiFile/getFile?meetingId=${meetingId}`,
     method: "GET",
+  });
+};
+
+
+// 下载文件
+export const api_downloadFile = (fileId: string, localsign: string) => {
+  console.log('本地签名', localsign);
+  return http({
+    url: 'https://www.das-ai.com/open/api/v2/agent/file/download',
+    method: "POST",
+    headers: {
+      Accept: 'application/octet-stream',
+      appKey: 'hengnaozYW3SnQJNy5hIzs2pp8w',
+      sign: localsign,
+    },
+    body: {
+      fileId,
+    },
   });
 };
 

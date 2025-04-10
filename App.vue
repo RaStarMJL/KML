@@ -1,4 +1,5 @@
 <script>
+import { baseURL } from "/src/utils/http";
 export default {
   globalData: {
     // 全局变量
@@ -9,7 +10,7 @@ export default {
   },
   methods: {
     playAudioInApp(text) {
-      const audioUrl = `http://192.168.31.115:5000/ai/audioDataToFile?text=${text}`;
+      const audioUrl = baseURL + `ai/audioDataToFile?text=${text}`;
 
       // 直接播放远程音频
       const audioCtx = uni.createInnerAudioContext();

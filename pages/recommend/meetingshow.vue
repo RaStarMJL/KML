@@ -145,7 +145,7 @@
       <view v-else class="attachments-list">
         <view v-for="(file, index) in attachments" :key="index" class="attachment-item">
           <view class="file-icon" :class="getFileClass(file.attachmentType)">
-            <image :src="getFileIconSrc(file.attachmentType)" mode="aspectFit" class="icon-image"></image>
+            <image :src="getFileIconSrc(file.attachmentType)" mode="aspectFit" class="icon-image" @click="downloadFile(file.fileId)"></image>
           </view>
           <text class="file-name">{{ file.attachmentName || getFileName(file.fileId) }}</text>
         </view>
@@ -176,8 +176,13 @@ import { updateMeetingStatus } from "../../src/services/api.ts";
 import { incrementJoinCount } from "../../src/services/api.ts";
 import { get_avatar } from "../../src/services/api.ts";
 import { api_getMeetingDetail } from "../../src/services/api.ts";
+import { api_downloadFile } from "../../src/services/api.ts";
+import { get_localsign } from "../../src/services/api.ts";
+
+
 export default {
   onLoad: function (option) {
+
     // 获取meetingId
     this.meetingInfo.meetingId = option.meetingId;
     console.log("meetingId:", this.meetingInfo.meetingId);
@@ -249,6 +254,8 @@ export default {
       userId: "",
       attendeesAvatar: [],
       attachments: [],
+      localsign: "",
+      
     };
   },
   methods: {
@@ -494,6 +501,151 @@ export default {
           title: '获取附件失败',
           icon: 'none'
         });
+      }
+    },
+
+     
+    // 下载文件
+    async downloadFile(fileId) {
+      try {
+        // 1. 获取本地签名
+        const signRes = await get_localsign({
+          key: 'hengnaozYW3SnQJNy5hIzs2pp8w',
+          secret: 'ytr013e66pdjdf5fns5j0ca8u2c5hu41'
+        });
+        
+        if (!signRes || !signRes.data) {
+          uni.showToast({
+            title: '获取签名失败',
+            icon: 'none'
+          });
+          return;
+        }
+
+        const localsign = signRes.data;
+        console.log('获取到的本地签名:', localsign);
+
+        // 2. 显示下载中提示
+        uni.showLoading({
+          title: '文件下载中...'
+        });
+
+        // 3. 获取文件流数据
+        const fileData = await uni.request({
+          url: 'http://43.136.59.8:80/fileDownload?fileId=' + fileId, 
+          method: 'GET',
+        });
+
+        console.log('获取到的文件数据:', fileData);
+
+        if (fileData.statusCode === 200 && fileData.data) {
+          // 从fileId中提取文件名
+          const fileNameMatch = fileId.match(/file:(.*?)</);
+          const fileName = fileNameMatch ? fileNameMatch[1] : `file_${Date.now()}.pdf`;
+          
+          // 使用plus.io API保存文件
+          plus.io.requestFileSystem(plus.io.PRIVATE_WWW, (fs) => {
+            // 获取下载目录
+            plus.io.resolveLocalFileSystemURL('_downloads', (entry) => {
+              // 创建文件
+              entry.getFile(fileName, { create: true }, (fileEntry) => {
+                // 创建文件写入器
+                fileEntry.createWriter((writer) => {
+                  // 写入数据
+                  writer.write(fileData.data);
+                  writer.onwrite = () => {
+                    console.log('文件写入成功');
+                    uni.hideLoading();
+                    uni.showToast({
+                      title: '文件已保存',
+                      icon: 'success'
+                    });
+
+                    // 尝试打开文件
+                    plus.io.resolveLocalFileSystemURL(fileEntry.fullPath, (entry) => {
+                      plus.io.openFile(entry, (error) => {
+                        if (error) {
+                          console.error('打开文件失败:', error);
+                          uni.showToast({
+                            title: '文件已保存，但无法打开',
+                            icon: 'none'
+                          });
+                        } else {
+                          console.log('文件打开成功');
+                        }
+                      });
+                    });
+                  };
+                  writer.onerror = (error) => {
+                    uni.hideLoading();
+                    console.error('写入文件失败:', error);
+                    uni.showToast({
+                      title: '写入文件失败',
+                      icon: 'none'
+                    });
+                  };
+                }, (error) => {
+                  uni.hideLoading();
+                  console.error('创建写入器失败:', error);
+                  uni.showToast({
+                    title: '创建文件失败',
+                    icon: 'none'
+                  });
+                });
+              }, (error) => {
+                uni.hideLoading();
+                console.error('创建文件失败:', error);
+                uni.showToast({
+                  title: '创建文件失败',
+                  icon: 'none'
+                });
+              });
+            }, (error) => {
+              uni.hideLoading();
+              console.error('获取下载目录失败:', error);
+              uni.showToast({
+                title: '获取下载目录失败',
+                icon: 'none'
+              });
+            });
+          }, (error) => {
+            uni.hideLoading();
+            console.error('请求文件系统失败:', error);
+            uni.showToast({
+              title: '文件系统错误',
+              icon: 'none'
+            });
+          });
+        } else {
+          uni.hideLoading();
+          uni.showToast({
+            title: '获取文件数据失败',
+            icon: 'none'
+          });
+        }
+      } catch (error) {
+        uni.hideLoading();
+        console.error('下载文件错误:', error);
+        uni.showToast({
+          title: '下载过程中出现错误',
+          icon: 'none'
+        });
+      }
+    },
+
+    // 获取文件MIME类型
+    getMimeType(fileType) {
+      switch(fileType.toLowerCase()) {
+        case 'pdf':
+          return 'application/pdf';
+        case 'doc':
+        case 'docx':
+          return 'application/msword';
+        case 'ppt':
+        case 'pptx':
+          return 'application/vnd.ms-powerpoint';
+        default:
+          return 'application/octet-stream';
       }
     },
 
