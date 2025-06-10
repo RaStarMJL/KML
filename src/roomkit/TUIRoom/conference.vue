@@ -79,6 +79,7 @@ import * as SpeechRealTimeTrans from "../../../uni_modules/bsf-baidu-realtime-sp
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { useTranSettingStore } from "../../stores/modules/tranSetting";
 import { aimanage, getMeetingData } from "/src/services/api.ts";
+import { baiduTranslate } from "../../assets/config/config";
 // #endregion ------------------- 导包 end --------------------
 
 const clickButton = () => {
@@ -98,7 +99,8 @@ const handleGetMeetingData = async () => {
 };
 // #region ---------------------- 智能体 start ------------------
 const outContent = ref("");
-const generateSummary = () => {
+const meetingName = inject("meetingTitle");
+const generateSummary = async () => {
   console.log("生成总结");
   if (!totalSpeakerInfo.value[hostId.value]) {
     uni.showToast({
@@ -107,7 +109,20 @@ const generateSummary = () => {
     });
     return;
   }
-  outContent.value = "小智正在努力为您生成会议总结，请稍等...";
+  outContent.value = "正在努力为您生成会议总结，请稍等...";
+  const input =
+    "会议名称:" +
+    meetingName +
+    "字幕内容:" +
+    totalSpeakerInfo.value[hostId.value].totalSentence +
+    "请你根据以上会议内容帮我自动总结会议";
+  const res = await aimanage({
+    sid: "550e8400-e29b-41d4-a716-446655440000",
+    id: "ec6ed326-ab26-4aa2-87ac-fac05e622409",
+    input,
+  });
+  console.log("生成会议总结成功:", res);
+  outContent.value = res.data.answer;
 };
 const generateNote = async () => {
   const userId = roomStore.localUser.userId;
@@ -119,7 +134,7 @@ const generateNote = async () => {
     });
     return;
   }
-  outContent.value = "小智正在努力为您生成会议笔记，请稍等...";
+  outContent.value = "正在努力为您生成会议笔记，请稍等...";
   const hostTotalSentence = totalSpeakerInfo.value[hostId.value].totalSentence;
   console.log(
     "生成笔记:userId:" +
@@ -474,7 +489,7 @@ watch(
     subtitleText.value = newValue;
   }
 );
-// 监听麦克风状态
+// 监听是否开启翻译
 watch(
   () => basicStore.isTranslate,
   (newValue) => {
@@ -483,8 +498,8 @@ watch(
       showSubtitle.value = true;
       SpeechRealTimeTrans.start({
         url: "wss://aip.baidubce.com/ws/realtime_speech_trans", // WebSocket服务地址
-        appId: "115883236", // 百度应用的AppID
-        appKey: "sqL04acqrwEWEwgGCPVIdM3e", // 百度应用的AppKey
+        appId: baiduTranslate.appid, // 百度应用的AppID
+        appKey: baiduTranslate.appkey, // 百度应用的AppKey
         samplingRate: 16000, // 音频采样率
         fromLan: tranSettingStore.srcLangCode, // 源语言
         toLan: tranSettingStore.desLangCode, // 目标语言
@@ -509,6 +524,8 @@ watch(
           // 监听WebSocket消息发送
           socketTask.onMessage((res) => {
             const res_ = JSON.parse(res.data);
+            if (res_.type !== "subtitle") return; // 如果不是字幕类型的消息，直接结束
+            if (res_.meetingId !== basicStore.roomId) return; // 如果不是当前会议的字幕，直接结束
             // 获取发言人头像
             avatarUrl.value = res_.avatarUrl;
             // 获取发言人字幕
@@ -549,7 +566,10 @@ watch(
         // 接收文本消息回调
         onReceiveTextMessage: (message) => {
           const res = JSON.parse(message);
-          const sentence = res.data.result.sentence_trans;
+          if (!res.data.result) return;
+          const sentence = tranSettingStore.onlySrc
+            ? res.data.result.sentence
+            : res.data.result.sentence_trans;
           if (sentence === "") {
             return;
           }

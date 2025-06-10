@@ -1,5 +1,5 @@
 {
-    "name" : "智能会议助手",
+    "name" : "恒剑智会",
     "appid" : "__UNI__4C10ED2",
     "description" : "",
     "versionName" : "1.0.1",
@@ -103,6 +103,15 @@
                         "spotlight@3x" : "unpackage/res/icons/120x120.png"
                     }
                 }
+            },
+            "splashscreen" : {
+                "androidStyle" : "default",
+                "android" : {
+                    "xxhdpi" : "",
+                    "xhdpi" : "",
+                    "hdpi" : ""
+                },
+                "useOriginalMsgbox" : false
             }
         },
         "nativePlugins" : {
@@ -122,14 +131,14 @@
             },
             "GW-ChooseFileModule" : {
                 "__plugin_info__" : {
-                    "name" : "文件选择 Android - [试用版，仅用于自定义调试基座]",
+                    "name" : "文件选择 Android",
                     "description" : "Android文件选择，支持Android 12及以上，支持多选、指定文件类型、搜索、排序。需要离线包联系邮箱：guo.we@qq.com，在 uni-im 里发消息难得看到。",
                     "platforms" : "Android",
                     "url" : "https://ext.dcloud.net.cn/plugin?id=10159",
-                    "android_package_name" : "",
+                    "android_package_name" : "uni.UNI4C10ED2",
                     "ios_bundle_id" : "",
                     "isCloud" : true,
-                    "bought" : 0,
+                    "bought" : 1,
                     "pid" : "10159",
                     "parameters" : {}
                 }
@@ -158,5 +167,6 @@
     "uniStatistics" : {
         "enable" : false
     },
-    "vueVersion" : "3"
+    "vueVersion" : "3",
+    "fallbackLocale" : "zh-Hans"
 }

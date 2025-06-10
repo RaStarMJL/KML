@@ -6,6 +6,7 @@ import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import { getRecommendList } from "../../src/services/api";
 import { getSwiperData } from "../../src/services/api";
 import { incrementClickCount } from "../../src/services/api";
+import MagicNavigation from "../components/MagicNavigation/MagicNavigation.vue";
 
 // 定义轮播图数据接口
 interface SwiperItem {
@@ -64,18 +65,49 @@ onShow(() => {
     // 获取用户推荐会议列表;
     getRecommendListData(0);
   } else {
-    // getRecommendListData(1);
+    // #ifdef H5
+    getRecommendListData(1);
     uni.showToast({
       title: "请先登录账号，以获取最佳推荐会议",
       icon: "none",
       duration: 3000,
     });
+    // #endif
+    // #ifdef APP-PLUS
+
+    // plus.nativeUI.toast("请先登录账号，以获取最佳推荐会议", {
+    //   vertical: "center",
+    //   style:"inline"
+    // });
+    uni.showToast({
+      title: "请先登录账号，以获取最佳推荐会议",
+      icon: "none",
+      duration: 3000,
+    });
+    // #endif
   }
   // 获取推荐会议轮播图列表
   getSwiperData_();
 });
 
 const getStatus = (val) => {
+  switch (val) {
+    case "Ongoing": {
+      return "会议进行中";
+    }
+    case "Waiting": {
+      return "会议待开始";
+    }
+    case "Ended": {
+      return "会议已结束";
+    }
+    default: {
+      return "未知状态";
+    }
+  }
+};
+
+const getStatusByTime = (val) => {
   switch (val) {
     case "Ongoing": {
       return "会议进行中";
@@ -123,6 +155,7 @@ const getRecommendListData = async (t) => {
     res = await getRecommendList(userInfo.value.userId);
   }
   recommendList.value = res.data;
+  console.log("recommendList", recommendList.value);
 };
 const onRefresh = () => {};
 
@@ -173,7 +206,8 @@ const message = () => {
   <kml-agent :isDock="true"> </kml-agent>
   <view
     class="page-container"
-    :style="{ paddingTop: safeAreaInsets.top + 'px' }">
+    :style="{ paddingTop: safeAreaInsets.top + 'px' }"
+  >
     <!-- 固定头部 -->
     <view class="header">
       <!-- 搜索栏 -->
@@ -181,7 +215,8 @@ const message = () => {
         <image
           :src="userInfo?.avatarUrl || defaultAvatar"
           class="user-avatar"
-          @tap="goToMine"></image>
+          @tap="goToMine"
+        ></image>
         <view class="search-input" @click="goToSearch">
           <uni-icons type="search" size="20" color="#666"></uni-icons>
           <input type="text" placeholder="搜索会议" />
@@ -192,19 +227,22 @@ const message = () => {
           :is-dot="true"
           absolute="rightTop"
           size="small"
-          :text="value.toString()">
+          :text="value.toString()"
+        >
           <uni-icons
             type="email"
             size="24"
             color="#39baf4"
-            @click="message"></uni-icons>
+            @click="message"
+          ></uni-icons>
         </uni-badge>
         <uni-icons
           v-else
           type="email"
           size="24"
           color="#39baf4"
-          @click="message"></uni-icons>
+          @click="message"
+        ></uni-icons>
       </view>
 
       <!-- 导航栏 -->
@@ -223,7 +261,8 @@ const message = () => {
         scroll-y
         class="content-scroll"
         @scroll="onScroll"
-        scroll-with-animation>
+        scroll-with-animation
+      >
         <!-- 轮播图 -->
         <swiper
           class="banner-swiper"
@@ -231,11 +270,13 @@ const message = () => {
           :indicator-dots="true"
           :autoplay="true"
           interval="3000"
-          duration="1000">
+          duration="1000"
+        >
           <swiper-item
             v-for="item in recommendSwiperData"
             :key="item.id"
-            @tap="goTomeetingshow(item.meetingId)">
+            @tap="goTomeetingshow(item.meetingId)"
+          >
             <view class="banner-item">
               <image :src="item.meetingImageUrl" mode="aspectFill"></image>
               <view class="banner-title">{{ item.meetingName }}</view>
@@ -247,13 +288,16 @@ const message = () => {
           <view
             class="meeting-item"
             v-for="item in recommendList"
-            :key="item.meetingId">
+            :key="item.meetingId"
+          >
             <view
               class="meeting-cover"
-              @click="goTomeetingshow(item.meetingId)">
+              @click="goTomeetingshow(item.meetingId)"
+            >
               <image
                 :src="item.meetingImageUrl || defaultCover"
-                mode="aspectFill"></image>
+                mode="aspectFill"
+              ></image>
               <!-- <view class="meeting-duration">{{ item.duration }}</view> -->
             </view>
             <view class="meeting-info">
@@ -263,7 +307,8 @@ const message = () => {
                   <uni-icons
                     type="fire-filled"
                     size="12"
-                    color="red"></uni-icons>
+                    color="red"
+                  ></uni-icons>
                   <text>{{ item.meetingHeat }}</text>
                 </view>
 
@@ -282,6 +327,9 @@ const message = () => {
 
     <!-- 底部导航栏 -->
     <tabbar currentPath="/pages/recommend/recommend"></tabbar>
+    <!-- <view style="height: 8vh; width:100vw; background: #222327">
+      <MagicNavigation></MagicNavigation>
+    </view> -->
   </view>
 </template>
 

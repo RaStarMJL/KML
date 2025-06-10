@@ -16,7 +16,7 @@
       <view class="card-header">
         <image
           class="card-avatar"
-          src="/static/images/ai/navigation-ai.png"
+          src="/src/static/images/function-ai.png"
           mode="aspectFill"></image>
         <view class="header-content">
           <text class="card-title">导航智能体</text>
@@ -43,7 +43,11 @@
 
 <script>
 import Map from "@/js_sdk/fx-openMap/openMap.js";
-import { getPathPlanning } from "/src/services/api.ts";
+import {
+  getPathPlanning,
+  api_getAddressByLocation,
+  api_getLocationByName,
+} from "/src/services/api.ts";
 export default {
   data() {
     return {
@@ -51,44 +55,62 @@ export default {
       travelAdvice: "正在获取最佳出行建议...",
       options: {
         origin: {
-          latitude: 39.92848272,
-          longitude: 116.39560823,
-          name: "南华大学雨母校区",
+          latitude: 31.245105,
+          longitude: 121.506377,
+          name: "上海东方明珠",
         },
         destination: {
-          latitude: 39.98848272,
-          longitude: 116.47560823,
-          name: "火车站",
+          latitude: 31.24142802,
+          longitude: 121.476839,
+          name: "外滩",
         },
         mode: "drive",
         mapId: "map",
       },
-      center: {
-        latitude: 39.95848272,
-        longitude: 116.43560823,
-      },
       scale: 12,
-      markers: [
+    };
+  },
+  computed: {
+    center() {
+      return {
+        latitude:
+          (this.options.origin.latitude + this.options.destination.latitude) /
+          2,
+        longitude:
+          (this.options.origin.longitude + this.options.destination.longitude) /
+          2,
+      };
+    },
+    markers() {
+      return [
         {
           id: 1,
-          latitude: 39.92848272,
-          longitude: 116.39560823,
-          title: "南华大学雨母校区",
+          latitude: this.options.origin.latitude,
+          longitude: this.options.origin.longitude,
+          title: this.options.origin.name,
           iconPath: "/static/images/map/start.png",
         },
         {
           id: 2,
-          latitude: 39.98848272,
-          longitude: 116.47560823,
-          title: "火车站",
+          latitude: this.options.destination.latitude,
+          longitude: this.options.destination.longitude,
+          title: this.options.destination.name,
           iconPath: "/static/images/map/end.png",
         },
-      ],
-      polyline: [
+      ];
+    },
+    polyline() {
+      return [
         {
           points: [
-            { latitude: 39.92848272, longitude: 116.39560823 },
-            { latitude: 39.98848272, longitude: 116.47560823 },
+            {
+              latitude: this.options.origin.latitude,
+              longitude: this.options.origin.longitude,
+            },
+            {
+              latitude: this.options.destination.latitude,
+              longitude: this.options.destination.longitude,
+            },
           ],
           color: "#1890ff",
           width: 8,
@@ -96,27 +118,102 @@ export default {
           borderWidth: 2,
           borderColor: "#ffffff",
         },
-      ],
-      includePoints: [
-        { latitude: 39.92848272, longitude: 116.39560823 },
-        { latitude: 39.98848272, longitude: 116.47560823 },
-      ],
-    };
+      ];
+    },
+    includePoints() {
+      return [
+        {
+          latitude: this.options.origin.latitude,
+          longitude: this.options.origin.longitude,
+        },
+        {
+          latitude: this.options.destination.latitude,
+          longitude: this.options.destination.longitude,
+        },
+      ];
+    },
   },
-  mounted() {
-    // Map.routePlan(this.options, "gcj02");
+  async mounted() {
+    /**
+     * 1.获取当前位置
+     * 2.根据经纬度获取所在地地名
+     * 3.根据目的地名称获取经纬度
+     * 4.调用API获取智能体建议
+     * 5.点击一键导航将出发地和目的地传入地图导航
+     */
     try {
-      this.getTravelAdvice();
+      // 1. 先获取当前位置
+      await this.getCurrentLocation();
+
+      // 2. 然后获取位置名称
+      await this.getLocationName(
+        this.options.origin.latitude,
+        this.options.origin.longitude
+      );
+
+      // 3. 获取目的地坐标
+      await this.getLocationByAddress(this.options.destination.name);
+
+      // 4. 最后获取建议
+      await this.getTravelAdvice();
     } catch (error) {
-      console.error("获取智能体建议失败：", error);
+      console.error("初始化失败:", error);
+      uni.showToast({
+        title: "初始化失败",
+        icon: "none",
+      });
     }
   },
+  onLoad(options) {
+    this.options.destination.name = options.destination;
+  },
   methods: {
+    // 获取当前位置信息
+    async getCurrentLocation() {
+      try {
+        const res = await new Promise((resolve, reject) => {
+          uni.getLocation({
+            type: "wgs84",
+            success: resolve,
+            fail: reject,
+          });
+        });
+        this.options.origin.latitude = res.latitude;
+        this.options.origin.longitude = res.longitude;
+        // this.$set(this.options.origin, "latitude", res.latitude);
+        // this.$set(this.options.origin, "longitude", res.longitude);
+        console.log("当前位置已更新", this.options);
+      } catch (error) {
+        console.error("获取位置失败:", error);
+        throw error; // 抛出错误让外层捕获
+      }
+    },
+    // 根据经纬度获取所在地地名
+    async getLocationName(latitude, longitude) {
+      const obj = {
+        latitude: latitude,
+        longitude: longitude,
+      };
+      const res = await api_getAddressByLocation(obj);
+      const address = res.data.result.formatted_address;
+      this.options.origin.name = address;
+      console.log("第二步", this.options);
+    },
+    // 根据目的地名称获取经纬度
+    async getLocationByAddress(address) {
+      const res = await api_getLocationByName(address);
+      const latitude = res.data.result.location.lat;
+      const longitude = res.data.result.location.lng;
+      this.options.destination.latitude = latitude;
+      this.options.destination.longitude = longitude;
+      console.log("第三步", this.options);
+    },
     async getTravelAdvice() {
       const obj = {
-        from: "上海东方明珠",
-        to: "上海陆家嘴",
+        from: this.options.origin.name,
+        to: this.options.destination.name,
       };
+      console.log("第四步", this.options);
       // 这里可以调用API获取智能体建议
       const res = await getPathPlanning(obj);
       this.travelAdvice = res.data.answer;

@@ -6,18 +6,27 @@ import { srcLang } from "../../utils/translate";
 export const useTranSettingStore = defineStore(
   "tranSetting",
   () => {
-    const srcLangIndex = ref(0);
-    const desLangIndex = ref(1);
+    const srcLangIndex = ref(0); // 声源语言索引
+    const desLangIndex = ref(1); // 目标语言索引
 
-    const displayBilingual = ref(false);
+    const displayBilingual = ref(false); // 是否显示双语
+
+    const onlySrc = ref(true); // 只显示源语言
 
     const srcLangCode = computed(() => {
+      // 计算属性 源语言code
       return srcLang[srcLangIndex.value].Code;
     });
 
     const desLangCode = computed(() => {
+      // 计算属性 目标语言code
       return srcLang[desLangIndex.value].Code;
     });
+
+    const setOnlySrc = (value) => {
+      // 设置只显示源语言
+      onlySrc.value = value;
+    };
 
     const setSrcLangIndex = (value) => {
       srcLangIndex.value = value;
@@ -47,11 +56,13 @@ export const useTranSettingStore = defineStore(
       setTransSetting,
       setSrcLangIndex,
       setDesLangIndex,
+      setOnlySrc,
       srcLangCode,
       desLangCode,
       srcLangIndex,
       desLangIndex,
       displayBilingual,
+      onlySrc,
     };
   },
   {

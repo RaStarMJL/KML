@@ -11,19 +11,19 @@
       </div>
       <div class="setting-items">
         <text>入会开启麦克风</text>
-        <switch checked />
+        <switch :checked="meetingSettings.enableMicOnJoin" @change="handleMicOnJoinChange" />
       </div>
       <div class="setting-items">
         <text>入会开启扬声器</text>
-        <switch checked />
+        <switch :checked="meetingSettings.enableSpeakerOnJoin" @change="handleSpeakerOnJoinChange" />
       </div>
       <div class="setting-items">
         <text>开启麦克风浮窗</text>
-        <switch />
+        <switch :checked="meetingSettings.enableMicFloatWindow" @change="handleMicFloatWindowChange" />
       </div>
       <div class="setting-items">
         <text>开麦时播放提示音</text>
-        <switch />
+        <switch :checked="meetingSettings.enableMicPromptTone" @change="handleMicPromptToneChange" />
       </div>
     </div>
 
@@ -39,17 +39,17 @@
 
       <div class="setting-items">
         <text>入会开启摄像头</text>
-        <switch />
+        <switch :checked="meetingSettings.enableCameraOnJoin" @change="handleCameraOnJoinChange" />
       </div>
 
       <div class="setting-items">
         <text>虚拟数字人</text>
-        <switch />
+        <switch :checked="meetingSettings.enableVirtualDigitalHuman" @change="handleVirtualDigitalHumanChange" />
       </div>
 
       <div class="setting-items">
         <text>水牌</text>
-        <switch @change="" />
+        <switch :checked="meetingSettings.enableWatermark" @change="handleWatermarkChange" />
       </div>
 
       <div class="setting-items">
@@ -69,7 +69,7 @@
       </div>
       <div class="setting-items">
         <text>显示弹幕</text>
-        <switch checked @change="" />
+        <switch :checked="meetingSettings.enableDanmaku" @change="handleDanmakuChange" />
       </div>
     </div>
 
@@ -89,33 +89,76 @@
 
       <div class="setting-items">
         <text>显示参会时长</text>
-        <switch checked="true" @change="" />
+        <switch :checked="meetingSettings.showMeetingDuration" @change="handleShowMeetingDurationChange" />
       </div>
 
       <div class="setting-items">
         <text>AI浮窗</text>
-        <switch checked="true" @change="" />
+        <switch :checked="meetingSettings.enableAIFloatWindow" @change="handleAIFloatWindowChange" />
       </div>
 
       <div class="setting-items">
         <text>实时语音转文字</text>
-        <switch checked="true" @change="" />
+        <switch :checked="meetingSettings.enableRealTimeSpeechToText" @change="handleRealTimeSpeechToTextChange" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { useMeetingSettingStore } from "../../src/stores/modules/meetingSetting";
+import { storeToRefs } from "pinia";
+
 export default {
-  data() {
-    return {};
+  setup() {
+    const meetingSettingStore = useMeetingSettingStore();
+    const meetingSettings = storeToRefs(meetingSettingStore);
+
+    return {
+      meetingSettings,
+      meetingSettingStore
+    };
   },
   methods: {
-    switch1Change: function (e) {
-      console.log("switch1 发生 change 事件，携带值为", e.detail.value);
+    // 音频设置
+    handleMicOnJoinChange(e) {
+      this.meetingSettingStore.enableMicOnJoin = e.detail.value;
     },
-    switch2Change: function (e) {
-      console.log("switch2 发生 change 事件，携带值为", e.detail.value);
+    handleSpeakerOnJoinChange(e) {
+      this.meetingSettingStore.enableSpeakerOnJoin = e.detail.value;
+    },
+    handleMicFloatWindowChange(e) {
+      this.meetingSettingStore.enableMicFloatWindow = e.detail.value;
+    },
+    handleMicPromptToneChange(e) {
+      this.meetingSettingStore.enableMicPromptTone = e.detail.value;
+    },
+
+    // 视频设置
+    handleCameraOnJoinChange(e) {
+      this.meetingSettingStore.enableCameraOnJoin = e.detail.value;
+    },
+    handleVirtualDigitalHumanChange(e) {
+      this.meetingSettingStore.enableVirtualDigitalHuman = e.detail.value;
+    },
+    handleWatermarkChange(e) {
+      this.meetingSettingStore.enableWatermark = e.detail.value;
+    },
+
+    // 聊天设置
+    handleDanmakuChange(e) {
+      this.meetingSettingStore.enableDanmaku = e.detail.value;
+    },
+
+    // 通用设置
+    handleShowMeetingDurationChange(e) {
+      this.meetingSettingStore.showMeetingDuration = e.detail.value;
+    },
+    handleAIFloatWindowChange(e) {
+      this.meetingSettingStore.enableAIFloatWindow = e.detail.value;
+    },
+    handleRealTimeSpeechToTextChange(e) {
+      this.meetingSettingStore.enableRealTimeSpeechToText = e.detail.value;
     },
   },
 };

@@ -1,14 +1,23 @@
 import { watch } from "fs"
 
 <template>
-  <scroll-view v-if="outContent !== ''" class="outContent" scroll-y>
-    <text class="out-text">{{ localOutContent }}</text>
-  </scroll-view>
+  <view class="outContent" v-if="showOutContent">
+    <view>
+      <image
+        src="/src/static/icons/common/close.png"
+        mode="scaleToFill"
+        style="width: 16px; height: 16px; margin-bottom: 5px"
+        @click="closeOutContent" />
+    </view>
+    <scroll-view scroll-y class="outContent-scroll">
+      <text class="out-text">{{ localOutContent }}</text>
+    </scroll-view>
+  </view>
   <view
     ref="ball"
     :style="{
-      right: startPosition.right + 'px',
-      bottom: startPosition.bottom + 'px',
+      right: marginX + 'px',
+      bottom: marginY + 'px',
     }"
     class="ball"
     @touchstart="start">
@@ -16,7 +25,7 @@ import { watch } from "fs"
       src="/src/static/images/agent.gif"
       style="width: 80px; height: 80px" />
   </view>
-  <uni-popup ref="popup" type="bottom">
+  <uni-popup :is-mask-click="false" ref="popup" type="bottom">
     <view class="popup-container" :style="popupStyle">
       <!-- 头部 -->
       <view class="header">
@@ -57,7 +66,7 @@ import { watch } from "fs"
         <view class="content" v-if="showContent">
           <view class="text-header">
             <text class="greeting"
-              >{{ userName }} 晚上好，\n邀请您体验“AI小助手”</text
+              >{{ userName }} 您好，\n欢迎使用“会议助手智能体”</text
             >
             <!-- <text class="sub-title">每小时{{ limitCount }}次</text> -->
           </view>
@@ -269,12 +278,14 @@ export default {
       placeholder: "请输入您的问题", // 输入框占位符
       dialogueMode: "text", // 对话模式：text 文本，voice 语音
       localOutContent: "", // 本地悬浮内容
+      showOutContent: false, // 是否显示悬浮内容
     };
   },
   watch: {
     outContent(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.localOutContent = "";
+        this.showOutContent = true;
         this.playAudioInApp(newVal);
         this.pseudoStreamOutput(newVal);
       }
@@ -295,6 +306,18 @@ export default {
     });
   },
   methods: {
+    closeOutContent() {
+      uni.showModal({
+        title: "提示",
+        content: "确定要关闭悬浮内容吗？",
+        success: (res) => {
+          if (res.confirm) {
+            this.showOutContent = false; // 关闭悬浮内容
+            this.localOutContent = ""; // 清空本地悬浮内容
+          }
+        },
+      });
+    },
     // 播放音频
     playAudioInApp(text) {
       const audioUrl = `${baseURL}ai/audioDataToFile?text=${text}`;
@@ -326,7 +349,6 @@ export default {
     likeMessage() {},
     dislikeMessage() {},
     sendQuickMessage(message) {},
-    closePopup() {},
     goBack() {},
     openPopup() {
       this.$refs.popup.open();
@@ -462,12 +484,16 @@ export default {
   padding: 10rpx;
   overflow: auto;
   border-radius: 10px;
-  width: 200px;
-  height: 60px;
+  width: 300px;
+  height: 120px;
   opacity: 1;
   top: 105px;
   right: 70px;
   background-color: rgba(0, 0, 0, 0.9);
+  .outContent-scroll {
+    width: 280px;
+    height: 90px;
+  }
   .out-text {
     font-size: 12px;
     color: white;

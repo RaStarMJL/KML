@@ -11,7 +11,7 @@
         v-for="(video, index) in videoList"
         :key="index"
         class="video-item"
-        @click="navigateToDetail(video.meetingId)">
+        @click="navigateToDetail(video.id)">
         <!-- 视频封面 -->
         <view class="video-cover">
           <image
@@ -59,6 +59,7 @@ import { useUserInfoStore } from "@/src/stores/modules/userInfo";
 import { baseURL } from "/src/utils/http";
 
 interface VideoItem {
+  id: number;
   meetingId: string;
   meetingName: string;
   replayName: string;
@@ -95,10 +96,10 @@ const getVideoList = async () => {
   }
 };
 
-const navigateToDetail = (meetingId: string) => {
-  console.log(meetingId);
+const navigateToDetail = (id: number) => {
+  console.log(id);
   uni.navigateTo({
-    url: `/pages/mine/recorddetail/recorddetail?meetingId=${meetingId}`,
+    url: `/pages/mine/recorddetail/recorddetail?id=${id}`,
   });
 };
 

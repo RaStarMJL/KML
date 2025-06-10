@@ -233,7 +233,7 @@ export default {
             }
 
             const localsign = signRes.data;
-            console.log("成功获取到签名.....",localsign);
+            console.log("成功获取到签名.....", localsign);
 
             // 使用UUID格式生成sid
             const sid = this.generateUUID();
@@ -570,7 +570,7 @@ export default {
           }
         } else {
           // 非文档检索请求，使用aicheckout返回的结果作为响应
-          let aiResponse = "我不知道哈哈哈，你个笨蛋";
+          let aiResponse = "服务器繁忙，请稍后再试。";
 
           // 创建AI回复消息对象
           const aiMessage = {
@@ -712,19 +712,6 @@ export default {
 };
 </script>
 
-<script module="stream" lang="renderjs">
-   export default {
-       data() {
-           return {
-           }
-       },
-       methods: {
-              async fetchStreamResult() {
-                console.log('hhhh')
-              },
-        }
-}
-</script>
 <style lang="scss">
 .chat-container {
   display: flex;

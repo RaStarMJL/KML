@@ -63,14 +63,14 @@
         <view class="header">
           <text class="title">{{ meetingname }}</text>
           <text class="subtitle">{{
-            hasSignedIn ? "签到完成" : "主办方发起了签到"
+            hasSignedIn ? "签到完成" : isSignEnded ? "签到已结束" : "主办方发起了签到"
           }}</text>
         </view>
 
         <view class="timer-section">
           <view class="timer-wrapper">
             <view
-              v-if="!hasSignedIn"
+              v-if="!hasSignedIn && !isSignEnded"
               class="timer-circle"
               :style="{
                 background: `conic-gradient(#2B58F9 ${progressDegree}deg, #E8EFFF ${progressDegree}deg)`,
@@ -80,16 +80,22 @@
                 <text class="time-label">剩余时间</text>
               </view>
             </view>
-            <view v-else class="success-circle">
+            <view v-else-if="hasSignedIn" class="success-circle">
               <view class="success-icon">
                 <view class="checkmark"></view>
               </view>
               <text class="success-text">签到成功</text>
             </view>
+            <view v-else-if="isSignEnded" class="ended-circle">
+              <view class="ended-icon">
+                <view class="clock-icon"></view>
+              </view>
+              <text class="ended-text">签到已结束</text>
+            </view>
           </view>
         </view>
 
-        <view class="action-section" v-if="!hasSignedIn">
+        <view class="action-section" v-if="!hasSignedIn && !isSignEnded">
           <button class="sign-btn" @click="handleSign" :disabled="hasSignedIn">
             立即签到
           </button>
@@ -155,6 +161,7 @@ const absenceReason = ref("");
 const absencePopup = ref(null);
 const meetingname = ref("");
 const hasStartedSign = ref(false);
+const isSignEnded = ref(false); // 新增：标记签到是否已结束
 
 // 计算属性
 const formatTimeLeft = computed(() => {
@@ -208,6 +215,7 @@ const startCountdown = () => {
     } else {
       clearInterval(timer);
       if (!hasSignedIn.value) {
+        isSignEnded.value = true; // 设置签到已结束状态
         showSignPopup.value = true;
       }
     }
@@ -605,6 +613,10 @@ onLoad(async (options) => {
 
   .timer-section {
     margin-bottom: 60rpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500rpx;
 
     .timer-wrapper {
       width: 400rpx;
@@ -619,14 +631,19 @@ onLoad(async (options) => {
     }
 
     .timer-circle,
-    .success-circle {
-      width: 100%;
-      height: 100%;
+    .success-circle, .ended-circle {
+      background: linear-gradient(135deg, #e8efff, #ffffff);
+      box-shadow: 0 8rpx 32rpx rgba(43, 88, 249, 0.1);
+      position: relative;
+      animation: appear 0.5s ease-out;
+      width: 300rpx;
+      height: 300rpx;
       border-radius: 50%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: background 0.3s linear;
+      margin: 0 auto;
     }
 
     .timer-inner {
@@ -722,13 +739,19 @@ onLoad(async (options) => {
   border-radius: 8rpx;
 }
 
-.success-circle {
+.success-circle, .ended-circle {
   background: linear-gradient(135deg, #e8efff, #ffffff);
   box-shadow: 0 8rpx 32rpx rgba(43, 88, 249, 0.1);
   position: relative;
   animation: appear 0.5s ease-out;
   width: 300rpx;
   height: 300rpx;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .success-icon {
@@ -743,6 +766,22 @@ onLoad(async (options) => {
   box-shadow: 0 6rpx 16rpx rgba(82, 196, 26, 0.2);
   position: relative;
   animation: scale-in 0.3s ease-out 0.2s both;
+}
+
+.ended-icon {
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #ff6b6b, #cc5454);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  box-shadow: 0 6rpx 16rpx rgba(255, 107, 107, 0.2);
+  position: relative;
+  animation: scale-in 0.3s ease-out 0.2s both;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .checkmark {
@@ -767,6 +806,49 @@ onLoad(async (options) => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: fade-in 0.3s ease-out 0.7s both;
+}
+
+.ended-text {
+  font-size: 36rpx;
+  color: #ff6b6b;
+  font-weight: 600;
+  margin-top: 20rpx;
+  background: linear-gradient(135deg, #ff6b6b, #cc5454);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fade-in 0.3s ease-out 0.7s both;
+  text-align: center;
+  width: 100%;
+}
+
+.clock-icon {
+  width: 50rpx;
+  height: 50rpx;
+  border: 6rpx solid #fff;
+  border-radius: 50%;
+  position: relative;
+  animation: scale-in 0.3s ease-out 0.2s both;
+}
+
+.clock-icon::before, .clock-icon::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+  top: 50%;
+  left: 50%;
+  transform-origin: left center;
+}
+
+.clock-icon::before {
+  width: 20rpx;
+  height: 4rpx;
+  transform: translate(-2rpx, -2rpx) rotate(45deg);
+}
+
+.clock-icon::after {
+  width: 14rpx;
+  height: 4rpx;
+  transform: translate(-2rpx, -2rpx) rotate(-45deg);
 }
 
 @keyframes appear {

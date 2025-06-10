@@ -29,7 +29,7 @@
       :is-active="sidebarName === 'more'"
       title="会议笔记"
       @click-icon="toggleMeetingNote" /> -->
-    <view class="item" @tap="toggleContactSidebar">
+    <view class="item" @tap="toggleGoToAI">
       <image
         class="item-img"
         src="/src/static/icons/menus/AI.png"
@@ -258,6 +258,12 @@ function toggleContactSidebar() {
 function handleOnCloseContact() {
   isShowContactTab.value = false;
 }
+
+const toggleGoToAI = () => {
+  uni.navigateTo({
+    url: "/pages/mine/aihelper",
+  });
+};
 
 const toggleSubtitleSetting = () => {
   uni.navigateTo({

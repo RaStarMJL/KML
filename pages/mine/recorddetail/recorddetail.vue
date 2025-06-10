@@ -9,8 +9,7 @@
         :controls="true"
         :show-center-play-btn="true"
         :enable-progress-gesture="true"
-        :show-fullscreen-btn="true"
-        @error="handleVideoError"></video>
+        :show-fullscreen-btn="true"></video>
     </view>
 
     <!-- 视频信息区域 -->
@@ -42,6 +41,7 @@ import { ref } from "vue";
 import { onLoad, computed } from "@dcloudio/uni-app";
 import { baseURL } from "/src/utils/http";
 interface VideoInfo {
+  id: number;
   meetingId: string;
   meetingName: string;
   replayName: string;
@@ -50,6 +50,7 @@ interface VideoInfo {
 }
 
 const videoInfo = ref<VideoInfo>({
+  id: 0,
   meetingId: "",
   meetingName: "",
   replayName: "",
@@ -60,13 +61,10 @@ const videoInfo = ref<VideoInfo>({
 // 处理视频播放错误
 const handleVideoError = (err: any) => {
   console.error("视频播放错误:", err);
-  uni.showToast({
-    title: "视频播放失败",
-    icon: "none",
-  });
 };
 
 const meetingId = ref("");
+const id = ref(0);
 // 分享视频
 const handleShare = () => {
   uni.showActionSheet({
@@ -144,10 +142,10 @@ const handleDownload = () => {
   });
 };
 
-const getVideoInfo = async (meetingId: string) => {
+const getVideoInfo = async (id: number) => {
   try {
     const response = await uni.request({
-      url: `${baseURL}api/trtc/getreplay?meetingId=${meetingId}`,
+      url: `${baseURL}api/trtc/getreplay?id=${id}`,
       method: "GET",
     });
     console.log("response", response);
@@ -161,18 +159,14 @@ const getVideoInfo = async (meetingId: string) => {
     console.log("获取视频详情result", result);
   } catch (error) {
     console.error("获取视频详情失败:", error);
-    uni.showToast({
-      title: "获取视频详情失败",
-      icon: "none",
-    });
   }
 };
 
 onLoad((options) => {
   console.log("options:", options);
-  meetingId.value = options.meetingId;
-  console.log("meetingId:", meetingId.value);
-  getVideoInfo(meetingId.value);
+  id.value = options.id;
+  console.log("id:", id.value);
+  getVideoInfo(id.value);
 });
 </script>
 <style lang="scss">

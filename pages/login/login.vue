@@ -8,18 +8,21 @@
       scroll-y
       class="content-wrapper"
       :scroll-top="scrollTop"
-      :style="{ height: windowHeight + 'px' }">
+      :style="{ height: windowHeight + 'px' }"
+    >
       <!-- Logo区域 -->
       <view
         class="logo-area"
-        :class="{ 'fade-in-down': showLoginBox, 'logo-small': isKeyboardOpen }">
+        :class="{ 'fade-in-down': showLoginBox, 'logo-small': isKeyboardOpen }"
+      >
         <image
           class="app-logo"
-          src="/src/static/images/app.jpg"
-          mode="aspectFill"></image>
-        <text class="app-name">智慧会议</text>
+          src="/src/static/images/logo.png"
+          mode="aspectFill"
+        ></image>
+        <text class="app-name">恒剑智会</text>
         <text class="app-slogan" v-if="!isKeyboardOpen"
-          >让会议更高效，沟通更便捷</text
+          >AI赋能会议，安全高效新体验</text
         >
       </view>
 
@@ -29,7 +32,8 @@
         :class="{
           'fade-in-up': showLoginBox,
           'login-box-keyboard-open': isKeyboardOpen,
-        }">
+        }"
+      >
         <view class="welcome-text" v-if="!isKeyboardOpen">
           <text class="title">欢迎回来</text>
           <text class="subtitle">请登录您的账号</text>
@@ -38,7 +42,8 @@
         <view class="input-group">
           <view
             class="input-item"
-            :class="{ active: activeInput === 'username' }">
+            :class="{ active: activeInput === 'username' }"
+          >
             <uni-icons type="person" size="20" color="#666"></uni-icons>
             <input
               type="text"
@@ -48,11 +53,13 @@
               @focus="handleFocus('username')"
               @blur="handleBlur"
               cursor-spacing="140"
-              :adjust-position="false" />
+              :adjust-position="false"
+            />
           </view>
           <view
             class="input-item"
-            :class="{ active: activeInput === 'password' }">
+            :class="{ active: activeInput === 'password' }"
+          >
             <uni-icons type="locked" size="20" color="#666"></uni-icons>
             <input
               type="password"
@@ -62,7 +69,8 @@
               @focus="handleFocus('password')"
               @blur="handleBlur"
               cursor-spacing="80"
-              :adjust-position="false" />
+              :adjust-position="false"
+            />
           </view>
         </view>
 
@@ -81,12 +89,14 @@
       <view
         class="keyboard-space"
         v-if="isKeyboardOpen"
-        :style="{ height: keyboardHeight + 'px' }"></view>
+        :style="{ height: keyboardHeight + 'px' }"
+      ></view>
 
       <view
         class="footer-text"
-        :class="{ 'fade-in': showLoginBox, 'footer-hidden': isKeyboardOpen }">
-        <text>智慧会议 © 2025</text>
+        :class="{ 'fade-in': showLoginBox, 'footer-hidden': isKeyboardOpen }"
+      >
+        <text>恒剑智会 © 2025</text>
       </view>
     </scroll-view>
   </view>

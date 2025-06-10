@@ -2,43 +2,71 @@
   <div>
     <div class="end-control-container">
       <div class="end-button" tabindex="1" @tap="handleEndBtnClick">
-        <svg-icon style="display: flex" icon="EndRoomIcon" size="20" color="red" />
-        <text class="end-button-title">{{ t('EndH5') }}</text>
+        <svg-icon
+          style="display: flex"
+          icon="EndRoomIcon"
+          size="20"
+          color="red" />
+        <text class="end-button-title">{{ t("EndH5") }}</text>
       </div>
     </div>
     <div v-if="visible" class="end-main-content">
-      <div :class="isShowLeaveRoomDialog ? 'end-dialog-leave' : 'end-dialog-dismiss'">
+      <div
+        :class="
+          isShowLeaveRoomDialog ? 'end-dialog-leave' : 'end-dialog-dismiss'
+        ">
         <div v-if="currentDialogType === DialogType.BasicDialog">
           <div v-if="roomStore.isMaster" class="end-dialog-header">
             <text v-if="roomStore.isMaster" class="end-dialog-text">
-              {{ t('If you do not want to end the meeting, please designate a new host before leaving the meeting.') }}
+              {{
+                t(
+                  "If you do not want to end the meeting, please designate a new host before leaving the meeting."
+                )
+              }}
             </text>
-            <text v-else>{{ t('Are you sure you want to leave this room?') }}</text>
+            <text v-else>{{
+              t("Are you sure you want to leave this room?")
+            }}</text>
           </div>
         </div>
-        <div v-if="currentDialogType === DialogType.BasicDialog" class="dialog-middle-content">
+        <div
+          v-if="currentDialogType === DialogType.BasicDialog"
+          class="dialog-middle-content">
           <text
             v-if="roomStore.isMaster"
-            :class="isShowLeaveRoomDialog ? 'end-button-dismiss' : 'end-button-dismiss-single'"
-            @click.stop="dismissRoom"
-          >
-            {{ t('Dismiss') }}
+            :class="
+              isShowLeaveRoomDialog
+                ? 'end-button-dismiss'
+                : 'end-button-dismiss-single'
+            "
+            @click.stop="dismissRoom">
+            {{ t("Dismiss") }}
           </text>
           <text
             v-if="isShowLeaveRoomDialog"
-            :class="roomStore.isMaster ? 'end-button-leave' : 'end-button-leave-single'"
-            @tap="handleEndLeaveClick"
-          >
-            {{ t('Leave') }}
+            :class="
+              roomStore.isMaster
+                ? 'end-button-leave'
+                : 'end-button-leave-single'
+            "
+            @tap="handleEndLeaveClick">
+            {{ t("Leave") }}
           </text>
-          <text class="end-button-cancel" @click.stop="cancel">{{ t('Cancel') }}</text>
+          <text class="end-button-cancel" @click.stop="cancel">{{
+            t("Cancel")
+          }}</text>
         </div>
         <div v-if="currentDialogType === DialogType.TransferDialog">
-          <text class="end-button-cancel" @click.stop="cancel">{{ t('Cancel') }}</text>
+          <text class="end-button-cancel" @click.stop="cancel">{{
+            t("Cancel")
+          }}</text>
         </div>
       </div>
     </div>
-    <popup v-if="showSideBar" :title="t('Appoint a new host')" class="transfer-container">
+    <popup
+      v-if="showSideBar"
+      :title="t('Appoint a new host')"
+      class="transfer-container">
       <template #sidebarContent>
         <div style="height: 1440rpx">
           <div class="transfer-list-container">
@@ -50,8 +78,7 @@
                   type="text"
                   class="searching-input"
                   :placeholder="t('Search for conference attendees')"
-                  enterkeyhint="done"
-                />
+                  enterkeyhint="done" />
               </div>
             </div>
             <div class="transfer-body">
@@ -60,30 +87,32 @@
                   v-for="user in filteredList"
                   :key="user.userId"
                   class="transfer-list-content"
-                  @click="handleShowMemberControl(user.userId)"
-                >
+                  @click="handleShowMemberControl(user.userId)">
                   <div class="member-basic-info">
                     <div class="avatar-url">
                       <Avatar :img-src="user.avatarUrl"></Avatar>
                     </div>
-                    <text class="user-name">{{ user.userName || user.userId }}</text>
+                    <text class="user-name">{{
+                      user.userName || user.userId
+                    }}</text>
                   </div>
                   <svg-icon
                     v-if="selectedUser === user.userId"
                     icon="CorrectIcon"
-                    color="#006EFF"
-                  ></svg-icon>
+                    color="#006EFF"></svg-icon>
                 </div>
               </scroll-view>
               <div v-if="hasNoData" class="member-hasNoData">
                 <div class="no-data-region">
-                  <text class="no-data-text">{{ t('No relevant user found.') }}</text>
+                  <text class="no-data-text">{{
+                    t("No relevant user found.")
+                  }}</text>
                 </div>
               </div>
             </div>
             <div class="transfer-leave" @click="transferAndLeave">
               <div class="transfer-button">
-                <text class="transfer-text">{{ t('Transfer and leave') }}</text>
+                <text class="transfer-text">{{ t("Transfer and leave") }}</text>
               </div>
             </div>
           </div>
@@ -94,17 +123,21 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted } from 'vue';
+import { onUnmounted, watch } from "vue";
 
-import { TUIRoomEngine, TUIRole, TUIRoomEvents } from '@tencentcloud/tuiroom-engine-uniapp-app';
-import useEndControl from './useEndControlHooks';
-import logger from '../../../utils/common/logger';
-import popup from '../../common/base/PopUpH5.vue';
-import SvgIcon from '../../common/base/SvgIcon.vue';
-import Avatar from '../../common/Avatar.vue';
-import TUIMessageBox from '../../common/base/MessageBox/index';
-import { roomService } from '../../../services';
-
+import {
+  TUIRoomEngine,
+  TUIRole,
+  TUIRoomEvents,
+} from "@tencentcloud/tuiroom-engine-uniapp-app";
+import useEndControl from "./useEndControlHooks";
+import logger from "../../../utils/common/logger";
+import popup from "../../common/base/PopUpH5.vue";
+import SvgIcon from "../../common/base/SvgIcon.vue";
+import Avatar from "../../common/Avatar.vue";
+import TUIMessageBox from "../../common/base/MessageBox/index";
+import { roomService } from "../../../services";
+import { useRoomBackStore } from "../../../../../stores/modules/roomBack";
 const {
   t,
   isShowLeaveRoomDialog,
@@ -129,8 +162,15 @@ const {
   isMasterWithOneRemoteUser,
   isMasterWithRemoteUser,
 } = useEndControl();
+const roomBackStore = useRoomBackStore();
+const emit = defineEmits(["on-exit-room", "on-destroy-room"]);
 
-const emit = defineEmits(['on-exit-room', 'on-destroy-room']);
+watch(roomBackStore.roomBack, (newValue) => {
+  if (newValue) {
+    console.log(111111111111);
+    stopMeeting();
+  }
+});
 function handleEndBtnClick() {
   stopMeeting();
 }
@@ -188,13 +228,16 @@ async function transferAndLeave() {
   }
   try {
     const userId = selectedUser.value;
-    const changeUserRoleResponse = await roomEngine.instance?.changeUserRole({ userId, userRole: TUIRole.kRoomOwner });
+    const changeUserRoleResponse = await roomEngine.instance?.changeUserRole({
+      userId,
+      userRole: TUIRole.kRoomOwner,
+    });
     logger.log(`${logPrefix}transferAndLeave:`, changeUserRoleResponse);
     await roomService.leaveRoom();
     basicStore.setSidebarOpenStatus(false);
-    basicStore.setSidebarName('');
+    basicStore.setSidebarName("");
     resetState();
-    emit('on-exit-room', { code: 0, message: '' });
+    emit("on-exit-room", { code: 0, message: "" });
   } catch (error) {
     logger.error(`${logPrefix}transferAndLeave error:`, error);
   }
@@ -210,14 +253,14 @@ const onRoomDismissed = async (eventInfo: { roomId: string }) => {
     const { roomId } = eventInfo;
     logger.log(`${logPrefix}onRoomDismissed:`, roomId);
     TUIMessageBox({
-      title: t('Note'),
-      message: t('The host closed the room.'),
+      title: t("Note"),
+      message: t("The host closed the room."),
       showCancel: false,
       appendToRoomContainer: true,
-      confirmButtonText: t('Sure'),
+      confirmButtonText: t("Sure"),
       callback: async () => {
         resetState();
-        emit('on-destroy-room', { code: 0, message: '' });
+        emit("on-destroy-room", { code: 0, message: "" });
       },
     });
   } catch (error) {
@@ -225,7 +268,7 @@ const onRoomDismissed = async (eventInfo: { roomId: string }) => {
   }
 };
 
-TUIRoomEngine.once('ready', () => {
+TUIRoomEngine.once("ready", () => {
   roomEngine.instance?.on(TUIRoomEvents.onRoomDismissed, onRoomDismissed);
 });
 
@@ -284,7 +327,7 @@ onUnmounted(() => {
       align-items: center;
       .end-dialog-text {
         width: 230px;
-        font-family: 'PingFang SC';
+        font-family: "PingFang SC";
         font-style: normal;
         font-weight: 500;
         font-size: 14px;
@@ -299,7 +342,7 @@ onUnmounted(() => {
     .end-button-dismiss-single,
     .end-button-leave-single {
       width: 750rpx;
-      font-family: 'PingFang SC';
+      font-family: "PingFang SC";
       font-style: normal;
       font-weight: 400;
       font-size: 20px;
@@ -365,7 +408,7 @@ onUnmounted(() => {
       border-radius: 8px;
       background-color: #d4d4d4;
       display: flex;
-			flex-direction: row;
+      flex-direction: row;
       padding: 0 16px;
       color: #676c80;
       flex: 1;
@@ -414,7 +457,7 @@ onUnmounted(() => {
           color: #000000;
           text-overflow: ellipsis;
           overflow: hidden;
-          font-family: 'PingFang SC';
+          font-family: "PingFang SC";
           font-style: normal;
           font-weight: 500;
           font-size: 16px !important;
@@ -433,7 +476,7 @@ onUnmounted(() => {
       flex-direction: row;
       justify-content: center;
       .no-data-region {
-        background-color: #F6F6F6;
+        background-color: #f6f6f6;
         width: 200px;
         border-radius: 4px;
         display: flex;
@@ -462,8 +505,8 @@ onUnmounted(() => {
     justify-content: center;
     align-items: center;
     .transfer-text {
-      color: #FFFFFF;
-      font-family: 'PingFang SC';
+      color: #ffffff;
+      font-family: "PingFang SC";
       font-style: normal;
       font-weight: 500;
       font-size: 16px;

@@ -69,8 +69,6 @@ export const get_localsign = (data: any) => {
   });
 };
 
-
-
 export const get_message = (data: any) => {
   return http({
     url: `PushNotification/getmessage?UserId=${data.UserId}`,
@@ -378,7 +376,6 @@ export const api_getCloudVideoList = (meetingId) => {
   });
 };
 
-
 export const api_getMeetingDetail = (meetingId) => {
   return http({
     url: `aiFile/getFile?meetingId=${meetingId}`,
@@ -386,16 +383,15 @@ export const api_getMeetingDetail = (meetingId) => {
   });
 };
 
-
 // 下载文件
 export const api_downloadFile = (fileId: string, localsign: string) => {
-  console.log('本地签名', localsign);
+  console.log("本地签名", localsign);
   return http({
-    url: 'https://www.das-ai.com/open/api/v2/agent/file/download',
+    url: "https://www.das-ai.com/open/api/v2/agent/file/download",
     method: "POST",
     headers: {
-      Accept: 'application/octet-stream',
-      appKey: 'hengnaozYW3SnQJNy5hIzs2pp8w',
+      Accept: "application/octet-stream",
+      appKey: "hengnaozYW3SnQJNy5hIzs2pp8w",
       sign: localsign,
     },
     body: {
@@ -404,3 +400,18 @@ export const api_downloadFile = (fileId: string, localsign: string) => {
   });
 };
 
+// 根据名称获取经纬度
+export const api_getLocationByName = (addressName: string) => {
+  return http({
+    method: "GET",
+    url: `usersearch/map?address=${addressName}`,
+  });
+};
+
+// 根据经纬度获取地址
+export const api_getAddressByLocation = (obj) => {
+  return http({
+    method: "GET",
+    url: `usersearch/remap?location=${obj.latitude},${obj.longitude}`,
+  });
+};
