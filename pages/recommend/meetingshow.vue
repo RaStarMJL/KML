@@ -11,7 +11,8 @@
           type="fire-filled"
           color="red"
           size="24"
-          class="title-icon" />
+          class="title-icon"
+        />
         <text>热度 {{ meetingInfo.meetingHeat }}</text>
       </view>
     </view>
@@ -24,7 +25,8 @@
         <image
           :src="meetingInfo.meetingImageUrl"
           mode="aspectFill"
-          class="cover-image" />
+          class="cover-image"
+        />
       </view>
       <view class="basic-info">
         <view class="info-row">
@@ -93,16 +95,19 @@
         <view
           class="attendee-item"
           v-for="(uid, index) in meetingInfo.attendeesUid.slice(0, 4)"
-          :key="index">
+          :key="index"
+        >
           <image
             class="attendee-avatar"
             :src="attendeesAvatar[index]"
-            mode="aspectFill" />
+            mode="aspectFill"
+          />
           <text class="attendee-name">用户{{ uid }}</text>
         </view>
         <view
           class="attendee-item add-more"
-          v-if="meetingInfo.attendeesUid.length > 4">
+          v-if="meetingInfo.attendeesUid.length > 4"
+        >
           <view class="more-circle">
             <text>+{{ meetingInfo.attendeesUid.length - 4 }}</text>
           </view>
@@ -143,11 +148,59 @@
         <text>暂无附件</text>
       </view>
       <view v-else class="attachments-list">
-        <view v-for="(file, index) in attachments" :key="index" class="attachment-item">
+        <view
+          v-for="(file, index) in attachments"
+          :key="index"
+          class="attachment-item"
+        >
           <view class="file-icon" :class="getFileClass(file.attachmentType)">
-            <image :src="getFileIconSrc(file.attachmentType)" mode="aspectFit" class="icon-image" @click="downloadFile(file.fileId)"></image>
+            <image
+              :src="getFileIconSrc(file.attachmentType)"
+              mode="aspectFit"
+              :class="[
+                'icon-image',
+                { disabled: downloadStatus[file.fileId] === 'downloading' },
+              ]"
+              @click="
+                downloadFile(
+                  file.fileId,
+                  file.attachmentType,
+                  file.attachmentName,
+                  file.attachmentUrl
+                )
+              "
+            ></image>
+            <!-- 下载状态指示器 -->
+            <view
+              v-if="downloadStatus[file.fileId] === 'downloading'"
+              class="download-progress"
+            >
+              <view class="progress-bar">
+                <view
+                  class="progress-inner"
+                  :style="{
+                    width: downloadProgress[file.fileId] + '%',
+                  }"
+                ></view>
+              </view>
+              <text class="progress-text"
+                >{{ downloadProgress[file.fileId] }}%</text
+              >
+            </view>
+            <view
+              v-else-if="downloadStatus[file.fileId] === 'completed'"
+              class="download-completed"
+            >
+              <uni-icons
+                type="checkmarkempty"
+                color="#4CD964"
+                size="16"
+              ></uni-icons>
+            </view>
           </view>
-          <text class="file-name">{{ file.attachmentName || getFileName(file.fileId) }}</text>
+          <text class="file-name">{{
+            file.attachmentName || getFileName(file.fileId)
+          }}</text>
         </view>
       </view>
     </view>
@@ -160,7 +213,6 @@
       <button class="btn nav-btn" @click="openNavigation">地图导航</button>
     </view>
   </view>
-
 </template>
 
 <script>
@@ -179,10 +231,8 @@ import { api_getMeetingDetail } from "../../src/services/api.ts";
 import { api_downloadFile } from "../../src/services/api.ts";
 import { get_localsign } from "../../src/services/api.ts";
 
-
 export default {
   onLoad: function (option) {
-
     // 获取meetingId
     this.meetingInfo.meetingId = option.meetingId;
     console.log("meetingId:", this.meetingInfo.meetingId);
@@ -255,7 +305,9 @@ export default {
       attendeesAvatar: [],
       attachments: [],
       localsign: "",
-      
+      // 下载状态管理
+      downloadStatus: {}, // 存储每个文件的下载状态：'idle'(未下载), 'downloading'(下载中), 'completed'(已下载)
+      downloadProgress: {}, // 存储每个文件的下载进度
     };
   },
   methods: {
@@ -266,7 +318,7 @@ export default {
         meetingId,
         status,
       });
-      console.log("修改成功:", res);
+      console.log("修改会议状态成功:", res);
     },
     startMeeting() {
       const roomMode = this.mode;
@@ -351,7 +403,7 @@ export default {
             if (confirm) {
               this.startMeeting();
               // 修改会议状态
-              this.handleUpdateMeetingStatus("Ongoing");
+              const res = this.handleUpdateMeetingStatus("Ongoing");
             } else if (cancel) {
               return;
             }
@@ -442,31 +494,8 @@ export default {
       });
     },
     openNavigation() {
-      // 选择会议地点
-      /* uni.chooseLocation({
-        fail: function (res) {
-          console.log("选择位置失败：" + res.errMsg);
-        },
-        success: function (res) {
-          console.log("选择位置成功：");
-        },
-      }); */
-      // 调用地图API进行导航
-      // uni.openLocation({
-      //   // latitude: Number(this.meetingInfo.latitude),
-      //   // longitude: Number(this.meetingInfo.longitude),
-      //   // name: this.meetingInfo.meetingLocation,
-      //   // address: this.meetingInfo.meetingLocation,
-      //   latitude: 39.9085,
-      //   longitude: 116.39747,
-      //   name: "天安门",
-      //   address: "北京市东城区东长安街",
-      //   success: (success) => {
-      //     console.log("导航成功", success);
-      //   },
-      // });
       uni.navigateTo({
-        url: "/pages/recommend/navigation/navigation",
+        url: `/pages/recommend/navigation/navigation?destination=${this.meetingInfo.meetingLocation}`,
       });
     },
     formatDate(dateStr) {
@@ -487,7 +516,6 @@ export default {
       return `${hours}小时`;
     },
 
-
     //获取会议附件
     async getMeetingAttachments() {
       try {
@@ -496,196 +524,211 @@ export default {
           this.attachments = res.data;
         }
       } catch (error) {
-        console.error('获取会议附件失败:', error);
+        console.error("获取会议附件失败:", error);
         uni.showToast({
-          title: '获取附件失败',
-          icon: 'none'
+          title: "获取附件失败",
+          icon: "none",
         });
       }
     },
 
-     
     // 下载文件
-    async downloadFile(fileId) {
-      try {
-        // 1. 获取本地签名
-        const signRes = await get_localsign({
-          key: 'hengnaozYW3SnQJNy5hIzs2pp8w',
-          secret: 'ytr013e66pdjdf5fns5j0ca8u2c5hu41'
-        });
-        
-        if (!signRes || !signRes.data) {
-          uni.showToast({
-            title: '获取签名失败',
-            icon: 'none'
-          });
-          return;
-        }
+    async downloadFile(fileId, attachmentType, attachmentName, attachmentUrl) {
+      console.log("点击了文件下载");
 
-        const localsign = signRes.data;
-        console.log('获取到的本地签名:', localsign);
-
-        // 2. 显示下载中提示
-        uni.showLoading({
-          title: '文件下载中...'
-        });
-
-        // 3. 获取文件流数据
-        const fileData = await uni.request({
-          url: 'http://43.136.59.8:80/fileDownload?fileId=' + fileId, 
-          method: 'GET',
-        });
-
-        console.log('获取到的文件数据:', fileData);
-
-        if (fileData.statusCode === 200 && fileData.data) {
-          // 从fileId中提取文件名
-          const fileNameMatch = fileId.match(/file:(.*?)</);
-          const fileName = fileNameMatch ? fileNameMatch[1] : `file_${Date.now()}.pdf`;
-          
-          // 使用plus.io API保存文件
-          plus.io.requestFileSystem(plus.io.PRIVATE_WWW, (fs) => {
-            // 获取下载目录
-            plus.io.resolveLocalFileSystemURL('_downloads', (entry) => {
-              // 创建文件
-              entry.getFile(fileName, { create: true }, (fileEntry) => {
-                // 创建文件写入器
-                fileEntry.createWriter((writer) => {
-                  // 写入数据
-                  writer.write(fileData.data);
-                  writer.onwrite = () => {
-                    console.log('文件写入成功');
-                    uni.hideLoading();
-                    uni.showToast({
-                      title: '文件已保存',
-                      icon: 'success'
-                    });
-
-                    // 尝试打开文件
-                    plus.io.resolveLocalFileSystemURL(fileEntry.fullPath, (entry) => {
-                      plus.io.openFile(entry, (error) => {
-                        if (error) {
-                          console.error('打开文件失败:', error);
-                          uni.showToast({
-                            title: '文件已保存，但无法打开',
-                            icon: 'none'
-                          });
-                        } else {
-                          console.log('文件打开成功');
-                        }
-                      });
-                    });
-                  };
-                  writer.onerror = (error) => {
-                    uni.hideLoading();
-                    console.error('写入文件失败:', error);
-                    uni.showToast({
-                      title: '写入文件失败',
-                      icon: 'none'
-                    });
-                  };
-                }, (error) => {
-                  uni.hideLoading();
-                  console.error('创建写入器失败:', error);
-                  uni.showToast({
-                    title: '创建文件失败',
-                    icon: 'none'
-                  });
-                });
-              }, (error) => {
-                uni.hideLoading();
-                console.error('创建文件失败:', error);
-                uni.showToast({
-                  title: '创建文件失败',
-                  icon: 'none'
-                });
-              });
-            }, (error) => {
-              uni.hideLoading();
-              console.error('获取下载目录失败:', error);
-              uni.showToast({
-                title: '获取下载目录失败',
-                icon: 'none'
-              });
-            });
-          }, (error) => {
-            uni.hideLoading();
-            console.error('请求文件系统失败:', error);
-            uni.showToast({
-              title: '文件系统错误',
-              icon: 'none'
-            });
-          });
-        } else {
-          uni.hideLoading();
-          uni.showToast({
-            title: '获取文件数据失败',
-            icon: 'none'
-          });
-        }
-      } catch (error) {
-        uni.hideLoading();
-        console.error('下载文件错误:', error);
+      // 如果文件正在下载中，则不允许再次点击
+      if (this.downloadStatus[fileId] === "downloading") {
         uni.showToast({
-          title: '下载过程中出现错误',
-          icon: 'none'
+          title: "文件正在下载中",
+          icon: "none",
+        });
+        return;
+      }
+
+      // 如果文件已下载完成，直接打开
+      if (
+        this.downloadStatus[fileId] === "completed" &&
+        this.downloadedFiles &&
+        this.downloadedFiles[fileId]
+      ) {
+        this.openDownloadedFile(this.downloadedFiles[fileId], attachmentType);
+        return;
+      }
+
+      // 设置下载状态为下载中
+      this.$set(this.downloadStatus, fileId, "downloading");
+      this.$set(this.downloadProgress, fileId, 0);
+
+      const downloadTask = uni.downloadFile({
+        url: attachmentUrl,
+        success: (res) => {
+          console.log(res);
+          if (res.statusCode === 200) {
+            // 获取文件扩展名
+            const fileName = attachmentName;
+            console.log(fileName);
+
+            // 设置下载状态为已完成
+            this.$set(this.downloadStatus, fileId, "completed");
+            this.$set(this.downloadProgress, fileId, 100);
+
+            // 保存已下载文件的路径
+            if (!this.downloadedFiles) this.downloadedFiles = {};
+            this.downloadedFiles[fileId] = res.tempFilePath;
+
+            if (uni.getSystemInfoSync().platform === "android") {
+              uni.saveFile({
+                tempFilePath: res.tempFilePath,
+                success: (savedRes) => {
+                  // 更新保存的文件路径
+                  this.downloadedFiles[fileId] = savedRes.savedFilePath;
+
+                  uni.openDocument({
+                    filePath: savedRes.savedFilePath,
+                    showMenu: true,
+                    fileType: attachmentType.replace(".", ""), // 自动识别类型
+                  });
+                },
+              });
+            } else {
+              uni.openDocument({
+                filePath: res.tempFilePath,
+                showMenu: true,
+              });
+            }
+          }
+        },
+        fail: (err) => {
+          console.error("下载失败:", err);
+          // 重置下载状态
+          this.$set(this.downloadStatus, fileId, "idle");
+          uni.showToast({
+            title: "下载失败",
+            icon: "none",
+          });
+        },
+      });
+
+      // 监听下载进度
+      downloadTask.onProgressUpdate((res) => {
+        // 更新下载进度
+        this.$set(this.downloadProgress, fileId, res.progress);
+
+        console.log("下载进度" + res.progress);
+        console.log("已经下载的数据长度" + res.totalBytesWritten);
+        console.log("预期需要下载的数据总长度" + res.totalBytesExpectedToWrite);
+      });
+    },
+
+    // 打开已下载的文件
+    openDownloadedFile(filePath, attachmentType) {
+      if (uni.getSystemInfoSync().platform === "android") {
+        uni.openDocument({
+          filePath: filePath,
+          showMenu: true,
+          fileType: attachmentType.replace(".", ""),
+        });
+      } else {
+        uni.openDocument({
+          filePath: filePath,
+          showMenu: true,
         });
       }
+    },
+    // 保存文件到设备（Android专用）
+    saveFileToDevice(tempPath) {
+      const fileName = "document_" + Date.now() + ".docx";
+
+      // 获取下载目录
+      plus.io.requestFileSystem(plus.io.PRIVATE_DOC, (fs) => {
+        fs.root.getDirectory("Download", { create: true }, (dirEntry) => {
+          dirEntry.getFile(fileName, { create: true }, (fileEntry) => {
+            // 文件复制操作
+            plus.io.resolveLocalFileSystemURL(tempPath, (tmpFile) => {
+              tmpFile.copyTo(
+                dirEntry,
+                fileName,
+                (newFile) => {
+                  uni.showToast({
+                    title: "文件已保存至下载目录",
+                    icon: "success",
+                  });
+                },
+                (e) => {
+                  console.error("保存失败:", e);
+                  uni.showToast({ title: "文件保存失败", icon: "none" });
+                }
+              );
+            });
+          });
+        });
+      });
+    },
+
+    // 打开文件（全平台）
+    openFile(filePath) {
+      // APP/H5打开方式
+      plus.runtime.openFile(filePath, {
+        error: (e) => {
+          console.error("打开失败:", e);
+          uni.showToast({ title: "没有找到合适的应用打开", icon: "none" });
+        },
+      });
     },
 
     // 获取文件MIME类型
     getMimeType(fileType) {
-      switch(fileType.toLowerCase()) {
-        case 'pdf':
-          return 'application/pdf';
-        case 'doc':
-        case 'docx':
-          return 'application/msword';
-        case 'ppt':
-        case 'pptx':
-          return 'application/vnd.ms-powerpoint';
+      switch (fileType.toLowerCase()) {
+        case "pdf":
+          return "application/pdf";
+        case "doc":
+        case "docx":
+          return "application/msword";
+        case "ppt":
+        case "pptx":
+          return "application/vnd.ms-powerpoint";
         default:
-          return 'application/octet-stream';
+          return "application/octet-stream";
       }
     },
 
     // 获取文件图标路径
     getFileIconSrc(type) {
-      switch(type?.toLowerCase()) {
-        case 'pdf':
-          return '/src/static/images/pdf.png';
-        case 'doc':
-        case 'docx':
-          return '/src/static/images/word.png';
-        case 'ppt':
-        case 'pptx':
-          return '/src/static/images/ppt.png';
+      switch (type?.toLowerCase()) {
+        case "pdf":
+          return "/src/static/images/pdf.png";
+        case "doc":
+        case "docx":
+          return "/src/static/images/word.png";
+        case "ppt":
+        case "pptx":
+          return "/src/static/images/ppt.png";
         default:
-          return '/src/static/images/file.png';
+          return "/src/static/images/file.png";
       }
     },
 
     // 获取文件样式类
     getFileClass(type) {
-      switch(type?.toLowerCase()) {
-        case 'pdf':
-          return 'pdf-file';
-        case 'doc':
-        case 'docx':
-          return 'word-file';
-        case 'ppt':
-        case 'pptx':
-          return 'ppt-file';
+      switch (type?.toLowerCase()) {
+        case "pdf":
+          return "pdf-file";
+        case "doc":
+        case "docx":
+          return "word-file";
+        case "ppt":
+        case "pptx":
+          return "ppt-file";
         default:
-          return 'default-file';
+          return "default-file";
       }
     },
 
     // 从fileId中提取文件名
     getFileName(fileId) {
-      if (!fileId) return '未知文件';
+      if (!fileId) return "未知文件";
       const match = fileId.match(/file:(.*?)</);
-      return match ? match[1] : '未知文件';
+      return match ? match[1] : "未知文件";
     },
   },
   computed: {
@@ -1030,23 +1073,23 @@ export default {
   justify-content: center;
   margin-bottom: 12rpx;
   transition: transform 0.3s ease;
-  
+
   &.pdf-file {
-    background: linear-gradient(135deg, #FF5252, #FF1744);
+    background: linear-gradient(135deg, #ff5252, #ff1744);
   }
-  
+
   &.word-file {
-    background: linear-gradient(135deg, #2B579A, #4285F4);
+    background: linear-gradient(135deg, #2b579a, #4285f4);
   }
-  
+
   &.ppt-file {
-    background: linear-gradient(135deg, #C43E1C, #FF8F00);
+    background: linear-gradient(135deg, #c43e1c, #ff8f00);
   }
-  
+
   &.default-file {
-    background: linear-gradient(135deg, #757575, #9E9E9E);
+    background: linear-gradient(135deg, #757575, #9e9e9e);
   }
-  
+
   &:hover {
     transform: scale(1.05);
   }
@@ -1063,5 +1106,62 @@ export default {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   word-break: break-all;
+}
+.file-icon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.icon-image {
+  width: 40px;
+  height: 40px;
+}
+
+.icon-image.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.download-progress {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background-color: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.progress-inner {
+  height: 100%;
+  background-color: #007aff;
+  border-radius: 2px;
+  transition: width 0.2s;
+}
+
+.progress-text {
+  font-size: 10px;
+  color: #007aff;
+}
+
+.download-completed {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
 }
 </style>

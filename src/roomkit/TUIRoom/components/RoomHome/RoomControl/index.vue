@@ -253,7 +253,7 @@ import TUIMessage from "../../common/base/Message/index";
 import tabbar from "../../../../../../pages/components/tabbar/tabbar.vue";
 import { useUserInfoStore } from "/src/stores/modules/userInfo";
 import meetingSetting from "../../../../../../pages/mine/meetingSetting.vue";
-import historyMeeting from "../../../../../../pages/components/historyMeeting/historyMeeting.vue";
+import historyMeeting from "../../../../../../pages/components/hostedMeeting/hostedMeeting.vue";
 import { api_getUserHostedMeetings } from "../../../../../services/api";
 const { t } = useRoomControl();
 

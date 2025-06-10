@@ -20,7 +20,7 @@
       src="/src/static/images/agent.gif"
       style="width: 80px; height: 80px" />
   </view>
-  <uni-popup ref="popup" type="bottom">
+  <uni-popup :is-mask-click="false" ref="popup" type="bottom">
     <view class="popup-container">
       <!-- 头部 -->
       <view class="header">
@@ -60,7 +60,7 @@
         <view class="content" v-if="showContent">
           <view class="text-header">
             <text class="greeting"
-              >{{ userName }} 晚上好，\n邀请您体验“AI小助手”</text
+              >{{ userName }} 您好，\n欢迎使用“会议助手智能体”</text
             >
             <!-- <text class="sub-title">每小时{{ limitCount }}次</text> -->
           </view>
@@ -69,9 +69,9 @@
             <view
               class="func-item"
               v-for="(item, index) in funcItems"
-              @tap="sendQuickMessage(item)"
-              :key="index">
-              {{ item }}
+              @tap="sendQuickMessage(item.content)"
+              :key="item.id">
+              {{ item.content }}
             </view>
           </view>
         </view>
@@ -209,6 +209,7 @@ import { useUserInfoStore } from "@/src/stores/modules/userInfo";
 import { getPathPlanning, aimanage } from "../../src/services/api";
 import { throttle } from "/src/roomkit/TUIRoom/utils/utils.ts";
 import { baseURL } from "../../src/utils/http";
+import { baiduTranslate } from "../../src/assets/config/config";
 // #ifdef APP-PLUS
 import * as SpeechRealTimeTrans from "../../uni_modules/bsf-baidu-realtime-speech-trans";
 // #endif
@@ -260,10 +261,22 @@ export default {
       edge: 10, //自动黏贴边界后的距离gap空隙,单位px
       scrollTop: 0, // 滚动条位置
       funcItems: [
-        "会上刚刚说了什么？",
-        "总结会议内容",
-        "AI搜索：深度了解知识点",
-        "阅读文件：快速提取摘要",
+        {
+          id: 1,
+          content: "快速创建一个会议",
+        },
+        {
+          id: 2,
+          content: "快速开始会议",
+        },
+        {
+          id: 3,
+          content: "快速加入会议",
+        },
+        {
+          id: 4,
+          content: "参会提醒",
+        },
       ],
       aiAvatar: "/src/static/images/agent.png", // AI 头像
       loading: false, // 加载状态
@@ -450,13 +463,79 @@ export default {
     }, 1000),
     // 发送快速问答
     async sendQuickMessage(question) {
-      console.log("发送快速问答:", question);
-      this.searchIpt = question;
-      this.sendMessage(question);
+      // 创建用户消息并添加到列表
+      const userMessage = {
+        type: "user",
+        content: question,
+        time: new Date(),
+      };
+      this.messages = [...this.messages, userMessage];
+      this.isDialoging = true;
+      switch (question) {
+        case "快速创建一个会议": {
+          const content =
+            "快速创建会议需要包含以下信息：\n 1.会议名称：xxx\n 2.会议主题：xxx\n 3.会议时间：xxxx年xx月xx日xx时xx分\n 4.会议地点：xxx\n 5.会议内容：xxx\n 6.会议人数：xxx\n 7.会议备注：xxx\n 请按照以上格式填写信息，我会帮您快速创建会议。";
+          // 创建AI回复消息对象
+          const aiMessage = {
+            type: "ai",
+            loading: false,
+            content: content,
+            liked: false,
+            disliked: false,
+            time: new Date(),
+          };
+          this.messages = [...this.messages, aiMessage];
+          break;
+        }
+        case "快速开始会议": {
+          const content = "快速开始会议需要包含以下信息\n 会议名称";
+          // 创建AI回复消息对象
+          const aiMessage = {
+            type: "ai",
+            loading: false,
+            content: content,
+            liked: false,
+            disliked: false,
+            time: new Date(),
+          };
+          this.messages = [...this.messages, aiMessage];
+          break;
+        }
+        case "快速加入会议": {
+          const content = "快速加入会议需要包含以下信息\n 会议名称";
+          // 创建AI回复消息对象
+          const aiMessage = {
+            type: "ai",
+            loading: false,
+            content: content,
+            liked: false,
+            disliked: false,
+            time: new Date(),
+          };
+          this.messages = [...this.messages, aiMessage];
+          break;
+        }
+        case "参会提醒": {
+          const content = "参会提醒需要包含以下信息\n 会议名称";
+          // 创建AI回复消息对象
+          const aiMessage = {
+            type: "ai",
+            loading: false,
+            content: content,
+            liked: false,
+            disliked: false,
+            time: new Date(),
+          };
+          this.messages = [...this.messages, aiMessage];
+          break;
+        }
+      }
     },
     // 发送消息
     async sendMessage(value) {
       console.log("发送消息:", value);
+      this.dialogueMode = "text";
+      this.placeholder = "有什么想了解的吗？";
       if (!this.searchIpt.trim()) return;
 
       // 创建用户消息并添加到列表
@@ -734,8 +813,8 @@ export default {
         await SpeechRealTimeTrans.requestRecordingPermission();
         SpeechRealTimeTrans.start({
           url: "wss://aip.baidubce.com/ws/realtime_speech_trans", // WebSocket服务地址
-          appId: "115883236", // 百度应用的AppID
-          appKey: "sqL04acqrwEWEwgGCPVIdM3e", // 百度应用的AppKey
+          appId: baiduTranslate.appid, // 百度应用的AppID
+          appKey: baiduTranslate.appkey, // 百度应用的AppKey
           samplingRate: 16000, // 音频采样率
           fromLan: "zh", // 源语言
           toLan: "en", // 目标语言

@@ -76,6 +76,14 @@ const myInfo = () => {
 
 //小功能页面跳转
 const To = (page) => {
+  if (page === "favorite") {
+    uni.showToast({
+      duration: 2000,
+      icon: "none",
+      title: "该功能正在开发中，请敬请期待~",
+    });
+    return;
+  }
   uni.navigateTo({
     url: "/pages/mine/" + page,
   });
@@ -145,7 +153,8 @@ const calculateScreenHeight = () => {};
   <kml-agent :isDock="true"> </kml-agent>
   <view
     class="mine-container"
-    :style="{ paddingTop: safeAreaInsets.top + 'px' }">
+    :style="{ paddingTop: safeAreaInsets.top + 'px' }"
+  >
     <!-- 顶部用户信息 -->
     <view class="user-header">
       <!-- 添加一个包装器来实现相对定位 -->
@@ -154,7 +163,8 @@ const calculateScreenHeight = () => {};
           <image
             class="user-avatar"
             :src="userInfo.avatarUrl"
-            mode="aspectFill"></image>
+            mode="aspectFill"
+          ></image>
           <view class="user-details">
             <text class="username">{{ userInfo.username }}</text>
             <text class="user-id" v-if="userInfoStore.isLoggedIn"
@@ -171,19 +181,22 @@ const calculateScreenHeight = () => {};
               :is-dot="true"
               absolute="rightTop"
               size="small"
-              :text="value.toString()">
+              :text="value.toString()"
+            >
               <uni-icons
                 type="notification"
                 size="24"
                 color="#fff"
-                @click="message"></uni-icons>
+                @click="message"
+              ></uni-icons>
             </uni-badge>
             <uni-icons
               v-else
               type="notification"
               size="24"
               color="#fff"
-              @click="message"></uni-icons>
+              @click="message"
+            ></uni-icons>
           </view>
           <view class="action-item" @click="myInfo">
             <uni-icons type="gear" size="24" color="#fff"></uni-icons>
@@ -200,7 +213,7 @@ const calculateScreenHeight = () => {};
     <!-- 只有登录后才显示会员卡片和功能区域 -->
     <template v-if="userInfoStore.isLoggedIn">
       <!-- 会员卡片 -->
-      <view class="vip-card">
+      <!-- <view class="vip-card">
         <view class="vip-info">
           <view class="vip-title">
             <uni-icons type="star-filled" size="24" color="#fff"></uni-icons>
@@ -209,7 +222,7 @@ const calculateScreenHeight = () => {};
           <text class="vip-desc">升级会员享受更多特权</text>
         </view>
         <view class="upgrade-btn" @click="upgradeVip">立即升级</view>
-      </view>
+      </view> -->
 
       <!-- 功能区域 -->
       <view class="feature-section">
@@ -250,19 +263,29 @@ const calculateScreenHeight = () => {};
                 :is-dot="true"
                 absolute="rightTop"
                 size="small"
-                :text="value.toString()">
+                :text="value.toString()"
+              >
                 <uni-icons
                   type="notification"
                   size="28"
-                  color="#4075FF"></uni-icons>
+                  color="#4075FF"
+                ></uni-icons>
               </uni-badge>
               <uni-icons
                 v-else
                 type="notification"
                 size="28"
-                color="#4075FF"></uni-icons>
+                color="#4075FF"
+              ></uni-icons>
             </view>
             <text class="feature-text">参会提醒</text>
+          </view>
+          <!-- 历史 -->
+          <view class="feature-item" @click="To('history')">
+            <view class="feature-icon-wrapper">
+              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
+            </view>
+            <text class="feature-text">历史</text>
           </view>
 
           <!-- 收藏 -->
@@ -271,14 +294,6 @@ const calculateScreenHeight = () => {};
               <uni-icons type="star" size="28" color="#4075FF"></uni-icons>
             </view>
             <text class="feature-text">收藏</text>
-          </view>
-
-          <!-- 历史 -->
-          <view class="feature-item" @click="To('history')">
-            <view class="feature-icon-wrapper">
-              <uni-icons type="calendar" size="28" color="#4075FF"></uni-icons>
-            </view>
-            <text class="feature-text">历史</text>
           </view>
         </view>
       </view>
@@ -319,7 +334,8 @@ const calculateScreenHeight = () => {};
       <button
         class="logout-btn"
         :class="{ 'login-btn': !userInfoStore.isLoggedIn }"
-        @click="handleLogout">
+        @click="handleLogout"
+      >
         {{ userInfoStore.isLoggedIn ? "退出登录" : "立即登录" }}
       </button>
     </view>

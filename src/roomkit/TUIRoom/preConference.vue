@@ -31,13 +31,10 @@
           >{{ userInfoStore.isLoggedIn ? userInfo.userName : "未登录" }}</span
         >
       </div>
-      <div class="message-icon">
-        <uni-icons custom-prefix="iconfont" type="email" size="30"></uni-icons>
-      </div>
     </div>
     <room-control
       ref="roomControlRef"
-      :user-name="props.userInfo? props.userInfo.userName : ''"
+      :user-name="props.userInfo ? props.userInfo.userName : ''"
       @create-room="handleCreateRoom"
       @enter-room="handleEnterRoom">
     </room-control>

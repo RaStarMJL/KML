@@ -8,35 +8,39 @@
       <room-info />
       <end-control
         @on-destroy-room="onDestroyRoom"
-        @on-exit-room="onExitRoom"
-      />
+        @on-exit-room="onExitRoom" />
     </div>
     <switch-theme :visible="false"></switch-theme>
   </div>
 </template>
 <script setup lang="ts">
-import { inject } from 'vue';
-import EndControl from '../../RoomFooter/EndControl/index.vue';
-import SwitchCamera from './SwitchCamera.vue';
-import SwitchMirror from './SwitchMirror.vue';
-import RoomInfo from '../RoomInfo/index.vue';
-import TUIRoomAegis from '../../../utils/aegis';
-import SwitchTheme from '../../common/SwitchTheme.vue';
+import { inject, ref } from "vue";
+import EndControl from "../../RoomFooter/EndControl/index.vue";
+import SwitchCamera from "./SwitchCamera.vue";
+import SwitchMirror from "./SwitchMirror.vue";
+import RoomInfo from "../RoomInfo/index.vue";
+import TUIRoomAegis from "../../../utils/aegis";
+import SwitchTheme from "../../common/SwitchTheme.vue";
 
-const emit = defineEmits(['log-out', 'on-destroy-room', 'on-exit-room']);
+function handleEndBtnClick() {
+  endControlIndex.value.handleEndBtnClick();
+}
+const emit = defineEmits(["log-out", "on-destroy-room", "on-exit-room"]);
 
-const showRoomTool = inject('showRoomTool');
+const showRoomTool = inject("showRoomTool");
 
 const onDestroyRoom = (info: { code: number; message: string }) => {
-  emit('on-destroy-room', info);
-  TUIRoomAegis.reportEvent({ name: 'destroyRoom', ext1: 'destroyRoom-success' });
+  emit("on-destroy-room", info);
+  TUIRoomAegis.reportEvent({
+    name: "destroyRoom",
+    ext1: "destroyRoom-success",
+  });
 };
 
 const onExitRoom = (info: { code: number; message: string }) => {
-  emit('on-exit-room', info);
-  TUIRoomAegis.reportEvent({ name: 'exitRoom', ext1: 'exitRoom-success' });
+  emit("on-exit-room", info);
+  TUIRoomAegis.reportEvent({ name: "exitRoom", ext1: "exitRoom-success" });
 };
-
 </script>
 <style lang="scss" scoped>
 .header {
@@ -45,7 +49,7 @@ const onExitRoom = (info: { code: number; message: string }) => {
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #FBFCFE;
+  background-color: #fbfcfe;
   box-shadow: 0px 1px 0px #e3eaf7;
   padding: 0 12px;
   display: flex;
@@ -55,14 +59,14 @@ const onExitRoom = (info: { code: number; message: string }) => {
   top: -70px !important;
 }
 
-.header-container{
+.header-container {
   display: flex;
   flex: 1;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 }
-.icon-box{
+.icon-box {
   width: 50px;
   display: flex;
   flex-direction: row;

@@ -212,7 +212,7 @@ export default {
 
         uni.navigateTo({
           url:
-            "/pages/sign/sign?role=attendee&meetingId=" +
+            "/src/roomkit/pages/sign/sign?role=attendee&meetingId=" +
             message.meetingUid +
             "&meetingname=" +
             res.data.meetingName,

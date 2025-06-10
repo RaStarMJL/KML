@@ -9,8 +9,12 @@ import router from "../../router/index.ts";
 import { useI18n } from "../TUIRoom/locales/index.ts";
 import { conference, RoomEvent } from "../TUIRoom/index.ts";
 import { ref, provide } from "vue";
-
+import { onBackPress } from "@dcloudio/uni-app";
+import useEndControl from "/src/roomkit/TUIRoom/components/RoomFooter/EndControl/useEndControlHooks.ts";
+import { useRoomBackStore } from "../../stores/modules/roomBack.ts";
+const { setRoomBack } = useRoomBackStore();
 const { t } = useI18n();
+const { stopMeeting } = useEndControl();
 const roomInfo = uni.getStorageSync("tuiRoom-roomInfo");
 const userInfo = uni.getStorageSync("tuiRoom-userInfo");
 const route = uni.getStorageSync("routeInfo");
@@ -25,6 +29,15 @@ if (!roomId) {
 } else if (!roomInfo) {
   router.push({ path: "home", query: { roomId } });
 }
+
+// 监听物理返回按键事件
+onBackPress((options) => {
+  console.log("from:" + options.from);
+  if (options.from === "backbutton") {
+    setRoomBack(true);
+    return true; // 返回 true 表示阻止返回
+  }
+});
 
 onMounted(async () => {
   const { action, roomMode, isSeatEnabled, roomParam, hasCreated } = JSON.parse(

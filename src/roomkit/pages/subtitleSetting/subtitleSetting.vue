@@ -39,6 +39,10 @@
           </picker>
         </div>
         <div class="setting-items">
+          <text>只显示源语言</text>
+          <switch :checked="tranSettingStore.onlySrc" @change="changeOnlySrc" />
+        </div>
+        <div class="setting-items">
           <text>字幕显示双语</text>
           <switch />
         </div>
@@ -137,6 +141,9 @@ export default {
         icon: "none",
         duration: 1000,
       });
+    },
+    changeOnlySrc(e) {
+      this.tranSettingStore.setOnlySrc(e.detail.value);
     },
   },
 };
